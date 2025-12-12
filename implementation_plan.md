@@ -2,7 +2,9 @@ Implementation Plan: Neuro-Symbolic Safety Layer (Thesis MVP)
 
 Objective: Build a standalone Neuro-Symbolic "Critic" pipeline that intercepts user input, maps it to a Clinical Knowledge Graph (MMS/ZDPCS), and enforces safety constraints before generation.
 
-Tech Stack: * Core: Python 3.10+, OpenAI/Groq (via existing Agent class), Pydantic.
+Tech Stack:
+
+Core: Python 3.10+, OpenAI/Groq (via existing Agent class), Pydantic.
 
 Graph Engine: NetworkX (Chosen for Thesis MVP due to artifact portability and speed).
 
@@ -58,25 +60,35 @@ File: safety/graph_definitions.py
 
 Task: Create a function build_clinical_graph() that returns a directed graph (nx.DiGraph) representing the clinical ontology.
 
-Requirements:
+Cursor Instructions & Ground Truth:
 
-Maladaptive Nodes (Risks): Define nodes based on the ZDPCS (Moser et al.).
+Adaptive Nodes (Goals) - Source: MMS Manual:
 
-Examples: AVOIDANCE (High Risk), PASSIVITY (Medium Risk), EXTREME_VIOLENCE (Critical Risk).
+Extract: Behavioral Mastery (Action), Social Mastery (Help), Environmental Mastery (Magic/Tools), Emotional Mastery (Self-soothing).
 
-Attributes: Each node must have a type="maladaptive", severity, and a clinical_guideline string explaining why it is harmful.
+Maladaptive Nodes (Risks) - Source: Fischmann et al. (2021) / ZDPCS:
 
-Adaptive Nodes (Goals): Define nodes based on the MMS (Germain et al.).
+Instruction for Cursor: "Look for the concepts of 'Safety Principle' (Sicherheitsprinzip) and 'Involvement Principle' in the Fischmann paper."
 
-Examples: BEHAVIORAL_MASTERY, SOCIAL_MASTERY, ENVIRONMENTAL_MASTERY, EMOTIONAL_MASTERY.
+Node 1: ZDPCS_SAFETY_PRINCIPLE (Avoidance): Define this as "The dreamer avoids interaction to regulate anxiety. Includes: waking up, freezing, hiding, looking away."
 
-Attributes: Each node must have a type="adaptive" and a description.
+Node 2: ZDPCS_INTERRUPT (Escape): Define as "Breaking the dream narrative completely (e.g., forced awakening) to stop the affect."
 
-Correction Edges: Define directed edges from Risks to Goals.
+Node 3: ZDPCS_REGRESSIVE_AGGRESSION (Violence): (Derived from general ZDPCS logic of low structural level) - "Uncontrolled, chaotic violence that destroys the scene rather than resolving it."
 
-Logic: If the user exhibits AVOIDANCE, the edge points to the solution BEHAVIORAL_MASTERY.
+Correction Logic (Edges):
 
-Edge Attribute: relation="correction_strategy".
+Connect ZDPCS_SAFETY_PRINCIPLE -> BEHAVIORAL_MASTERY (Action).
+
+Connect ZDPCS_INTERRUPT -> EMOTIONAL_MASTERY (Stay calm and stay asleep).
+
+Requirements for the Code:
+
+Maladaptive Nodes: ZDPCS_SAFETY_PRINCIPLE, ZDPCS_INTERRUPT, ZDPCS_REGRESSIVE_AGGRESSION.
+
+Adaptive Nodes: BEHAVIORAL_MASTERY, SOCIAL_MASTERY, ENVIRONMENTAL_MASTERY, EMOTIONAL_MASTERY.
+
+Edges: Directed edges from Risk -> Goal with relation="correction_strategy".
 
 2.2. Block B: The Entity Linker
 
@@ -88,7 +100,7 @@ Requirements:
 
 Configuration: Initialize a specific Agent instance (using a fast model like GPT-4o-mini or Llama-3-8b).
 
-System Prompt: Write a prompt acting as a "Clinical Coder." It must list the available codes defined in Block A and instruct the LLM to output only the code (e.g., "AVOIDANCE") for a given input.
+System Prompt: Write a prompt acting as a "Clinical Coder." It must list the available codes defined in Block A and instruct the LLM to output only the code (e.g., "ZDPCS_SAFETY_PRINCIPLE") for a given input.
 
 Method: Implement classify_intent(user_text) -> str which sends the prompt and returns the cleaned Node ID.
 
@@ -162,7 +174,7 @@ Task: Create an async script to run the SafetyCritic against a list of hardcoded
 
 Test Cases:
 
-"I wake up" -> Should trigger AVOIDANCE -> Result: Unsafe.
+"I wake up" -> Should trigger ZDPCS_INTERRUPT -> Result: Unsafe.
 
 "I fight back" -> Should trigger BEHAVIORAL_MASTERY -> Result: Safe.
 
