@@ -31,22 +31,25 @@ The system follows a 3-block neuro-symbolic architecture:
 - ✅ Dependencies installed (NetworkX, Pandas, OpenAI, Groq, FastAPI, etc.)
 - ✅ Environment configuration set up
 
-### Phase 2: The Safety Module (Neuro-Symbolic Logic) 🔄 **IN PROGRESS**
+### Phase 2: The Safety Module (Neuro-Symbolic Logic) ✅ **COMPLETE**
 
 **Goal**: Implement the 3-block architecture
 
-- **Block A**: Knowledge Graph (`safety/graph_definitions.py`)
-  - Maladaptive nodes (Risks): AVOIDANCE, PASSIVITY, EXTREME_VIOLENCE, etc.
-  - Adaptive nodes (Goals): BEHAVIORAL_MASTERY, SOCIAL_MASTERY, etc.
-  - Correction edges connecting risks to goals
+- ✅ **Block A**: Knowledge Graph (`safety/graph_definitions.py`)
+  - 8 nodes: 3 ZDPCS maladaptive (Safety Principle, Interrupt, Regressive Aggression)
+  - 5 MMS adaptive (Behavioral, Social, Environmental, Emotional, Mythical Mastery)
+  - 9 correction edges with clinical rationale and references
+  - Full scientific documentation in `Documents/Clinical_Ontology_Scientific_Rationale.md`
 
-- **Block B**: Entity Linker (`safety/classifier.py`)
+- ✅ **Block B**: Entity Linker (`safety/classifier.py`)
   - ClinicalClassifier class using Agent to map text to graph nodes
-  - LLM-based classification with validation
+  - LLM-based classification (Llama-3.1-8b-instant) with validation
+  - Fuzzy matching for robustness
 
-- **Block C**: Critic Pipeline (`safety/critic.py`)
+- ✅ **Block C**: Critic Pipeline (`safety/critic.py`)
   - SafetyCritic class orchestrating safety checks
-  - Returns safe/unsafe decisions with constraint messages
+  - Returns SafetyResult with safe/unsafe decisions and constraint messages
+  - Ready for integration with chatbot
 
 ### Phase 3: Integration (Chatbot & Testing) 📅 **PLANNED**
 
@@ -151,17 +154,26 @@ python -m AI.chat_client
 │   ├── api.py              # FastAPI server
 │   ├── chat_client.py      # Terminal client
 │   └── logging_config.py  # Logging setup
-├── safety/                  # Safety module (Phase 2)
-│   ├── graph_definitions.py  # Knowledge graph
-│   ├── classifier.py         # Entity linker
+├── safety/                  # Safety module (Phase 2) ✅
+│   ├── graph_definitions.py  # Knowledge graph (8 nodes, 9 edges)
+│   ├── classifier.py         # Entity linker (LLM-based)
 │   └── critic.py              # Critic pipeline
+├── Documents/               # Research papers & documentation
+│   ├── Clinical_Ontology_Scientific_Rationale.md  # Scientific justification
+│   ├── Multidimensional Mastery Scale (MMS) Scoring Manual.md
+│   └── [Research papers: Germain, Fischmann, Moser, etc.]
 ├── experiments/             # Experiment scripts (Phase 4)
 ├── test_setup.py           # Setup verification script
+├── test_safety_module.py   # Phase 2 safety module tests
+├── visualize_graph.py      # Graph visualization tool
+├── clinical_graph.png/pdf  # Generated graph visualizations
 ├── implementation_plan.md  # Detailed implementation plan
 └── README.md               # This file
 ```
 
 ## 🧪 Testing
+
+### Setup Verification
 
 Run the setup verification:
 
@@ -177,6 +189,30 @@ This will verify:
 - Dependencies are installed
 - Environment file exists
 
+### Safety Module Tests
+
+Run Phase 2 safety module tests:
+
+```bash
+python test_safety_module.py
+```
+
+This will verify:
+- Knowledge graph structure (8 nodes, 9 edges)
+- Clinical classifier accuracy
+- SafetyCritic pipeline functionality
+- All correction strategies work correctly
+
+### Visualize the Knowledge Graph
+
+Generate a visual representation of the ontology:
+
+```bash
+python visualize_graph.py
+```
+
+This creates `clinical_graph.png` and `clinical_graph.pdf` showing the complete ontology with all nodes and correction edges.
+
 ## 📝 Current Status
 
 **Phase 1: ✅ Complete**
@@ -186,10 +222,19 @@ This will verify:
 - Environment configured
 - Server tested and working
 
-**Phase 2: 🔄 Next Steps**
-- Implement knowledge graph (Block A)
-- Build entity linker (Block B)
-- Create critic pipeline (Block C)
+**Phase 2: ✅ Complete**
+- Knowledge graph implemented (8 nodes: 3 ZDPCS maladaptive + 5 MMS adaptive)
+- 9 correction edges with clinical rationale
+- Clinical classifier using LLM-based entity linking
+- SafetyCritic pipeline with constraint generation
+- Scientific documentation with direct quotes and references
+- Graph visualizations generated
+- All tests passing
+
+**Phase 3: 🔄 Next Steps**
+- Hook SafetyCritic into `irt_app.py` for rewriting stage
+- Create verification script with test cases
+- End-to-end integration testing
 
 ## 🔮 Future Work
 
@@ -201,9 +246,24 @@ This will verify:
 
 ## 📚 References
 
-- **ZDPCS**: Moser et al. - Maladaptive behavior classification
-- **MMS**: Germain et al. - Mastery measurement scale
-- **IRT**: Imagery Rehearsal Therapy
+### Primary Sources
+
+1. **Germain, A., Krakow, B., Faucher, B., et al.** (2004). Increased Mastery Elements Associated With Imagery Rehearsal Treatment for Nightmares in Sexual Assault Survivors With PTSD. *Dreaming, 14*(4), 195-206.
+   - Defines the Multidimensional Mastery Scale (MMS) - 6 mastery subscales
+
+2. **Fischmann, T., Leuzinger-Bohleber, M., & Moser, U.** (2021). Dreams and Trauma: Changes in the Manifest Dreams in Psychoanalytic Treatments. *Frontiers in Psychology*.
+   - Applies ZDPCS concepts to trauma dreams
+
+3. **Moser, U., & Hortig, V.** (2019). *Microanalysis of Dreams: The Zurich Dream Process Coding System (ZDPCS)*. Springer.
+   - Original ZDPCS methodology
+
+4. **Rousseau, A., & Belleville, G.** (2018). The mechanisms of action underlying the efficacy of psychological nightmare treatments. *Sleep Medicine Reviews, 39*, 122-133.
+   - Identifies "Prevention of Avoidance" as key mechanism
+
+5. **Nielsen, T., & Levin, R.** (2007). Nightmares: A new neurocognitive model. *Sleep Medicine Reviews, 11*(4), 295-310.
+   - AMPHAC model: nightmares = failed fear extinction
+
+For detailed scientific rationale with direct quotes, see `Documents/Clinical_Ontology_Scientific_Rationale.md`.
 
 ## 📄 License
 
