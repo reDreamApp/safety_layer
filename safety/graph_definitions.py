@@ -220,6 +220,45 @@ def build_clinical_graph() -> nx.DiGraph:
         G.add_node(node_id, **attrs)
     
     # =========================================================================
+    # NEUTRAL NODES - For narrative descriptions that are neither adaptive nor maladaptive
+    # These handle cases where the user describes settings, feelings, or context
+    # without taking action - they should be validated but not corrected
+    # =========================================================================
+    
+    neutral_nodes = {
+        "ZDPCS_NARRATIVE_SETTING": {
+            "type": "neutral",
+            "category": "narrative",
+            "description": "Description of environment, characters, or setting without active interaction. The dreamer describes the scene without taking action.",
+            "system_action": "validate_context",
+            "reference": "Contextual descriptions that set the stage for dream content without indicating adaptive or maladaptive behavior.",
+            "examples": [
+                "There was a dark forest",
+                "I saw a monster in the corner",
+                "The room was cold and empty",
+                "A figure appeared in the doorway"
+            ]
+        },
+        "ZDPCS_AFFECT_EXPRESSION": {
+            "type": "neutral",
+            "category": "affect",
+            "description": "Explicit statement of emotion without accompanying action. The dreamer expresses feelings without behavioral response.",
+            "system_action": "empathy_validation",
+            "reference": "Emotional expressions that indicate affect awareness - important for therapeutic engagement but not indicative of adaptive/maladaptive coping.",
+            "examples": [
+                "I felt scared",
+                "I was terrified",
+                "I felt angry",
+                "I was overwhelmed with fear"
+            ]
+        }
+    }
+    
+    # Add neutral nodes to graph
+    for node_id, attrs in neutral_nodes.items():
+        G.add_node(node_id, **attrs)
+    
+    # =========================================================================
     # CORRECTION EDGES (Risk -> Goal)
     # Each edge includes clinical rationale and references
     # =========================================================================
@@ -391,6 +430,17 @@ def get_adaptive_nodes(G: nx.DiGraph = None) -> Dict[str, Dict[str, Any]]:
     }
 
 
+def get_neutral_nodes(G: nx.DiGraph = None) -> Dict[str, Dict[str, Any]]:
+    """Get all neutral (narrative/affect) nodes from the graph."""
+    if G is None:
+        G = build_clinical_graph()
+    return {
+        node_id: attrs 
+        for node_id, attrs in G.nodes(data=True) 
+        if attrs.get("type") == "neutral"
+    }
+
+
 def get_correction_strategies(G: nx.DiGraph, maladaptive_node: str) -> List[Dict[str, Any]]:
     """Get all correction strategies for a given maladaptive node, ordered by priority."""
     if maladaptive_node not in G:
@@ -468,6 +518,17 @@ def print_ontology_with_references():
         print(f"     Scoring Criteria:")
         for criterion in attrs.get('scoring_criteria', [])[:2]:
             print(f"       - {criterion}")
+    
+    print("\n\n🟡 NEUTRAL NODES (Context/Affect)")
+    print("-" * 80)
+    
+    for node_id, attrs in get_neutral_nodes(G).items():
+        print(f"\n  📌 {node_id}")
+        print(f"     Description: {attrs.get('description', 'N/A')}")
+        print(f"     System Action: {attrs.get('system_action', 'N/A')}")
+        print(f"     Examples:")
+        for example in attrs.get('examples', [])[:2]:
+            print(f"       - {example}")
 
 
 # For quick testing
@@ -486,6 +547,10 @@ if __name__ == "__main__":
     
     print("\n--- Adaptive Nodes (Goals) ---")
     for node_id, attrs in get_adaptive_nodes(G).items():
+        print(f"  {node_id}: {attrs['description'][:60]}...")
+    
+    print("\n--- Neutral Nodes (Context) ---")
+    for node_id, attrs in get_neutral_nodes(G).items():
         print(f"  {node_id}: {attrs['description'][:60]}...")
     
     print("\n--- Correction Strategies ---")

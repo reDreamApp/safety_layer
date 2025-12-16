@@ -10,150 +10,153 @@ Graph Engine: NetworkX (Chosen for Thesis MVP due to artifact portability and sp
 
 Future Production Target: Neo4j (For multi-user scalability and complex traversals).
 
-Phase 1: Repository Setup & Migration
+---
+
+## Phase 1: Repository Setup & Migration ✅ COMPLETE
 
 Goal: Initialize a clean environment and migrate the "Organs" (core logic) from the existing chatbot to this new experiment body.
 
-1.1. Project Initialization
+### 1.1. Project Initialization
 
-Initialize a new git repository (thesis-safety-layer).
+- ✅ Initialize a new git repository (thesis-safety-layer).
+- ✅ Set up a fresh Python virtual environment.
 
-Set up a fresh Python virtual environment.
+### 1.2. File Migration
 
-1.2. File Migration
+Copied the following files from the reDreamAI repository:
 
-Copy the following files from the reDreamAI repository to your new root.
+- AI/agent.py (The API wrapper)
+- AI/models.py (The data structures)
+- AI/prompts.py (Required by agent.py)
+- AI/logging_config.py
+- AI/requirements.txt
+- .env (Configuration keys)
+- AI/irt_app.py (The main application logic)
+- AI/api.py (The FastAPI server)
+- AI/chat_client.py (The terminal client)
 
-AI/agent.py (The API wrapper)
+### 1.3. Dependency Management
 
-AI/models.py (The data structures)
+- ✅ Updated requirements.txt to include networkx and pandas.
+- ✅ Installed all requirements.
 
-AI/prompts.py (Required by agent.py)
+---
 
-AI/logging_config.py
-
-AI/requirements.txt
-
-.env (Configuration keys)
-
-For Interactive Chatting (Optional but Recommended):
-
-AI/irt_app.py (The main application logic)
-
-AI/api.py (The FastAPI server)
-
-AI/chat_client.py (The terminal client)
-
-1.3. Dependency Management
-
-Update requirements.txt to include networkx (for the graph) and pandas (for the experiment data).
-
-Install all requirements.
-
-Phase 2: The Safety Module (Neuro-Symbolic Logic)
+## Phase 2: The Safety Module (Neuro-Symbolic Logic) ✅ COMPLETE
 
 Goal: Implement the 3-block architecture: Knowledge (Graph), Perception (Classifier), Reasoning (Critic).
 
-2.1. Block A: The Knowledge Graph
+### 2.1. Block A: The Knowledge Graph ✅
 
-File: safety/graph_definitions.py
+File: `safety/graph_definitions.py`
 
-Task: Create a function build_clinical_graph() that returns a directed graph (nx.DiGraph) representing the clinical ontology.
+Task: Create a function `build_clinical_graph()` that returns a directed graph (nx.DiGraph) representing the clinical ontology.
 
-Cursor Instructions & Ground Truth:
+**Implemented Nodes (10 total):**
 
-Adaptive Nodes (Goals) - Source: MMS Manual:
+**Maladaptive Nodes (Risks) - Source: ZDPCS:**
+- `ZDPCS_SAFETY_PRINCIPLE` (Avoidance): Hiding, freezing, doing nothing, passive observation
+- `ZDPCS_INTERRUPT` (Escape): Waking up, dream ending, refusing to continue
+- `ZDPCS_REGRESSIVE_AGGRESSION` (Violence): Killing everyone, excessive violence, destroying environment
 
-Extract: Behavioral Mastery (Action), Social Mastery (Help), Environmental Mastery (Magic/Tools), Emotional Mastery (Self-soothing).
+**Adaptive Nodes (Goals) - Source: MMS:**
+- `BEHAVIORAL_MASTERY` (Action): Fighting back, confronting, taking control
+- `SOCIAL_MASTERY` (Help): Calling for help, allies appearing, receiving protection
+- `ENVIRONMENTAL_MASTERY` (Tools): Finding weapons, environment changing favorably
+- `EMOTIONAL_MASTERY` (Self-soothing): Calming down, staying present, transforming fear
+- `MYTHICAL_MASTERY` (Supernatural): Using magical powers, divine intervention
 
-Maladaptive Nodes (Risks) - Source: Fischmann et al. (2021) / ZDPCS:
+**Neutral Nodes (Context) - New:**
+- `ZDPCS_NARRATIVE_SETTING`: Scene description without action
+- `ZDPCS_AFFECT_EXPRESSION`: Feeling statements without action
 
-Instruction for Cursor: "Look for the concepts of 'Safety Principle' (Sicherheitsprinzip) and 'Involvement Principle' in the Fischmann paper."
+**Correction Edges (9 total):**
+- Directed edges from Risk → Goal with relation="correction_strategy"
+- Each edge includes priority (primary/secondary/tertiary), rationale, clinical reference, and therapeutic direction
 
-Node 1: ZDPCS_SAFETY_PRINCIPLE (Avoidance): Define this as "The dreamer avoids interaction to regulate anxiety. Includes: waking up, freezing, hiding, looking away."
+### 2.2. Block B: The Entity Linker ✅
 
-Node 2: ZDPCS_INTERRUPT (Escape): Define as "Breaking the dream narrative completely (e.g., forced awakening) to stop the affect."
+File: `safety/classifier.py`
 
-Node 3: ZDPCS_REGRESSIVE_AGGRESSION (Violence): (Derived from general ZDPCS logic of low structural level) - "Uncontrolled, chaotic violence that destroys the scene rather than resolving it."
+Task: Create a class `ClinicalClassifier` that maps user text to Graph Node IDs.
 
-Correction Logic (Edges):
+**Implemented Features:**
+- System Prompt acting as "Clinical Coder" with all 10 categories
+- **Negation Handling**: "I decided not to run" → BEHAVIORAL_MASTERY (not avoidance)
+- **Ambiguity Rules**: "I felt scared" → ZDPCS_AFFECT_EXPRESSION (not action)
+- Method: `classify_intent(user_text) -> str`
+- Validation ensures returned ID exists in graph
+- Fuzzy matching for robustness
 
-Connect ZDPCS_SAFETY_PRINCIPLE -> BEHAVIORAL_MASTERY (Action).
+### 2.3. Block C: The Critic Pipeline - "Clinical Reasoning Engine" ✅
 
-Connect ZDPCS_INTERRUPT -> EMOTIONAL_MASTERY (Stay calm and stay asleep).
+File: `safety/critic.py`
 
-Requirements for the Code:
+Task: Create a class `SafetyCritic` that orchestrates the safety check with intelligent segmentation and triage.
 
-Maladaptive Nodes: ZDPCS_SAFETY_PRINCIPLE, ZDPCS_INTERRUPT, ZDPCS_REGRESSIVE_AGGRESSION.
+**Upgraded Pipeline Architecture:**
 
-Adaptive Nodes: BEHAVIORAL_MASTERY, SOCIAL_MASTERY, ENVIRONMENTAL_MASTERY, EMOTIONAL_MASTERY.
+```
+User Input → Intelligent Segmenter → Filter META → Batch Classify → Triage → Constraint Synthesis
+```
 
-Edges: Directed edges from Risk -> Goal with relation="correction_strategy".
+**2.3.1. Intelligent Segmenter**
 
-2.2. Block B: The Entity Linker
+Input: User text
+Output: List of segments with labels (ACTION, THOUGHT, FEELING, META)
 
-File: safety/classifier.py
+Example:
+- Input: "I hate this therapy, but I guess I fight the dragon."
+- Output: [{"text": "I hate this therapy", "type": "META"}, {"text": "but I guess I fight the dragon", "type": "ACTION"}]
 
-Task: Create a class ClinicalClassifier that uses the existing Agent to map user text to Graph Node IDs.
+**2.3.2. META Filtering**
 
-Requirements:
+- Discard segments labeled META (conversational content)
+- If no dream segments remain, return "Safe/Pass-through"
 
-Configuration: Initialize a specific Agent instance (using a fast model like GPT-4o-mini or Llama-3-8b).
+**2.3.3. Batch Classification**
 
-System Prompt: Write a prompt acting as a "Clinical Coder." It must list the available codes defined in Block A and instruct the LLM to output only the code (e.g., "ZDPCS_SAFETY_PRINCIPLE") for a given input.
+- Map each remaining dream segment to a Graph Node
+- Track adaptive, maladaptive, and neutral segments separately
 
-Method: Implement classify_intent(user_text) -> str which sends the prompt and returns the cleaned Node ID.
+**2.3.4. Triage Algorithm (Severity-Based)**
 
-Validation: Ensure the returned ID actually exists in the graph.
+Priority Ranking:
+1. **CRITICAL**: ZDPCS_REGRESSIVE_AGGRESSION (Violence)
+2. **HIGH**: ZDPCS_INTERRUPT (Waking Up)
+3. **MODERATE**: ZDPCS_SAFETY_PRINCIPLE (Avoidance)
 
-2.3. Block C: The Critic Pipeline
+Tie-Breaker: First chronological occurrence
 
-File: safety/critic.py
+Selection: Return ONLY the top-ranked maladaptive node for correction
 
-Task: Create a class SafetyCritic that orchestrates the safety check.
+**2.3.5. Constraint Synthesis ("Validate + Correct")**
 
-Requirements:
+IF SAFE:
+```
+VALIDATE: User demonstrated adaptive responses: [List]. Proceed with encouragement.
+```
 
-Initialization: Load the Graph (Block A) and the Classifier (Block B).
+IF UNSAFE:
+```
+VALIDATE: [List any Adaptive/Neutral parts found]
+CORRECT: User demonstrated [Selected Maladaptive Node]. This is a [Severity] risk.
+INSTRUCTION: Gently redirect using [Correction Strategy from Graph]. Do not list other errors.
+```
 
-Method: Implement evaluate_intervention(user_input) -> dict.
+---
 
-Logic Flow:
-
-Classify: Pass input to the Classifier to get the Node ID.
-
-Check: Look up the Node in the Graph.
-
-Decision:
-
-If node.type == "adaptive": Return Safe.
-
-If node.type == "maladaptive":
-
-Traverse the graph to find neighbors connected via correction_strategy edges.
-
-Construct a Constraint Message for the generator: "User proposed
-
-$$Risk$$
-
-. This is maladaptive. Suggest
-
-$$Connected Goal$$
-
-instead."
-
-Return Unsafe + Constraint Message.
-
-Phase 3: Integration (Chatbot & Testing)
+## Phase 3: Integration (Chatbot & Testing) 📅 PLANNED
 
 Goal: Integrate the Critic into the actual Chatbot Logic.
 
-3.1. Hook into irt_app.py
+### 3.1. Hook into irt_app.py
 
 Task: Modify irt_app.py to use the SafetyCritic before generating a response.
 
 Logic to Add (Pseudo-code):
 
+```python
 # In process_chat_message...
 if stage == "rewriting":
     critic = SafetyCritic()
@@ -162,40 +165,76 @@ if stage == "rewriting":
     if not safety_result['is_safe']:
         # INJECT THE CONSTRAINT
         # Append safety_result['constraint'] to the system prompt
-        full_prompt += f"\n\n[SYSTEM WARNING]: {safety_result['constraint']}"
+        full_prompt += f"\n\n{safety_result['constraint']}"
+```
 
+### 3.2. Verification Script
 
+File: `test_pipeline.py`
 
-3.2. Verification Script
+Task: Create an async script to run the SafetyCritic against test cases.
 
-File: test_pipeline.py
+Test Cases should include:
+- Simple inputs (single action)
+- Complex multi-part inputs (META + ACTION)
+- Negation handling ("I decided not to...")
+- Neutral inputs (feelings/narrative)
+- Mixed severity inputs (multiple maladaptive in one message)
 
-Task: Create an async script to run the SafetyCritic against a list of hardcoded test cases to verify the logic outside the chat.
+---
 
-Test Cases:
-
-"I wake up" -> Should trigger ZDPCS_INTERRUPT -> Result: Unsafe.
-
-"I fight back" -> Should trigger BEHAVIORAL_MASTERY -> Result: Safe.
-
-Phase 4: Production Readiness & Future Migration
+## Phase 4: Production Readiness & Future Migration 📅 PLANNED
 
 Goal: Prepare the architecture for scaling beyond the thesis.
 
-4.1. Abstraction Layer (For Neo4j Support)
+### 4.1. Abstraction Layer (For Neo4j Support)
 
 Task: Ensure SafetyCritic does not interact with NetworkX directly.
 
-Create a GraphProvider abstract base class.
-
-Implement NetworkXProvider (for Thesis).
-
-Future: Implement Neo4jProvider (for Product).
+- Create a GraphProvider abstract base class.
+- Implement NetworkXProvider (for Thesis).
+- Future: Implement Neo4jProvider (for Product).
 
 This ensures you can switch the backend later by changing one line of code.
 
-4.2. Experiment Scripts
+### 4.2. Experiment Scripts
 
-experiments/generate_incidents.py: A script using Agent to generate 100 synthetic patient inputs (20 per category).
+- `experiments/generate_incidents.py`: Script using Agent to generate synthetic patient inputs
+- `experiments/run_study.py`: Script to process inputs through SafetyCritic and save results for analysis
 
-experiments/run_study.py: A script to process that CSV through the SafetyCritic and save results for blind rating.
+---
+
+## Summary of Completed Work
+
+### Files Modified/Created:
+
+1. **safety/graph_definitions.py**
+   - Added 2 Neutral nodes (ZDPCS_NARRATIVE_SETTING, ZDPCS_AFFECT_EXPRESSION)
+   - Added `get_neutral_nodes()` helper function
+   - Updated test output to include neutral nodes
+
+2. **safety/classifier.py**
+   - Added Neutral categories to system prompt
+   - Added Negation Handling rules
+   - Added Ambiguity Rules for settings/feelings
+   - Updated fuzzy matching keywords
+   - Updated test cases
+
+3. **safety/critic.py** - Major Overhaul
+   - Added `SEGMENTER_PROMPT` for intelligent segmentation
+   - Added `SEVERITY_PRIORITY` mapping
+   - Added `SegmentResult` dataclass
+   - Updated `SafetyResult` with segments, adaptive_segments, severity
+   - Implemented `segment_input()` method
+   - Implemented `_sort_by_severity()` triage method
+   - Updated `evaluate_intervention()` with full pipeline
+   - Updated `_build_constraint_message()` with Validate + Correct structure
+   - Added `_build_validation_message()` for safe inputs
+   - Updated test cases for new features
+
+### Node Count: 10 total
+- 3 Maladaptive (ZDPCS)
+- 5 Adaptive (MMS)
+- 2 Neutral (Context)
+
+### Edge Count: 9 correction strategies

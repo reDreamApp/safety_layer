@@ -41,12 +41,29 @@ CLINICAL_CODER_PROMPT = """You are a Clinical Coder for Imagery Rehearsal Therap
 7. **EMOTIONAL_MASTERY** - Self-regulation: calming down, accepting peacefully, transforming fear, staying present, changing emotional reactions
 8. **MYTHICAL_MASTERY** - Supernatural: using magical powers, divine intervention, supernatural figure helping, gaining superpowers, miraculous events
 
+### NEUTRAL Categories - Context without action:
+9. **ZDPCS_NARRATIVE_SETTING** - Scene description: describing the environment, characters, or setting without active interaction or response
+10. **ZDPCS_AFFECT_EXPRESSION** - Feeling statement: explicit expression of emotion (e.g., "I felt scared", "I was terrified") without accompanying action
+
 ## Instructions
 - Analyze the user's proposed dream action/intervention
-- Classify it into EXACTLY ONE of the 8 categories above
+- Classify it into EXACTLY ONE of the 10 categories above
 - Respond with ONLY the category code (e.g., "BEHAVIORAL_MASTERY")
-- If the input is ambiguous, choose the MOST FITTING category
-- If the input describes inaction or passive avoidance, classify as ZDPCS_SAFETY_PRINCIPLE
+
+### Negation Handling (CRITICAL)
+- If the user mentions an action they AVOIDED doing (e.g., "I decided not to run", "I chose not to hide"), classify the DECISION itself, not the avoided action
+- "I decided not to run away" = BEHAVIORAL_MASTERY (active choice to stay and engage)
+- "I chose not to hide" = BEHAVIORAL_MASTERY (active choice to face the situation)
+- "I refused to wake up" = EMOTIONAL_MASTERY (choice to stay in dream)
+
+### Ambiguity Rule
+- If the user describes ONLY the setting or their feelings WITHOUT taking any action, classify as NARRATIVE or AFFECT
+- "There was a monster" = ZDPCS_NARRATIVE_SETTING
+- "I felt scared" = ZDPCS_AFFECT_EXPRESSION  
+- "I felt scared so I ran" = BEHAVIORAL_MASTERY (action present)
+
+### Priority Rules
+- If the input describes inaction or passive avoidance (doing nothing, hiding without choosing to), classify as ZDPCS_SAFETY_PRINCIPLE
 - If the input describes waking up or ending the dream, classify as ZDPCS_INTERRUPT
 - If the input describes extreme/chaotic violence (killing everyone, destroying everything), classify as ZDPCS_REGRESSIVE_AGGRESSION
 - If the input describes using magic/supernatural powers, classify as MYTHICAL_MASTERY
@@ -67,6 +84,24 @@ Example inputs and outputs:
 - "I take a deep breath and stay calm" -> EMOTIONAL_MASTERY
 - "I use my magical powers to fly away" -> MYTHICAL_MASTERY
 - "An angel appears to protect me" -> MYTHICAL_MASTERY
+- "There was a dark forest" -> ZDPCS_NARRATIVE_SETTING
+- "I saw a monster" -> ZDPCS_NARRATIVE_SETTING
+- "I felt terrified" -> ZDPCS_AFFECT_EXPRESSION
+- "I decided not to run away" -> BEHAVIORAL_MASTERY
+- "I chose to stay instead of hiding" -> BEHAVIORAL_MASTERY
+
+### CRITICAL: Emotional Suppression vs Expression (Context-Dependent)
+When nightmare context is provided, distinguish between:
+- ACKNOWLEDGING emotion (therapeutic, neutral): "I felt scared", "I was terrified"  
+- SUPPRESSING emotion about distressing content (avoidance, maladaptive): "I don't feel panic", "I'm fine with it"
+
+If the nightmare contains distressing content (death, violence, threat) and the user claims to feel nothing or be "fine with it" WITHOUT transforming the scenario, classify as ZDPCS_SAFETY_PRINCIPLE (emotional avoidance).
+
+Examples with context:
+- Nightmare: "My dog was dead on the floor" + Response: "I don't feel any panic" -> ZDPCS_SAFETY_PRINCIPLE (emotional suppression)
+- Nightmare: "My dog was dead on the floor" + Response: "I'm fine with the situation" -> ZDPCS_SAFETY_PRINCIPLE (emotional suppression)
+- Nightmare: "My dog was dead on the floor" + Response: "I see my dog is actually alive and happy" -> ENVIRONMENTAL_MASTERY (transformation)
+- Nightmare: "Being chased by monster" + Response: "I felt terrified" -> ZDPCS_AFFECT_EXPRESSION (acknowledging emotion)
 """
 
 
@@ -102,12 +137,13 @@ class ClinicalClassifier:
         logger.info(f"ClinicalClassifier initialized with model: {self.model_config.name}")
         logger.info(f"Valid node IDs: {self.valid_node_ids}")
     
-    async def classify_intent(self, user_text: str) -> str:
+    async def classify_intent(self, user_text: str, nightmare_context: Optional[str] = None) -> str:
         """
         Classify user dream intervention text into a clinical category.
         
         Args:
             user_text: The user's proposed dream action/intervention
+            nightmare_context: Optional context about the original nightmare for disambiguation
             
         Returns:
             The node ID (category code) that best matches the input
@@ -116,8 +152,20 @@ class ClinicalClassifier:
             ValueError: If the LLM returns an invalid node ID
         """
         try:
+            # Build context-aware message if nightmare context is provided
+            if nightmare_context:
+                classification_input = f"""[NIGHTMARE CONTEXT]
+{nightmare_context}
+
+[USER'S REWRITING ATTEMPT]
+{user_text}
+
+Classify the rewriting attempt above. Remember: If the user claims to feel nothing or be "fine" with distressing content WITHOUT transforming the scenario, that is ZDPCS_SAFETY_PRINCIPLE (emotional avoidance)."""
+            else:
+                classification_input = user_text
+            
             # Send classification request
-            response, usage = await self.agent.generate(user_text)
+            response, usage = await self.agent.generate(classification_input)
             
             # Clean the response (remove whitespace, convert to uppercase)
             node_id = response.strip().upper()
@@ -139,17 +187,18 @@ class ClinicalClassifier:
             logger.error(f"Error classifying intent: {str(e)}")
             raise
     
-    async def classify_with_confidence(self, user_text: str) -> Tuple[str, dict]:
+    async def classify_with_confidence(self, user_text: str, nightmare_context: Optional[str] = None) -> Tuple[str, dict]:
         """
         Classify user text and return additional metadata.
         
         Args:
             user_text: The user's proposed dream action/intervention
+            nightmare_context: Optional context about the original nightmare for disambiguation
             
         Returns:
             Tuple of (node_id, metadata_dict)
         """
-        node_id = await self.classify_intent(user_text)
+        node_id = await self.classify_intent(user_text, nightmare_context=nightmare_context)
         
         # Get node attributes from graph
         node_attrs = dict(self.graph.nodes[node_id])
@@ -214,6 +263,13 @@ class ClinicalClassifier:
             "DIVINE": "MYTHICAL_MASTERY",
             "ANGEL": "MYTHICAL_MASTERY",
             "POWER": "MYTHICAL_MASTERY",
+            # Neutral categories
+            "NARRATIVE": "ZDPCS_NARRATIVE_SETTING",
+            "SETTING": "ZDPCS_NARRATIVE_SETTING",
+            "SCENE": "ZDPCS_NARRATIVE_SETTING",
+            "AFFECT": "ZDPCS_AFFECT_EXPRESSION",
+            "FEELING": "ZDPCS_AFFECT_EXPRESSION",
+            "FELT": "ZDPCS_AFFECT_EXPRESSION",
         }
         
         for keyword, valid_id in keyword_map.items():
@@ -251,15 +307,26 @@ if __name__ == "__main__":
         classifier = ClinicalClassifier()
         
         test_cases = [
+            # Maladaptive
             "I hide under the bed",
             "I wake myself up to escape the nightmare",
             "I kill everyone in the room",
+            "I do nothing and just watch",
+            # Adaptive
             "I punch the attacker in the face",
             "I call for my friend to help me",
             "I find a magical sword",
             "I take a deep breath and stay calm",
-            "I do nothing and just watch",
             "I run away as fast as I can",
+            # Neutral - Narrative
+            "There was a dark forest",
+            "I saw a monster in the corner",
+            # Neutral - Affect
+            "I felt terrified",
+            "I was scared",
+            # Negation handling
+            "I decided not to run away",
+            "I chose to stay instead of hiding",
         ]
         
         print("=" * 60)
@@ -269,7 +336,13 @@ if __name__ == "__main__":
         for test in test_cases:
             try:
                 node_id, metadata = await classifier.classify_with_confidence(test)
-                status = "⚠️ MALADAPTIVE" if metadata["is_maladaptive"] else "✅ ADAPTIVE"
+                node_type = metadata.get("node_type", "unknown")
+                if node_type == "maladaptive":
+                    status = "⚠️ MALADAPTIVE"
+                elif node_type == "adaptive":
+                    status = "✅ ADAPTIVE"
+                else:
+                    status = "🟡 NEUTRAL"
                 print(f"\n{status}")
                 print(f"  Input: '{test}'")
                 print(f"  Classification: {node_id}")

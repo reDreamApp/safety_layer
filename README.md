@@ -8,11 +8,21 @@ Build a safety layer that uses a knowledge graph to identify maladaptive behavio
 
 ## 🏗️ Architecture
 
-The system follows a 3-block neuro-symbolic architecture:
+The system follows a 3-block neuro-symbolic architecture with an upgraded "Clinical Reasoning Engine":
 
-1. **Knowledge Graph (Block A)**: Clinical ontology based on ZDPCS (maladaptive behaviors) and MMS (adaptive goals)
-2. **Entity Linker (Block B)**: LLM-based classifier that maps user text to graph nodes
-3. **Critic Pipeline (Block C)**: Orchestrates safety checks and generates constraint messages
+1. **Knowledge Graph (Block A)**: Clinical ontology based on ZDPCS (maladaptive behaviors), MMS (adaptive goals), and neutral categories
+2. **Entity Linker (Block B)**: LLM-based classifier that maps user text to graph nodes with negation handling and ambiguity rules
+3. **Critic Pipeline (Block C)**: "Clinical Reasoning Engine" with intelligent segmentation, batch classification, severity-based triage, and "Validate + Correct" constraint synthesis
+
+### New Pipeline Flow
+
+```
+User Input → Intelligent Segmenter → Filter META → Batch Classify → Triage → Constraint Synthesis
+                    ↓                      ↓              ↓           ↓              ↓
+              [Segments with       [Dream content   [Map to      [Priority    [Validate adaptive +
+               ACTION/THOUGHT/      only]           Graph        ranking]      Correct specific risk]
+               FEELING/META]                        Nodes]
+```
 
 ## 📋 Implementation Plan
 
@@ -33,23 +43,32 @@ The system follows a 3-block neuro-symbolic architecture:
 
 ### Phase 2: The Safety Module (Neuro-Symbolic Logic) ✅ **COMPLETE**
 
-**Goal**: Implement the 3-block architecture
+**Goal**: Implement the 3-block architecture with "Clinical Reasoning Engine"
 
 - ✅ **Block A**: Knowledge Graph (`safety/graph_definitions.py`)
-  - 8 nodes: 3 ZDPCS maladaptive (Safety Principle, Interrupt, Regressive Aggression)
-  - 5 MMS adaptive (Behavioral, Social, Environmental, Emotional, Mythical Mastery)
+  - 10 nodes total:
+    - 3 ZDPCS maladaptive (Safety Principle, Interrupt, Regressive Aggression)
+    - 5 MMS adaptive (Behavioral, Social, Environmental, Emotional, Mythical Mastery)
+    - 2 Neutral (Narrative Setting, Affect Expression)
   - 9 correction edges with clinical rationale and references
   - Full scientific documentation in `Documents/Clinical_Ontology_Scientific_Rationale.md`
 
 - ✅ **Block B**: Entity Linker (`safety/classifier.py`)
   - ClinicalClassifier class using Agent to map text to graph nodes
   - LLM-based classification (Llama-3.1-8b-instant) with validation
+  - **Negation handling**: Correctly classifies "I decided not to run" as mastery
+  - **Ambiguity rules**: Distinguishes narrative/affect from action
+  - **Context-aware classification**: Accepts nightmare context to disambiguate emotional suppression vs expression
   - Fuzzy matching for robustness
 
-- ✅ **Block C**: Critic Pipeline (`safety/critic.py`)
-  - SafetyCritic class orchestrating safety checks
-  - Returns SafetyResult with safe/unsafe decisions and constraint messages
-  - Ready for integration with chatbot
+- ✅ **Block C**: Critic Pipeline (`safety/critic.py`) - **"Clinical Reasoning Engine"**
+  - **Intelligent Segmentation**: Parses multi-part inputs (e.g., "I hate this, but I fight")
+  - **META filtering**: Ignores conversational content, processes dream content
+  - **Batch classification**: Maps each segment to Graph Nodes with nightmare context
+  - **Context-aware emotional suppression detection**: Distinguishes "I feel scared" (acknowledging) from "I'm fine with it" (suppressing) based on nightmare content
+  - **Severity-based triage**: Priority ranking (Critical → High → Moderate)
+  - **"Validate + Correct" constraints**: Acknowledges positive elements before redirecting
+  - SafetyResult includes segments, adaptive parts, and severity level
 
 ### Phase 3: Integration (Chatbot & Testing) 📅 **PLANNED**
 
@@ -155,16 +174,24 @@ python -m AI.chat_client
 │   ├── chat_client.py      # Terminal client
 │   └── logging_config.py  # Logging setup
 ├── safety/                  # Safety module (Phase 2) ✅
-│   ├── graph_definitions.py  # Knowledge graph (8 nodes, 9 edges)
-│   ├── classifier.py         # Entity linker (LLM-based)
-│   └── critic.py              # Critic pipeline
+│   ├── graph_definitions.py  # Knowledge graph (10 nodes, 9 edges)
+│   ├── classifier.py         # Entity linker with negation handling
+│   └── critic.py              # Clinical Reasoning Engine (segmentation + triage)
 ├── Documents/               # Research papers & documentation
 │   ├── Clinical_Ontology_Scientific_Rationale.md  # Scientific justification
 │   ├── Multidimensional Mastery Scale (MMS) Scoring Manual.md
 │   └── [Research papers: Germain, Fischmann, Moser, etc.]
 ├── experiments/             # Experiment scripts (Phase 4)
+├── scenarios/               # Test scenarios for critic testing
+│   ├── chase_nightmare.json    # Chase nightmare context
+│   ├── chase_scenario_tests.json  # Chase nightmare test suite
+│   ├── confrontation_nightmare.json  # Confrontation context
+│   ├── confrontation_scenario_tests.json  # Confrontation test suite
+│   ├── dog_dream_tests.json    # Dog loss nightmare test suite (emotional suppression)
+│   └── batch_tests.json        # Batch test cases
 ├── test_setup.py           # Setup verification script
 ├── test_safety_module.py   # Phase 2 safety module tests
+├── test_critic_interactive.py  # Interactive critic testing (Tier 1)
 ├── visualize_graph.py      # Graph visualization tool
 ├── clinical_graph.png/pdf  # Generated graph visualizations
 ├── implementation_plan.md  # Detailed implementation plan
@@ -198,10 +225,43 @@ python test_safety_module.py
 ```
 
 This will verify:
-- Knowledge graph structure (8 nodes, 9 edges)
-- Clinical classifier accuracy
-- SafetyCritic pipeline functionality
+- Knowledge graph structure (10 nodes: 3 maladaptive + 5 adaptive + 2 neutral, 9 edges)
+- Clinical classifier accuracy with neutral categories and negation handling
+- SafetyCritic pipeline functionality with segmentation and triage
 - All correction strategies work correctly
+
+### Interactive Critic Testing (Tier 1)
+
+Test the SafetyCritic "Clinical Reasoning Engine" interactively:
+
+```bash
+# Interactive mode - type test inputs directly
+python test_critic_interactive.py
+
+# With nightmare context loaded
+python test_critic_interactive.py --context scenarios/chase_nightmare.json
+
+# Run scenario test suite (nightmare + test cases against that nightmare)
+python test_critic_interactive.py --scenario scenarios/dog_dream_tests.json
+
+# With verbose output showing constraint messages
+python test_critic_interactive.py --scenario scenarios/chase_scenario_tests.json -v
+
+# Run batch test cases (legacy - no nightmare context)
+python test_critic_interactive.py --batch scenarios/batch_tests.json
+
+# Live mode - chat through actual IRT session, test critic at rewriting stage
+python test_critic_interactive.py --live
+```
+
+This shows detailed output for each test:
+- **Segmentation**: How input was parsed (ACTION/THOUGHT/FEELING/META)
+- **Classification**: Which graph node each segment mapped to (with nightmare context)
+- **Triage**: Which risk was prioritized (for unsafe inputs)
+- **Verdict**: SAFE or UNSAFE with severity level
+- **Constraint**: The full message that would be injected into the generator
+
+**Scenario Mode** (`--scenario`) is recommended as it provides nightmare context to each test, enabling accurate emotional suppression detection.
 
 ### Visualize the Knowledge Graph
 
@@ -223,13 +283,20 @@ This creates `clinical_graph.png` and `clinical_graph.pdf` showing the complete 
 - Server tested and working
 
 **Phase 2: ✅ Complete**
-- Knowledge graph implemented (8 nodes: 3 ZDPCS maladaptive + 5 MMS adaptive)
+- Knowledge graph implemented (10 nodes: 3 ZDPCS maladaptive + 5 MMS adaptive + 2 Neutral)
 - 9 correction edges with clinical rationale
-- Clinical classifier using LLM-based entity linking
-- SafetyCritic pipeline with constraint generation
+- Clinical classifier with negation handling, ambiguity rules, and context-aware emotional suppression detection
+- **Upgraded SafetyCritic "Clinical Reasoning Engine"**:
+  - Intelligent segmentation for multi-part inputs
+  - META content filtering
+  - Context-aware batch classification (nightmare context piped through)
+  - Emotional suppression detection: distinguishes acknowledgment vs avoidance
+  - Severity-based triage (Critical/High/Moderate)
+  - "Validate + Correct" constraint synthesis
+- Comprehensive test scenarios with nightmare context
 - Scientific documentation with direct quotes and references
 - Graph visualizations generated
-- All tests passing
+- All core tests passing
 
 **Phase 3: 🔄 Next Steps**
 - Hook SafetyCritic into `irt_app.py` for rewriting stage

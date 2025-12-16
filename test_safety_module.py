@@ -26,6 +26,7 @@ def test_knowledge_graph():
         build_clinical_graph, 
         get_maladaptive_nodes, 
         get_adaptive_nodes,
+        get_neutral_nodes,
         get_correction_strategies
     )
     
@@ -34,6 +35,7 @@ def test_knowledge_graph():
     # Check node counts
     maladaptive = get_maladaptive_nodes(G)
     adaptive = get_adaptive_nodes(G)
+    neutral = get_neutral_nodes(G)
     
     print(f"✅ Graph built: {G.number_of_nodes()} nodes, {G.number_of_edges()} edges")
     print(f"✅ Maladaptive nodes: {len(maladaptive)}")
@@ -42,6 +44,10 @@ def test_knowledge_graph():
     
     print(f"✅ Adaptive nodes: {len(adaptive)}")
     for node_id in adaptive:
+        print(f"   - {node_id}")
+    
+    print(f"✅ Neutral nodes: {len(neutral)}")
+    for node_id in neutral:
         print(f"   - {node_id}")
     
     # Check correction strategies
@@ -54,6 +60,8 @@ def test_knowledge_graph():
     # Assertions
     assert len(maladaptive) == 3, "Should have 3 maladaptive nodes"
     assert len(adaptive) == 5, "Should have 5 adaptive nodes (including MYTHICAL_MASTERY)"
+    assert len(neutral) == 2, "Should have 2 neutral nodes (NARRATIVE_SETTING, AFFECT_EXPRESSION)"
+    assert G.number_of_nodes() == 10, "Should have 10 total nodes"
     assert G.number_of_edges() >= 9, "Should have at least 9 correction edges"
     
     print("\n✅ Block A: All tests passed!")
@@ -73,11 +81,18 @@ async def test_classifier():
     
     # Test cases with expected classifications
     test_cases = [
+        # Maladaptive
         ("I hide under the bed", "ZDPCS_SAFETY_PRINCIPLE"),
         ("I wake myself up", "ZDPCS_INTERRUPT"),
         ("I kill everyone", "ZDPCS_REGRESSIVE_AGGRESSION"),
+        # Adaptive
         ("I fight back", "BEHAVIORAL_MASTERY"),
         ("I call for help", "SOCIAL_MASTERY"),
+        # Neutral (new)
+        ("I felt scared", "ZDPCS_AFFECT_EXPRESSION"),
+        ("There was a dark forest", "ZDPCS_NARRATIVE_SETTING"),
+        # Negation handling (new)
+        ("I decided not to run away", "BEHAVIORAL_MASTERY"),
     ]
     
     passed = 0
@@ -102,9 +117,9 @@ async def test_classifier():
 
 
 async def test_critic():
-    """Test Block C: SafetyCritic Pipeline"""
+    """Test Block C: SafetyCritic Pipeline - Clinical Reasoning Engine"""
     print("\n" + "=" * 60)
-    print("Block C: SafetyCritic Pipeline")
+    print("Block C: SafetyCritic Pipeline (Clinical Reasoning Engine)")
     print("=" * 60)
     
     from safety.critic import SafetyCritic
@@ -113,28 +128,28 @@ async def test_critic():
     summary = critic.get_graph_summary()
     print(f"✅ SafetyCritic initialized")
     print(f"   Graph: {summary['total_nodes']} nodes, {summary['total_edges']} edges")
+    print(f"   Maladaptive: {summary['maladaptive_nodes']}, Adaptive: {summary['adaptive_nodes']}, Neutral: {summary['neutral_nodes']}")
     
-    # Test cases from implementation plan
-    test_cases = [
+    # Test cases - simple inputs
+    simple_cases = [
         ("I wake up", False),       # Maladaptive
         ("I fight back", True),     # Adaptive
         ("I do nothing", False),    # Maladaptive
         ("I hide", False),          # Maladaptive
         ("I call for help", True),  # Adaptive
+        ("I felt scared", True),    # Neutral (safe)
     ]
     
+    print("\n--- Simple Input Tests ---")
     passed = 0
     
-    for user_input, expected_safe in test_cases:
+    for user_input, expected_safe in simple_cases:
         try:
             result = await critic.evaluate_intervention(user_input)
             status = "✅" if result.is_safe == expected_safe else "⚠️"
-            safe_str = "SAFE" if result.is_safe else "UNSAFE"
+            safe_str = "SAFE" if result.is_safe else f"UNSAFE ({result.severity})"
             
             print(f"{status} '{user_input}' -> {result.node_id} ({safe_str})")
-            
-            if not result.is_safe:
-                print(f"   Constraint preview: {result.constraint[:80]}...")
             
             if result.is_safe == expected_safe:
                 passed += 1
@@ -142,8 +157,61 @@ async def test_critic():
         except Exception as e:
             print(f"❌ '{user_input}' -> ERROR: {e}")
     
-    print(f"\n✅ Block C: {passed}/{len(test_cases)} tests passed")
-    return passed == len(test_cases)
+    # Test cases - multi-part inputs (segmentation)
+    complex_cases = [
+        ("I hate this therapy, but I guess I fight the dragon.", True),  # META + adaptive
+        ("This is dumb", True),  # META only -> pass-through
+        ("I felt terrified so I killed everyone", False),  # FEELING + CRITICAL violence
+    ]
+    
+    print("\n--- Multi-Part Input Tests (Segmentation) ---")
+    
+    for user_input, expected_safe in complex_cases:
+        try:
+            result = await critic.evaluate_intervention(user_input)
+            status = "✅" if result.is_safe == expected_safe else "⚠️"
+            safe_str = "SAFE" if result.is_safe else f"UNSAFE ({result.severity})"
+            
+            print(f"{status} '{user_input[:40]}...' -> {result.node_id} ({safe_str})")
+            if result.segments:
+                print(f"   Segments: {[(s.segment_type, s.node_id) for s in result.segments]}")
+            
+            if result.is_safe == expected_safe:
+                passed += 1
+                
+        except Exception as e:
+            print(f"❌ '{user_input}' -> ERROR: {e}")
+    
+    # Test cases - context-aware classification (emotional suppression detection)
+    nightmare_context = "I found my dog dead on the kitchen floor. I panicked and woke up."
+    context_cases = [
+        # Without context these might be classified as neutral affect, but with context they're avoidance
+        ("I don't feel any panic", False),  # Emotional suppression = avoidance
+        ("I'm fine with the situation", False),  # Emotional suppression = avoidance
+        # Actual transformation should still be safe
+        ("I see my dog is actually alive and happy", True),  # Actual transformation
+    ]
+    
+    print("\n--- Context-Aware Tests (Emotional Suppression Detection) ---")
+    print(f"   Nightmare context: \"{nightmare_context[:50]}...\"")
+    
+    for user_input, expected_safe in context_cases:
+        try:
+            result = await critic.evaluate_intervention(user_input, nightmare_context=nightmare_context)
+            status = "✅" if result.is_safe == expected_safe else "⚠️"
+            safe_str = "SAFE" if result.is_safe else f"UNSAFE ({result.severity})"
+            
+            print(f"{status} '{user_input}' -> {result.node_id} ({safe_str})")
+            
+            if result.is_safe == expected_safe:
+                passed += 1
+                
+        except Exception as e:
+            print(f"❌ '{user_input}' -> ERROR: {e}")
+    
+    total_cases = len(simple_cases) + len(complex_cases) + len(context_cases)
+    print(f"\n✅ Block C: {passed}/{total_cases} tests passed")
+    return passed == total_cases
 
 
 async def main():
