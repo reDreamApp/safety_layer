@@ -55,7 +55,7 @@ def build_clinical_graph() -> nx.DiGraph:
             "description": "Active behavioral response to threat or challenge. The dreamer takes direct action to address the situation.",
             "mms_category": "Action",
             "reference": "Germain et al. (2004) MMS Subscale I: 'The dreamer actively performs an action to change the dream course to their advantage.'",
-            "nli_hypothesis": "The dreamer actively fights back, confronts the threat, or takes control of the situation.",
+            "nli_hypothesis": "The dreamer directly confronts, fights, or physically resists the threat.",
             "scoring_criteria": [
                 "Performs an action to alter the course of the dream to the advantage of the dreamer",
                 "Fights back against a threat",
@@ -76,7 +76,7 @@ def build_clinical_graph() -> nx.DiGraph:
             "description": "Seeking or receiving help from others. The dreamer engages social support to resolve the situation.",
             "mms_category": "Help",
             "reference": "Germain et al. (2004) MMS Subscale II: 'Changes related to other characters, social interactions, or receiving help.'",
-            "nli_hypothesis": "The dreamer calls for help, seeks support, or interacts with allies.",
+            "nli_hypothesis": "The dreamer asks another person for help or receives assistance from someone else.",
             "scoring_criteria": [
                 "Changes the personality aspects of other dream characters",
                 "Removes threatening characters",
@@ -99,7 +99,7 @@ def build_clinical_graph() -> nx.DiGraph:
             "description": "Changes to the physical setting or spontaneous helpful events. The environment becomes safe or provides resources.",
             "mms_category": "Environment/Tools",
             "reference": "Germain et al. (2004) MMS Subscale III: 'Changes to the physical setting or spontaneous helpful events.'",
-            "nli_hypothesis": "The dreamer finds a tool, weapon, or the environment changes to be safe.",
+            "nli_hypothesis": "The dreamer finds a useful object like a weapon or tool, or the surroundings change to become safe.",
             "scoring_criteria": [
                 "Changes the physical environment to a non-threatening setting",
                 "Makes the initial dream environment impermeable to threat",
@@ -119,7 +119,7 @@ def build_clinical_graph() -> nx.DiGraph:
             "description": "Self-soothing and emotional regulation. The dreamer manages their emotional state to stay calm and engaged.",
             "mms_category": "Self-soothing",
             "reference": "Germain et al. (2004) MMS Subscale IV: 'Changes in the dreamer's emotional state or reaction.'",
-            "nli_hypothesis": "The dreamer calms themselves down, stays present, or regulates their fear.",
+            "nli_hypothesis": "The dreamer manages their emotions by calming down, breathing deeply, or staying present despite fear.",
             "scoring_criteria": [
                 "Changes the overall dream affect (emotional atmosphere)",
                 "Changes their emotional reactions to specific dream characters",
@@ -140,7 +140,7 @@ def build_clinical_graph() -> nx.DiGraph:
             "description": "Supernatural or divine intervention. The dreamer uses magical powers or receives divine help to overcome the threat.",
             "mms_category": "Supernatural/Divine",
             "reference": "Germain et al. (2004) MMS Subscale V: 'Interventions involving supernatural or divine elements.'",
-            "nli_hypothesis": "The dreamer uses magical powers, superpowers, or receives divine intervention.",
+            "nli_hypothesis": "The dreamer gains supernatural abilities, uses magic or superpowers, flies, or receives help from a divine being.",
             "scoring_criteria": [
                 "A supernatural figure intervenes in favor of the dreamer to release them from the threat",
                 "A supernatural event intervenes to terminate the threat",
@@ -175,7 +175,7 @@ def build_clinical_graph() -> nx.DiGraph:
             "reference": "Fischmann et al. (2021): 'The Safety Principle describes regulatory mechanisms where the dreamer avoids engagement to manage overwhelming affect.'",
             "clinical_guideline": "Avoidance prevents therapeutic processing. The patient should be guided toward active engagement with the dream content.",
             "why_maladaptive": "Nielsen & Levin (2007) AMPHAC model: Nightmares persist due to failed fear extinction. Avoidance prevents extinction learning. Rousseau & Belleville (2018): 'Prevention of Avoidance' is a key mechanism of nightmare treatment.",
-            "nli_hypothesis": "The dreamer hides, freezes, avoids the threat, or does nothing.",
+            "nli_hypothesis": "The dreamer hides, freezes, does nothing, or avoids confrontation with the threat.",
             "behavioral_markers": [
                 "Waking up to escape",
                 "Freezing in place",
@@ -194,7 +194,7 @@ def build_clinical_graph() -> nx.DiGraph:
             "reference": "Fischmann et al. (2021): Dream interruption represents a failure to process the traumatic material within the dream space.",
             "clinical_guideline": "Interrupting the dream prevents emotional processing. The patient should be guided to stay within the dream and find resolution.",
             "why_maladaptive": "MMS Manual (Germain et al., 2004) Subscale VI (Avoidance): 'Awakens from the dream to escape perceived threats' is coded as Avoidance, not Mastery. It prevents the cognitive restructuring that IRT aims to achieve.",
-            "nli_hypothesis": "The dreamer wakes up, forces the dream to end, or escapes the dream entirely.",
+            "nli_hypothesis": "The dreamer wakes up from the dream or makes the dream end abruptly.",
             "behavioral_markers": [
                 "Forcing oneself to wake up",
                 "The dream suddenly ending",
@@ -212,7 +212,7 @@ def build_clinical_graph() -> nx.DiGraph:
             "reference": "Moser & Hortig (2019) ZDPCS: Regressive aggression indicates primitive defensive operations at a low structural level, where the ego cannot modulate aggressive impulses.",
             "clinical_guideline": "Extreme violence is a primitive defense that prevents adaptive coping. Guide toward controlled, purposeful action instead of destructive chaos.",
             "why_maladaptive": "Fischmann et al. (2021): Dreams at low structural levels show 'destruction of the dream space' rather than resolution. This parallels trauma responses where overwhelming affect leads to primitive fight responses rather than adaptive problem-solving. IRT guidelines explicitly discourage violent revenge fantasies.",
-            "nli_hypothesis": "The dreamer kills everyone, destroys the environment, or uses excessive, chaotic violence.",
+            "nli_hypothesis": "The dreamer kills everyone, murders people, or destroys everything around them.",
             "behavioral_markers": [
                 "Killing everyone in the dream",
                 "Excessive brutal violence",
@@ -240,7 +240,7 @@ def build_clinical_graph() -> nx.DiGraph:
             "description": "Description of environment, characters, or setting without active interaction. The dreamer describes the scene without taking action.",
             "system_action": "validate_context",
             "reference": "Contextual descriptions that set the stage for dream content without indicating adaptive or maladaptive behavior.",
-            "nli_hypothesis": "The user describes the scene, setting, or characters without taking action.",
+            "nli_hypothesis": "The dreamer sees or observes something without doing anything about it.",
             "examples": [
                 "There was a dark forest",
                 "I saw a monster in the corner",
@@ -254,7 +254,7 @@ def build_clinical_graph() -> nx.DiGraph:
             "description": "Explicit statement of emotion without accompanying action. The dreamer expresses feelings without behavioral response.",
             "system_action": "empathy_validation",
             "reference": "Emotional expressions that indicate affect awareness - important for therapeutic engagement but not indicative of adaptive/maladaptive coping.",
-            "nli_hypothesis": "The user expresses feelings or emotions like fear or sadness without taking action.",
+            "nli_hypothesis": "The dreamer expresses fear, sadness, or other emotions without doing anything else.",
             "examples": [
                 "I felt scared",
                 "I was terrified",
