@@ -1,286 +1,274 @@
 """
 Block B: The Entity Linker (Clinical Classifier)
 
-Uses an LLM to map user text to clinical graph node IDs.
-The classifier acts as a "Clinical Coder" that identifies whether
-user input represents adaptive or maladaptive dream behaviors.
+NLI-Based Clinical Classifier using Cross-Encoder.
+
+This module uses Natural Language Inference (NLI) to map user text to clinical 
+graph node IDs. The Cross-Encoder approach provides more robust, logic-based 
+classification than generative LLMs, specifically handling negation 
+(e.g., "I decided not to run") and context more reliably.
+
+Reference: Implementation Plan NLI Classifier (thesis methodology)
 """
 
 import os
 import sys
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict, List
 import logging
-from dotenv import load_dotenv, find_dotenv
-
-# Load environment variables
-load_dotenv(find_dotenv())
+import numpy as np
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from AI.agent import Agent, ModelConfig, MODELS
 from .graph_definitions import build_clinical_graph, get_all_node_ids, get_maladaptive_nodes, get_adaptive_nodes
 
 logger = logging.getLogger(__name__)
 
+# Confidence threshold for classification
+CONFIDENCE_THRESHOLD = 0.5
 
-# System prompt for the Clinical Coder
-CLINICAL_CODER_PROMPT = """You are a Clinical Coder for Imagery Rehearsal Therapy (IRT). Your task is to classify dream actions/interventions into predefined clinical categories based on the MMS (Mastery Measurement Scale) and ZDPCS (Zurich Dream Process Coding System).
-
-## Available Categories
-
-### MALADAPTIVE (Risk) Categories - from ZDPCS:
-1. **ZDPCS_SAFETY_PRINCIPLE** - Avoidance behaviors: hiding, freezing, looking away, becoming invisible, passive observation, doing nothing
-2. **ZDPCS_INTERRUPT** - Dream escape: forcing oneself awake, waking up, dream ending abruptly, scene dissolving, refusing to continue
-3. **ZDPCS_REGRESSIVE_AGGRESSION** - Extreme violence: killing everyone, excessive brutal violence, destroying the environment, uncontrolled rage, disproportionate violence
-
-### ADAPTIVE (Goal) Categories - from MMS:
-4. **BEHAVIORAL_MASTERY** - Active response: fighting back proportionately, running purposefully, confronting threats, taking control, winning over aggressor
-5. **SOCIAL_MASTERY** - Social support: calling for help, allies appearing, working with others, receiving protection, adding helpful characters
-6. **ENVIRONMENTAL_MASTERY** - Environment/Tools: finding weapons/tools, environment changing favorably, safe place appearing, spontaneous helpful events
-7. **EMOTIONAL_MASTERY** - Self-regulation: calming down, accepting peacefully, transforming fear, staying present, changing emotional reactions
-8. **MYTHICAL_MASTERY** - Supernatural: using magical powers, divine intervention, supernatural figure helping, gaining superpowers, miraculous events
-
-### NEUTRAL Categories - Context without action:
-9. **ZDPCS_NARRATIVE_SETTING** - Scene description: describing the environment, characters, or setting without active interaction or response
-10. **ZDPCS_AFFECT_EXPRESSION** - Feeling statement: explicit expression of emotion (e.g., "I felt scared", "I was terrified") without accompanying action
-
-## Instructions
-- Analyze the user's proposed dream action/intervention
-- Classify it into EXACTLY ONE of the 10 categories above
-- Respond with ONLY the category code (e.g., "BEHAVIORAL_MASTERY")
-
-### Negation Handling (CRITICAL)
-- If the user mentions an action they AVOIDED doing (e.g., "I decided not to run", "I chose not to hide"), classify the DECISION itself, not the avoided action
-- "I decided not to run away" = BEHAVIORAL_MASTERY (active choice to stay and engage)
-- "I chose not to hide" = BEHAVIORAL_MASTERY (active choice to face the situation)
-- "I refused to wake up" = EMOTIONAL_MASTERY (choice to stay in dream)
-
-### Ambiguity Rule
-- If the user describes ONLY the setting or their feelings WITHOUT taking any action, classify as NARRATIVE or AFFECT
-- "There was a monster" = ZDPCS_NARRATIVE_SETTING
-- "I felt scared" = ZDPCS_AFFECT_EXPRESSION  
-- "I felt scared so I ran" = BEHAVIORAL_MASTERY (action present)
-
-### Priority Rules
-- If the input describes inaction or passive avoidance (doing nothing, hiding without choosing to), classify as ZDPCS_SAFETY_PRINCIPLE
-- If the input describes waking up or ending the dream, classify as ZDPCS_INTERRUPT
-- If the input describes extreme/chaotic violence (killing everyone, destroying everything), classify as ZDPCS_REGRESSIVE_AGGRESSION
-- If the input describes using magic/supernatural powers, classify as MYTHICAL_MASTERY
-- If the input describes finding tools or environment changing, classify as ENVIRONMENTAL_MASTERY
-
-## Response Format
-Respond with ONLY the category code. No explanations, no punctuation, no additional text.
-
-Example inputs and outputs:
-- "I hide under the bed" -> ZDPCS_SAFETY_PRINCIPLE
-- "I do nothing" -> ZDPCS_SAFETY_PRINCIPLE
-- "I wake myself up" -> ZDPCS_INTERRUPT
-- "I kill everyone in the room" -> ZDPCS_REGRESSIVE_AGGRESSION
-- "I punch the attacker" -> BEHAVIORAL_MASTERY
-- "I fight back" -> BEHAVIORAL_MASTERY
-- "I call for my friend to help" -> SOCIAL_MASTERY
-- "I find a sword on the ground" -> ENVIRONMENTAL_MASTERY
-- "I take a deep breath and stay calm" -> EMOTIONAL_MASTERY
-- "I use my magical powers to fly away" -> MYTHICAL_MASTERY
-- "An angel appears to protect me" -> MYTHICAL_MASTERY
-- "There was a dark forest" -> ZDPCS_NARRATIVE_SETTING
-- "I saw a monster" -> ZDPCS_NARRATIVE_SETTING
-- "I felt terrified" -> ZDPCS_AFFECT_EXPRESSION
-- "I decided not to run away" -> BEHAVIORAL_MASTERY
-- "I chose to stay instead of hiding" -> BEHAVIORAL_MASTERY
-
-### CRITICAL: Emotional Suppression vs Expression (Context-Dependent)
-When nightmare context is provided, distinguish between:
-- ACKNOWLEDGING emotion (therapeutic, neutral): "I felt scared", "I was terrified"  
-- SUPPRESSING emotion about distressing content (avoidance, maladaptive): "I don't feel panic", "I'm fine with it"
-
-If the nightmare contains distressing content (death, violence, threat) and the user claims to feel nothing or be "fine with it" WITHOUT transforming the scenario, classify as ZDPCS_SAFETY_PRINCIPLE (emotional avoidance).
-
-Examples with context:
-- Nightmare: "My dog was dead on the floor" + Response: "I don't feel any panic" -> ZDPCS_SAFETY_PRINCIPLE (emotional suppression)
-- Nightmare: "My dog was dead on the floor" + Response: "I'm fine with the situation" -> ZDPCS_SAFETY_PRINCIPLE (emotional suppression)
-- Nightmare: "My dog was dead on the floor" + Response: "I see my dog is actually alive and happy" -> ENVIRONMENTAL_MASTERY (transformation)
-- Nightmare: "Being chased by monster" + Response: "I felt terrified" -> ZDPCS_AFFECT_EXPRESSION (acknowledging emotion)
-"""
+# Default fallback node when confidence is too low
+DEFAULT_NODE = "ZDPCS_NARRATIVE_SETTING"
 
 
 class ClinicalClassifier:
     """
-    Classifies user dream interventions into clinical categories using an LLM.
+    NLI-Based Clinical Classifier using Cross-Encoder.
     
-    Uses the Agent class to send classification requests and validates
-    that returned codes exist in the clinical knowledge graph.
+    Uses the cross-encoder/nli-deberta-v3-base model to classify dream 
+    interventions into clinical categories by testing entailment between
+    user input (premise) and clinical hypotheses.
+    
+    Key advantages over LLM-based classification:
+    - Deterministic and reproducible results
+    - Better handling of negation ("I decided not to run")
+    - More robust context understanding
+    - Faster inference (no generation needed)
     """
     
-    def __init__(self, model_config: Optional[ModelConfig] = None):
+    def __init__(self, model_name: str = 'cross-encoder/nli-deberta-v3-base'):
         """
-        Initialize the Clinical Classifier.
+        Initialize the NLI Clinical Classifier.
         
         Args:
-            model_config: Optional model configuration. Defaults to GROQ_8B for speed.
+            model_name: The HuggingFace model name for the Cross-Encoder.
+                       Defaults to 'cross-encoder/nli-deberta-v3-base'.
         """
-        # Use fast model by default for classification
-        self.model_config = model_config or MODELS["GROQ_8B"]
+        from sentence_transformers import CrossEncoder
         
-        # Initialize the agent with clinical coder prompt
-        self.agent = Agent(
-            model_config=self.model_config,
-            system_prompt=CLINICAL_CODER_PROMPT,
-            temperature=0.1  # Low temperature for consistent classification
-        )
+        # Load the NLI model (downloads on first run)
+        logger.info(f"Loading NLI model: {model_name}")
+        self.model = CrossEncoder(model_name)
+        self.model_name = model_name
         
-        # Load the graph to validate node IDs
+        # Load the clinical knowledge graph
         self.graph = build_clinical_graph()
         self.valid_node_ids = set(get_all_node_ids(self.graph))
         
-        logger.info(f"ClinicalClassifier initialized with model: {self.model_config.name}")
-        logger.info(f"Valid node IDs: {self.valid_node_ids}")
+        # Pre-load hypotheses mapping: {node_id: hypothesis_string}
+        self.node_hypotheses: Dict[str, str] = {}
+        for node_id, data in self.graph.nodes(data=True):
+            if 'nli_hypothesis' in data:
+                self.node_hypotheses[node_id] = data['nli_hypothesis']
+            else:
+                logger.warning(f"Node {node_id} missing nli_hypothesis, using description")
+                self.node_hypotheses[node_id] = data.get('description', node_id)
+        
+        # Determine the label mapping for the model
+        # For nli-deberta-v3-base, labels are typically: [contradiction, neutral, entailment]
+        # or [entailment, neutral, contradiction] depending on training
+        self._setup_label_mapping()
+        
+        logger.info(f"ClinicalClassifier initialized with {len(self.node_hypotheses)} hypotheses")
+        logger.info(f"Valid node IDs: {list(self.valid_node_ids)}")
     
-    async def classify_intent(self, user_text: str, nightmare_context: Optional[str] = None) -> str:
+    def _setup_label_mapping(self):
         """
-        Classify user dream intervention text into a clinical category.
+        Set up the label mapping for extracting entailment scores.
+        
+        Different NLI models may have different label orderings.
+        For cross-encoder/nli-deberta-v3-base:
+        - Label 0: contradiction
+        - Label 1: neutral  
+        - Label 2: entailment
+        """
+        # Check if model has label2id mapping
+        if hasattr(self.model.model, 'config') and hasattr(self.model.model.config, 'label2id'):
+            label2id = self.model.model.config.label2id
+            logger.info(f"Model label mapping: {label2id}")
+            
+            # Try to find entailment index
+            if 'entailment' in label2id:
+                self.entailment_idx = label2id['entailment']
+            elif 'ENTAILMENT' in label2id:
+                self.entailment_idx = label2id['ENTAILMENT']
+            else:
+                # Default for nli-deberta-v3-base: entailment is index 2
+                self.entailment_idx = 2
+                logger.warning(f"Could not find 'entailment' in label2id, using default index 2")
+        else:
+            # Default for most NLI models
+            self.entailment_idx = 2
+            logger.info(f"Using default entailment index: {self.entailment_idx}")
+    
+    async def classify_intent(self, user_text: str, context: Optional[str] = None) -> str:
+        """
+        Classify user dream intervention text into a clinical category using NLI.
+        
+        Algorithm:
+        1. Construct premise from user text and context
+        2. Create (premise, hypothesis) pairs for each node
+        3. Run NLI inference
+        4. Return node with highest entailment score (above threshold)
         
         Args:
             user_text: The user's proposed dream action/intervention
-            nightmare_context: Optional context about the original nightmare for disambiguation
+            context: Optional context (either segment context or nightmare context)
             
         Returns:
             The node ID (category code) that best matches the input
-            
-        Raises:
-            ValueError: If the LLM returns an invalid node ID
         """
         try:
-            # Build context-aware message if nightmare context is provided
-            if nightmare_context:
-                classification_input = f"""[NIGHTMARE CONTEXT]
-{nightmare_context}
-
-[USER'S REWRITING ATTEMPT]
-{user_text}
-
-Classify the rewriting attempt above. Remember: If the user claims to feel nothing or be "fine" with distressing content WITHOUT transforming the scenario, that is ZDPCS_SAFETY_PRINCIPLE (emotional avoidance)."""
+            # 1. Prepare Premise
+            premise = self._construct_premise(user_text, context)
+            logger.debug(f"Constructed premise: {premise}")
+            
+            # 2. Prepare (Premise, Hypothesis) pairs
+            node_ids = list(self.node_hypotheses.keys())
+            pairs = [(premise, self.node_hypotheses[node]) for node in node_ids]
+            
+            # 3. Run NLI inference
+            # The model returns logits for each class [contradiction, neutral, entailment]
+            scores = self.model.predict(pairs, convert_to_numpy=True)
+            
+            # Handle different output shapes
+            if len(scores.shape) == 1:
+                # Model returns single score (some models do this)
+                # Assume it's entailment probability
+                entailment_scores = scores
             else:
-                classification_input = user_text
+                # Model returns logits for all classes
+                # Extract entailment scores
+                entailment_scores = scores[:, self.entailment_idx]
             
-            # Send classification request
-            response, usage = await self.agent.generate(classification_input)
+            # 4. Find best match
+            best_idx = int(np.argmax(entailment_scores))
+            best_score = float(entailment_scores[best_idx])
+            best_node = node_ids[best_idx]
             
-            # Clean the response (remove whitespace, convert to uppercase)
-            node_id = response.strip().upper()
+            logger.info(f"Classification: '{user_text[:50]}...' -> {best_node} (score: {best_score:.3f})")
             
-            # Remove any punctuation that might have been added
-            node_id = ''.join(c for c in node_id if c.isalnum() or c == '_')
+            # Log top 3 for debugging
+            top_indices = np.argsort(entailment_scores)[-3:][::-1]
+            top_results = [(node_ids[i], float(entailment_scores[i])) for i in top_indices]
+            logger.debug(f"Top 3 matches: {top_results}")
             
-            logger.info(f"Classification result: '{user_text[:50]}...' -> {node_id}")
-            logger.debug(f"Token usage: {usage}")
+            # 5. Apply threshold
+            if best_score < CONFIDENCE_THRESHOLD:
+                logger.warning(f"Best score {best_score:.3f} below threshold {CONFIDENCE_THRESHOLD}, returning {DEFAULT_NODE}")
+                return DEFAULT_NODE
             
-            # Validate the node ID exists in the graph
-            if node_id not in self.valid_node_ids:
-                logger.warning(f"Invalid node ID returned: {node_id}. Attempting fuzzy match...")
-                node_id = self._fuzzy_match_node_id(node_id)
-            
-            return node_id
+            return best_node
             
         except Exception as e:
             logger.error(f"Error classifying intent: {str(e)}")
             raise
     
-    async def classify_with_confidence(self, user_text: str, nightmare_context: Optional[str] = None) -> Tuple[str, dict]:
+    def _construct_premise(self, user_text: str, context: Optional[str] = None) -> str:
         """
-        Classify user text and return additional metadata.
+        Construct the premise for NLI inference.
+        
+        Args:
+            user_text: The user's action/intervention text
+            context: Optional context about the situation
+            
+        Returns:
+            Formatted premise string
+        """
+        if context:
+            return f"Context: {context} | Action: {user_text}"
+        return user_text
+    
+    async def classify_with_confidence(self, user_text: str, context: Optional[str] = None) -> Tuple[str, dict]:
+        """
+        Classify user text and return additional metadata including confidence scores.
         
         Args:
             user_text: The user's proposed dream action/intervention
-            nightmare_context: Optional context about the original nightmare for disambiguation
+            context: Optional context about the situation
             
         Returns:
-            Tuple of (node_id, metadata_dict)
+            Tuple of (node_id, metadata_dict) with confidence scores
         """
-        node_id = await self.classify_intent(user_text, nightmare_context=nightmare_context)
-        
-        # Get node attributes from graph
-        node_attrs = dict(self.graph.nodes[node_id])
-        
-        metadata = {
-            "node_id": node_id,
-            "node_type": node_attrs.get("type"),
-            "category": node_attrs.get("category"),
-            "description": node_attrs.get("description"),
-            "is_maladaptive": node_attrs.get("type") == "maladaptive",
-            "input_text": user_text
-        }
-        
-        return node_id, metadata
+        try:
+            # Prepare premise and pairs
+            premise = self._construct_premise(user_text, context)
+            node_ids = list(self.node_hypotheses.keys())
+            pairs = [(premise, self.node_hypotheses[node]) for node in node_ids]
+            
+            # Run inference
+            scores = self.model.predict(pairs, convert_to_numpy=True)
+            
+            # Handle output shape
+            if len(scores.shape) == 1:
+                entailment_scores = scores
+            else:
+                entailment_scores = scores[:, self.entailment_idx]
+            
+            # Get best match
+            best_idx = int(np.argmax(entailment_scores))
+            best_score = float(entailment_scores[best_idx])
+            node_id = node_ids[best_idx]
+            
+            # Apply threshold
+            if best_score < CONFIDENCE_THRESHOLD:
+                node_id = DEFAULT_NODE
+                # Find score for default node
+                default_idx = node_ids.index(DEFAULT_NODE) if DEFAULT_NODE in node_ids else 0
+                best_score = float(entailment_scores[default_idx])
+            
+            # Get node attributes
+            node_attrs = dict(self.graph.nodes[node_id])
+            
+            # Build score ranking
+            score_ranking = {
+                node_ids[i]: float(entailment_scores[i]) 
+                for i in np.argsort(entailment_scores)[-5:][::-1]
+            }
+            
+            metadata = {
+                "node_id": node_id,
+                "node_type": node_attrs.get("type"),
+                "category": node_attrs.get("category"),
+                "description": node_attrs.get("description"),
+                "is_maladaptive": node_attrs.get("type") == "maladaptive",
+                "input_text": user_text,
+                "context": context,
+                "confidence_score": best_score,
+                "score_ranking": score_ranking,
+                "model_name": self.model_name
+            }
+            
+            return node_id, metadata
+            
+        except Exception as e:
+            logger.error(f"Error in classify_with_confidence: {str(e)}")
+            raise
     
-    def _fuzzy_match_node_id(self, invalid_id: str) -> str:
+    def classify_intent_sync(self, user_text: str, context: Optional[str] = None) -> str:
         """
-        Attempt to match an invalid node ID to a valid one.
+        Synchronous version of classify_intent for non-async contexts.
         
         Args:
-            invalid_id: The invalid node ID returned by the LLM
+            user_text: The user's proposed dream action/intervention
+            context: Optional context about the situation
             
         Returns:
-            The best matching valid node ID
-            
-        Raises:
-            ValueError: If no match can be found
+            The node ID (category code) that best matches the input
         """
-        # Try simple substring matching
-        for valid_id in self.valid_node_ids:
-            if invalid_id in valid_id or valid_id in invalid_id:
-                logger.info(f"Fuzzy matched '{invalid_id}' to '{valid_id}'")
-                return valid_id
-        
-        # Try matching keywords
-        keyword_map = {
-            "AVOID": "ZDPCS_SAFETY_PRINCIPLE",
-            "HIDE": "ZDPCS_SAFETY_PRINCIPLE",
-            "FREEZE": "ZDPCS_SAFETY_PRINCIPLE",
-            "SAFE": "ZDPCS_SAFETY_PRINCIPLE",
-            "WAKE": "ZDPCS_INTERRUPT",
-            "INTERRUPT": "ZDPCS_INTERRUPT",
-            "ESCAPE": "ZDPCS_INTERRUPT",
-            "KILL": "ZDPCS_REGRESSIVE_AGGRESSION",
-            "VIOLENCE": "ZDPCS_REGRESSIVE_AGGRESSION",
-            "AGGRESSION": "ZDPCS_REGRESSIVE_AGGRESSION",
-            "DESTROY": "ZDPCS_REGRESSIVE_AGGRESSION",
-            "ACTION": "BEHAVIORAL_MASTERY",
-            "FIGHT": "BEHAVIORAL_MASTERY",
-            "BEHAV": "BEHAVIORAL_MASTERY",
-            "HELP": "SOCIAL_MASTERY",
-            "SOCIAL": "SOCIAL_MASTERY",
-            "FRIEND": "SOCIAL_MASTERY",
-            "TOOL": "ENVIRONMENTAL_MASTERY",
-            "ENVIRON": "ENVIRONMENTAL_MASTERY",
-            "CALM": "EMOTIONAL_MASTERY",
-            "EMOTION": "EMOTIONAL_MASTERY",
-            "SOOTH": "EMOTIONAL_MASTERY",
-            "MYTHIC": "MYTHICAL_MASTERY",
-            "MAGIC": "MYTHICAL_MASTERY",
-            "SUPER": "MYTHICAL_MASTERY",
-            "DIVINE": "MYTHICAL_MASTERY",
-            "ANGEL": "MYTHICAL_MASTERY",
-            "POWER": "MYTHICAL_MASTERY",
-            # Neutral categories
-            "NARRATIVE": "ZDPCS_NARRATIVE_SETTING",
-            "SETTING": "ZDPCS_NARRATIVE_SETTING",
-            "SCENE": "ZDPCS_NARRATIVE_SETTING",
-            "AFFECT": "ZDPCS_AFFECT_EXPRESSION",
-            "FEELING": "ZDPCS_AFFECT_EXPRESSION",
-            "FELT": "ZDPCS_AFFECT_EXPRESSION",
-        }
-        
-        for keyword, valid_id in keyword_map.items():
-            if keyword in invalid_id:
-                logger.info(f"Keyword matched '{invalid_id}' to '{valid_id}'")
-                return valid_id
-        
-        # If no match found, raise an error
-        raise ValueError(
-            f"Could not match '{invalid_id}' to any valid node ID. "
-            f"Valid IDs are: {self.valid_node_ids}"
+        import asyncio
+        return asyncio.get_event_loop().run_until_complete(
+            self.classify_intent(user_text, context)
         )
     
     def get_node_info(self, node_id: str) -> dict:
@@ -297,6 +285,15 @@ Classify the rewriting attempt above. Remember: If the user claims to feel nothi
             raise ValueError(f"Node '{node_id}' not found in graph")
         
         return dict(self.graph.nodes[node_id])
+    
+    def get_all_hypotheses(self) -> Dict[str, str]:
+        """
+        Get all node hypotheses for inspection/debugging.
+        
+        Returns:
+            Dictionary mapping node IDs to their NLI hypotheses
+        """
+        return self.node_hypotheses.copy()
 
 
 # For testing
@@ -304,51 +301,80 @@ if __name__ == "__main__":
     import asyncio
     
     async def test_classifier():
+        print("=" * 70)
+        print("NLI Clinical Classifier Test")
+        print("=" * 70)
+        
         classifier = ClinicalClassifier()
         
+        # Print hypotheses
+        print("\nLoaded NLI Hypotheses:")
+        print("-" * 70)
+        for node_id, hypothesis in classifier.get_all_hypotheses().items():
+            print(f"  {node_id}: {hypothesis}")
+        
         test_cases = [
-            # Maladaptive
-            "I hide under the bed",
-            "I wake myself up to escape the nightmare",
-            "I kill everyone in the room",
-            "I do nothing and just watch",
-            # Adaptive
-            "I punch the attacker in the face",
-            "I call for my friend to help me",
-            "I find a magical sword",
-            "I take a deep breath and stay calm",
-            "I run away as fast as I can",
-            # Neutral - Narrative
-            "There was a dark forest",
-            "I saw a monster in the corner",
-            # Neutral - Affect
-            "I felt terrified",
-            "I was scared",
-            # Negation handling
-            "I decided not to run away",
-            "I chose to stay instead of hiding",
+            # Basic adaptive behaviors
+            ("I punch the attacker in the face", None),
+            ("I call for my friend to help me", None),
+            ("I find a magical sword", None),
+            ("I take a deep breath and stay calm", None),
+            ("I use my magical powers to fly away", None),
+            
+            # Basic maladaptive behaviors
+            ("I hide under the bed", None),
+            ("I wake myself up to escape the nightmare", None),
+            ("I kill everyone in the room", None),
+            ("I do nothing and just watch", None),
+            
+            # Neutral
+            ("There was a dark forest", None),
+            ("I saw a monster in the corner", None),
+            ("I felt terrified", None),
+            
+            # CRITICAL: Negation handling tests
+            ("I decided not to run away", None),
+            ("I chose to stay instead of hiding", None),
+            ("I refuse to hide", None),
+            
+            # Context-aware tests
+            ("I run", "being chased by a monster"),
+            ("I hide", "tornado approaching"),
+            ("I fight back", "facing an attacker"),
+            
+            # Complex sentences
+            ("I felt scared but I stand my ground", None),
+            ("Even though I was terrified, I confronted the monster", None),
         ]
         
-        print("=" * 60)
-        print("Clinical Classifier Test")
-        print("=" * 60)
+        print("\n" + "=" * 70)
+        print("Test Results")
+        print("=" * 70)
         
-        for test in test_cases:
+        for test_input, context in test_cases:
             try:
-                node_id, metadata = await classifier.classify_with_confidence(test)
+                node_id, metadata = await classifier.classify_with_confidence(test_input, context=context)
                 node_type = metadata.get("node_type", "unknown")
+                score = metadata.get("confidence_score", 0)
+                
                 if node_type == "maladaptive":
                     status = "⚠️ MALADAPTIVE"
                 elif node_type == "adaptive":
                     status = "✅ ADAPTIVE"
                 else:
                     status = "🟡 NEUTRAL"
+                
+                context_str = f" [context: {context}]" if context else ""
                 print(f"\n{status}")
-                print(f"  Input: '{test}'")
-                print(f"  Classification: {node_id}")
+                print(f"  Input: '{test_input}'{context_str}")
+                print(f"  Classification: {node_id} (confidence: {score:.3f})")
                 print(f"  Category: {metadata['category']}")
+                
+                # Show top scores
+                top_scores = list(metadata['score_ranking'].items())[:3]
+                print(f"  Top 3: {top_scores}")
+                
             except Exception as e:
-                print(f"\n❌ ERROR for '{test}': {e}")
+                print(f"\n❌ ERROR for '{test_input}': {e}")
     
     asyncio.run(test_classifier())
-

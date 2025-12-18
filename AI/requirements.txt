@@ -14,3 +14,7 @@ aiohttp>=3.13.0
 networkx>=3.0
 pandas>=2.0.0
 
+# NLI Classifier dependencies
+sentence-transformers>=2.2.2
+torch>=2.0.0
+

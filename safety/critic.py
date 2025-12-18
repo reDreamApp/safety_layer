@@ -37,7 +37,7 @@ SEVERITY_PRIORITY = {
 }
 
 # Segmenter system prompt
-SEGMENTER_PROMPT = """You are a text segmenter for dream therapy responses. Your task is to parse user input into discrete segments and label each by type.
+SEGMENTER_PROMPT = """You are a text segmenter for dream therapy responses. Your task is to parse user input into discrete segments, label each by type, AND extract the context/threat being responded to.
 
 ## Segment Types
 - **ACTION**: The user describes doing something in the dream (e.g., "I fight the monster", "I run away")
@@ -45,35 +45,44 @@ SEGMENTER_PROMPT = """You are a text segmenter for dream therapy responses. Your
 - **FEELING**: The user expresses an emotion (e.g., "I feel scared", "I'm terrified")
 - **META**: Conversational/meta content not part of the dream narrative (e.g., "I hate this", "this is stupid", questions about therapy)
 
+## Context Extraction
+For each segment (especially ACTION/THOUGHT), identify the **Immediate Threat** or **Situation** the user is responding to.
+- Use the provided Nightmare Context (if any) and the User Input.
+- Example: If input is "I punch it", context might be "facing the monster".
+- Example: If input is "I hide", context might be "being chased".
+- If no clear context applies (e.g. for META), use null.
+
 ## Instructions
 1. Split the input into discrete segments based on meaning
 2. Label each segment with its type
-3. Return a JSON array of objects with "text" and "type" keys
-4. If the entire input is a single type, return a single-element array
-5. Preserve the original text in each segment
+3. Extract the "context" string for each segment
+4. Return a JSON array of objects with "text", "type", and "context" keys
+5. If the entire input is a single type, return a single-element array
+6. Preserve the original text in each segment
 
 ## Response Format
 Return ONLY valid JSON array. No explanations, no markdown, just JSON.
 
 ## Examples
 
-Input: "I hate this therapy, but I guess I fight the dragon."
-Output: [{"text": "I hate this therapy", "type": "META"}, {"text": "but I guess I fight the dragon", "type": "ACTION"}]
+Context: "Being chased by a dragon in a cave."
+Input: "I hate this therapy, but I guess I turn and fight it."
+Output: [{"text": "I hate this therapy", "type": "META", "context": null}, {"text": "but I guess I turn and fight it", "type": "ACTION", "context": "being chased by dragon"}]
 
 Input: "I feel scared but I stand my ground"
-Output: [{"text": "I feel scared", "type": "FEELING"}, {"text": "but I stand my ground", "type": "ACTION"}]
+Output: [{"text": "I feel scared", "type": "FEELING", "context": null}, {"text": "but I stand my ground", "type": "ACTION", "context": "facing the threat"}]
 
 Input: "I run away as fast as I can"
-Output: [{"text": "I run away as fast as I can", "type": "ACTION"}]
+Output: [{"text": "I run away as fast as I can", "type": "ACTION", "context": "escaping from danger"}]
 
 Input: "This is dumb"
-Output: [{"text": "This is dumb", "type": "META"}]
+Output: [{"text": "This is dumb", "type": "META", "context": null}]
 
 Input: "I'm terrified"
-Output: [{"text": "I'm terrified", "type": "FEELING"}]
+Output: [{"text": "I'm terrified", "type": "FEELING", "context": null}]
 
 Input: "Why do I have to do this? Fine, I'll punch the monster I guess"
-Output: [{"text": "Why do I have to do this?", "type": "META"}, {"text": "Fine, I'll punch the monster I guess", "type": "ACTION"}]
+Output: [{"text": "Why do I have to do this?", "type": "META", "context": null}, {"text": "Fine, I'll punch the monster I guess", "type": "ACTION", "context": "confronting the monster"}]
 """
 
 
@@ -82,6 +91,7 @@ class SegmentResult:
     """Result of segmenting a single piece of text."""
     text: str
     segment_type: str  # ACTION, THOUGHT, FEELING, META
+    context: Optional[str] = None  # Immediate threat/situation context for NLI classification
     node_id: Optional[str] = None
     node_type: Optional[str] = None  # adaptive, maladaptive, neutral
     category: Optional[str] = None
@@ -168,20 +178,27 @@ class SafetyCritic:
         
         logger.info("SafetyCritic initialized with segmentation pipeline")
     
-    async def segment_input(self, user_input: str) -> List[SegmentResult]:
+    async def segment_input(self, user_input: str, nightmare_context: Optional[str] = None) -> List[SegmentResult]:
         """
-        Segment user input into discrete parts with type labels.
+        Segment user input into discrete parts with type labels and context.
         
         Uses a lightweight LLM to parse complex, multi-part inputs.
         
         Args:
             user_input: The user's full response text
+            nightmare_context: Optional context about the original nightmare
             
         Returns:
-            List of SegmentResult objects with text and type
+            List of SegmentResult objects with text, type, and context
         """
         try:
-            response, _ = await self.segmenter.generate(user_input)
+            # Build input with nightmare context if provided
+            if nightmare_context:
+                segmenter_input = f"Context: \"{nightmare_context}\"\nInput: \"{user_input}\""
+            else:
+                segmenter_input = f"Input: \"{user_input}\""
+            
+            response, _ = await self.segmenter.generate(segmenter_input)
             
             # Clean the response - remove any markdown code blocks if present
             cleaned = response.strip()
@@ -201,19 +218,20 @@ class SafetyCritic:
             for seg in segments_data:
                 segments.append(SegmentResult(
                     text=seg.get("text", ""),
-                    segment_type=seg.get("type", "ACTION").upper()
+                    segment_type=seg.get("type", "ACTION").upper(),
+                    context=seg.get("context")  # Extract context for NLI
                 ))
             
-            logger.info(f"Segmented input into {len(segments)} parts: {[s.segment_type for s in segments]}")
+            logger.info(f"Segmented input into {len(segments)} parts: {[(s.segment_type, s.context) for s in segments]}")
             return segments
             
         except (json.JSONDecodeError, KeyError) as e:
             logger.warning(f"Failed to parse segmenter response: {e}. Treating as single ACTION segment.")
             # Fallback: treat entire input as single ACTION segment
-            return [SegmentResult(text=user_input, segment_type="ACTION")]
+            return [SegmentResult(text=user_input, segment_type="ACTION", context=nightmare_context)]
         except Exception as e:
             logger.error(f"Segmentation error: {e}. Treating as single ACTION segment.")
-            return [SegmentResult(text=user_input, segment_type="ACTION")]
+            return [SegmentResult(text=user_input, segment_type="ACTION", context=nightmare_context)]
     
     async def evaluate_intervention(self, user_input: str, nightmare_context: Optional[str] = None) -> SafetyResult:
         """
@@ -238,8 +256,8 @@ class SafetyCritic:
         logger.info(f"Evaluating intervention{context_info}: '{user_input[:50]}...'")
         
         try:
-            # Step 1: Segment the input
-            segments = await self.segment_input(user_input)
+            # Step 1: Segment the input (pass nightmare context for context extraction)
+            segments = await self.segment_input(user_input, nightmare_context=nightmare_context)
             
             # Step 2: Filter out META segments
             dream_segments = [s for s in segments if s.segment_type != "META"]
@@ -263,7 +281,9 @@ class SafetyCritic:
             neutral_segments = []
             
             for segment in dream_segments:
-                node_id = await self.classifier.classify_intent(segment.text, nightmare_context=nightmare_context)
+                # Use segment-level context if available, otherwise fall back to nightmare context
+                segment_context = segment.context or nightmare_context
+                node_id = await self.classifier.classify_intent(segment.text, context=segment_context)
                 
                 if node_id not in self.graph:
                     logger.warning(f"Node '{node_id}' not found in graph")

@@ -69,17 +69,19 @@ def test_knowledge_graph():
 
 
 async def test_classifier():
-    """Test Block B: Clinical Classifier"""
+    """Test Block B: Clinical Classifier (NLI-Based)"""
     print("\n" + "=" * 60)
-    print("Block B: Clinical Classifier")
+    print("Block B: Clinical Classifier (NLI Cross-Encoder)")
     print("=" * 60)
     
     from safety.classifier import ClinicalClassifier
     
     classifier = ClinicalClassifier()
-    print(f"✅ Classifier initialized with model: {classifier.model_config.name}")
+    print(f"✅ NLI Classifier initialized with model: {classifier.model_name}")
+    print(f"✅ Loaded {len(classifier.node_hypotheses)} hypotheses")
     
     # Test cases with expected classifications
+    # NLI classifier should handle these more reliably than LLM
     test_cases = [
         # Maladaptive
         ("I hide under the bed", "ZDPCS_SAFETY_PRINCIPLE"),
@@ -87,12 +89,17 @@ async def test_classifier():
         ("I kill everyone", "ZDPCS_REGRESSIVE_AGGRESSION"),
         # Adaptive
         ("I fight back", "BEHAVIORAL_MASTERY"),
+        ("I punch the monster", "BEHAVIORAL_MASTERY"),
         ("I call for help", "SOCIAL_MASTERY"),
-        # Neutral (new)
+        ("I find a sword", "ENVIRONMENTAL_MASTERY"),
+        ("I calm myself down", "EMOTIONAL_MASTERY"),
+        ("I use my magic powers", "MYTHICAL_MASTERY"),
+        # Neutral
         ("I felt scared", "ZDPCS_AFFECT_EXPRESSION"),
         ("There was a dark forest", "ZDPCS_NARRATIVE_SETTING"),
-        # Negation handling (new)
+        # CRITICAL: Negation handling (NLI should excel at this)
         ("I decided not to run away", "BEHAVIORAL_MASTERY"),
+        ("I chose not to hide", "BEHAVIORAL_MASTERY"),
     ]
     
     passed = 0
@@ -100,19 +107,28 @@ async def test_classifier():
     
     for user_input, expected in test_cases:
         try:
-            result = await classifier.classify_intent(user_input)
+            result, metadata = await classifier.classify_with_confidence(user_input)
+            confidence = metadata.get("confidence_score", 0)
+            
             if result == expected:
-                print(f"✅ '{user_input}' -> {result}")
+                print(f"✅ '{user_input}' -> {result} ({confidence:.3f})")
                 passed += 1
             else:
-                print(f"⚠️  '{user_input}' -> {result} (expected {expected})")
-                # Allow for similar classifications (e.g., fighting could be behavioral)
-                passed += 1  # Be lenient since LLM might interpret differently
+                # Check if it's a reasonable alternative (same type)
+                expected_type = classifier.get_node_info(expected).get("type")
+                actual_type = metadata.get("node_type")
+                
+                if expected_type == actual_type:
+                    print(f"⚠️  '{user_input}' -> {result} ({confidence:.3f}) [expected {expected}, same type]")
+                    passed += 1  # Still counts as pass if same type
+                else:
+                    print(f"❌ '{user_input}' -> {result} ({confidence:.3f}) [expected {expected}]")
+                    failed += 1
         except Exception as e:
             print(f"❌ '{user_input}' -> ERROR: {e}")
             failed += 1
     
-    print(f"\n✅ Block B: {passed}/{len(test_cases)} tests passed")
+    print(f"\n✅ Block B: {passed}/{len(test_cases)} tests passed, {failed} failed")
     return failed == 0
 
 
