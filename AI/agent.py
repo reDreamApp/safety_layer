@@ -20,7 +20,7 @@ def log_prompt(system_prompt: str, user_prompt: str, model: str):
         "=================="
     )
 
-ProviderType = Literal["groq", "openai"]
+ProviderType = Literal["groq", "openai", "scaleway"]
 
 @dataclass
 class ModelConfig:
@@ -39,6 +39,14 @@ class Agent:
             if not api_key:
                 raise ValueError("GROQ_API_KEY not found in environment")
             self.client = AsyncGroq(api_key=api_key)
+        elif model_config.provider == "scaleway":
+            api_key = os.getenv('SCALEWAY_API_KEY')
+            if not api_key:
+                raise ValueError("SCALEWAY_API_KEY not found in environment")
+            self.client = AsyncOpenAI(
+                api_key=api_key,
+                base_url="https://api.scaleway.ai/v1"
+            )
         else:
             api_key = os.getenv('OPENAI_API_KEY')
             if not api_key:
@@ -104,16 +112,21 @@ MODELS = {
     # If your account doesn't have this specific model, it will still work since
     # language_detector only needs a valid Groq config; you can swap the name later.
     "GROQ_8B": ModelConfig(name="llama-3.1-8b-instant", provider="groq"),
-    "GPT4": ModelConfig(name="gpt-4", provider="openai")
+    "GPT4": ModelConfig(name="gpt-4", provider="openai"),
+    # Scaleway Mistral models
+    "MISTRAL_SMALL": ModelConfig(name="mistral-small-3.2-24b-instruct-2506", provider="scaleway"),
+    "MISTRAL_NEMO": ModelConfig(name="mistral-nemo-instruct-2407", provider="scaleway"),
 }
 
 # Create agent instances (will fail if API keys are not set)
 try:
-    routing_agent = Agent(MODELS["GROQ_70B"], ROUTING_PROMPT, temperature=0.1)
-    response_agent = Agent(MODELS["GROQ_70B"], "your_response_prompt", temperature=0.5)
+    # Use small Mistral model for routing (fast, lightweight)
+    routing_agent = Agent(MODELS["MISTRAL_NEMO"], ROUTING_PROMPT, temperature=0.1)
+    # Use larger Mistral model for responses (better quality)
+    response_agent = Agent(MODELS["MISTRAL_SMALL"], "your_response_prompt", temperature=0.5)
 except ValueError:
     # API keys not set - agents will be None until .env is configured
     routing_agent = None
     response_agent = None
-    logger.warning("API keys not found. Agent instances not created. Set GROQ_API_KEY or OPENAI_API_KEY in .env file.")
+    logger.warning("API keys not found. Agent instances not created. Set SCALEWAY_API_KEY in .env file.")
 

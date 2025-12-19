@@ -169,9 +169,9 @@ class SafetyCritic:
         # Initialize or use provided classifier
         self.classifier = classifier or ClinicalClassifier()
         
-        # Initialize segmenter agent (lightweight model for speed)
+        # Initialize segmenter agent (small Mistral model for speed)
         self.segmenter = Agent(
-            model_config=MODELS["GROQ_8B"],
+            model_config=MODELS["MISTRAL_NEMO"],
             system_prompt=SEGMENTER_PROMPT,
             temperature=0.1
         )
