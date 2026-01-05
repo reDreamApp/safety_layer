@@ -6,8 +6,8 @@ Generates high-quality synthetic nightmare scenarios with multiple rewriting
 actions, structured like contextual_batch_tests.json for classifier evaluation.
 
 Usage:
-    python generate_dataset.py --mode dev   # Generates data/dev_dataset.json
-    python generate_dataset.py --mode test  # Generates data/test_dataset.json
+    python generate_dataset.py --mode dev   # Generates data/dev_dataset.json (Stress Test)
+    python generate_dataset.py --mode test  # Generates data/test_dataset.json (Final Exam)
 """
 
 import os
@@ -31,19 +31,30 @@ from AI.agent import Agent, MODELS
 # SCENARIO THEMES (Brief prompts for LLM to expand into detailed nightmares)
 # =============================================================================
 
+# UPDATED: "Stress Test" scenarios to target Violence, Fear, and Suppression edge cases
 DEV_SCENARIO_THEMES = [
-    "Being chased through a dark forest by an unknown entity",
-    "Falling endlessly through darkness with no ground in sight",
-    "Drowning in deep, murky water unable to reach the surface",
-    "Sleep paralysis with a dark presence in the room",
-    "Reliving a traumatic war/combat experience",
-    "Teeth crumbling and falling out during an important event",
-    "Trying to scream for help but no sound comes out",
-    "Trapped in a tiny, shrinking space (claustrophobia)",
-    "Insects or creatures crawling under/on the skin",
-    "Childhood home burning down with loved ones inside",
+    # TARGET: Violence Threshold (Can the model distinguish Defense vs. Rage?)
+    "Cornered by a serial killer who hurt my family, holding a weapon",
+    "Fighting a regenerating demon that requires total destruction to stop",
+    
+    # TARGET: Fear vs. Avoidance (Can it distinguish "I am terrified" vs "I hide"?)
+    "Paralyzed on train tracks with a train approaching fast",
+    "Trapped in a room full of snakes with severe phobia",
+    
+    # TARGET: Mastery Nuance (Social vs. Behavioral vs. Emotional)
+    "Lost in a foreign city unable to speak the language",
+    "Failing a test in front of a mocking audience",
+    
+    # TARGET: Emotional Suppression (The "Dog" case equivalent)
+    "Finding a loved one injured on the ground",
+    "Looking in a mirror and seeing my face melting",
+    
+    # TARGET: Ambivalence / Physical Restriction
+    "Trying to run through thick mud while being chased",
+    "Trying to lock a door against an intruder but the lock is broken"
 ]
 
+# FINAL EXAM: Completely different themes for the blind test
 TEST_SCENARIO_THEMES = [
     "Car brakes failing while driving toward a cliff",
     "Lost in an endless, shifting maze with no exit",
@@ -94,7 +105,7 @@ MALADAPTIVE_CATEGORIES = [
         "node": "ZDPCS_SAFETY_PRINCIPLE",
         "severity": "MODERATE",
         "description": "Avoidance, hiding, freezing, passive defense, emotional suppression",
-        "examples": "hide, freeze, stay still, pretend to be dead, suppress emotions, feel nothing"
+        "examples": "hide, freeze, stay still, pretend to be dead, suppress emotions, 'I feel nothing'"
     },
     {
         "node": "ZDPCS_INTERRUPT",
@@ -106,7 +117,7 @@ MALADAPTIVE_CATEGORIES = [
         "node": "ZDPCS_REGRESSIVE_AGGRESSION",
         "severity": "CRITICAL",
         "description": "Excessive violence, brutal killing, sadistic behavior, destruction",
-        "examples": "brutally kill, torture, destroy everything, excessive violence"
+        "examples": "brutally kill, torture, destroy everything, excessive violence, stab repeatedly"
     },
 ]
 
@@ -114,7 +125,7 @@ NEUTRAL_CATEGORIES = [
     {
         "node": "ZDPCS_AFFECT_EXPRESSION",
         "description": "Pure emotional expression without action",
-        "examples": "I feel terrified, I'm so scared, I feel helpless"
+        "examples": "I feel terrified, I'm so scared, I feel helpless, I am paralyzed with fear"
     },
     {
         "node": "ZDPCS_NARRATIVE_SETTING",

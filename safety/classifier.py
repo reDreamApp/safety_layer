@@ -30,78 +30,74 @@ CLINICAL_CODER_PROMPT = """You are a Clinical Coder for Imagery Rehearsal Therap
 ## Available Categories
 
 ### MALADAPTIVE (Risk) Categories - from ZDPCS:
-1. **ZDPCS_SAFETY_PRINCIPLE** - Avoidance behaviors: hiding, freezing, looking away, becoming invisible, passive observation, doing nothing
-2. **ZDPCS_INTERRUPT** - Dream escape: forcing oneself awake, waking up, dream ending abruptly, scene dissolving, refusing to continue
-3. **ZDPCS_REGRESSIVE_AGGRESSION** - Extreme violence: killing everyone, excessive brutal violence, destroying the environment, uncontrolled rage, disproportionate violence
+1. **ZDPCS_SAFETY_PRINCIPLE** - Avoidance behaviors: hiding, freezing (by choice), looking away, passive observation, choosing to do nothing to avoid the threat.
+2. **ZDPCS_INTERRUPT** - Dream escape: forcing oneself awake, waking up, dream ending abruptly, scene dissolving, refusing to continue.
+3. **ZDPCS_REGRESSIVE_AGGRESSION** - Extreme/Chaotic violence: excessive brutal violence (even against threats), torture, mutilation, "killing everyone", destroying the environment, uncontrolled rage.
 
 ### ADAPTIVE (Goal) Categories - from MMS:
-4. **BEHAVIORAL_MASTERY** - Active response: fighting back proportionately, running purposefully, confronting threats, taking control, winning over aggressor
-5. **SOCIAL_MASTERY** - Social support: calling for help, allies appearing, working with others, receiving protection, adding helpful characters
-6. **ENVIRONMENTAL_MASTERY** - Environment/Tools: finding weapons/tools, environment changing favorably, safe place appearing, spontaneous helpful events
-7. **EMOTIONAL_MASTERY** - Self-regulation: calming down, accepting peacefully, transforming fear, staying present, changing emotional reactions
-8. **MYTHICAL_MASTERY** - Supernatural: using magical powers, divine intervention, supernatural figure helping, gaining superpowers, miraculous events
+4. **BEHAVIORAL_MASTERY** - Active response: fighting back proportionately (controlled defense), running purposefully, confronting threats, taking control.
+5. **SOCIAL_MASTERY** - Social support: calling for help, allies appearing, working with others, receiving protection, verbal confrontation involving others.
+6. **ENVIRONMENTAL_MASTERY** - Environment/Tools: finding weapons/tools, using objects, environment changing favorably, safe place appearing.
+7. **EMOTIONAL_MASTERY** - Self-regulation: calming down, accepting peacefully, transforming fear, staying present, changing emotional reactions.
+8. **MYTHICAL_MASTERY** - Supernatural: using magical powers, divine intervention, supernatural figure helping, gaining superpowers.
 
 ### NEUTRAL Categories - Context without action:
-9. **ZDPCS_NARRATIVE_SETTING** - Scene description: describing the environment, characters, or setting without active interaction or response
-10. **ZDPCS_AFFECT_EXPRESSION** - Feeling statement: explicit expression of emotion (e.g., "I felt scared", "I was terrified") without accompanying action
+9. **ZDPCS_NARRATIVE_SETTING** - Scene description: describing the environment, characters, or setting without active interaction.
+10. **ZDPCS_AFFECT_EXPRESSION** - Feeling statement: explicit expression of emotion (e.g., "I felt scared", "I felt helpless", "I couldn't move") without an active decision to avoid.
 
 ## Instructions
-- Analyze the user's proposed dream action/intervention
-- Classify it into EXACTLY ONE of the 10 categories above
-- Respond with ONLY the category code (e.g., "BEHAVIORAL_MASTERY")
+- Analyze the user's proposed dream action/intervention.
+- Classify it into EXACTLY ONE of the 10 categories above.
+- Respond with ONLY the category code.
 
-### Negation Handling (CRITICAL)
-- If the user mentions an action they AVOIDED doing (e.g., "I decided not to run", "I chose not to hide"), classify the DECISION itself, not the avoided action
-- "I decided not to run away" = BEHAVIORAL_MASTERY (active choice to stay and engage)
-- "I chose not to hide" = BEHAVIORAL_MASTERY (active choice to face the situation)
-- "I refused to wake up" = EMOTIONAL_MASTERY (choice to stay in dream)
+### ⚠️ CRITICAL PRIORITY RULES (Read Carefully) ⚠️
 
-### Ambiguity Rule
-- If the user describes ONLY the setting or their feelings WITHOUT taking any action, classify as NARRATIVE or AFFECT
-- "There was a monster" = ZDPCS_NARRATIVE_SETTING
-- "I felt scared" = ZDPCS_AFFECT_EXPRESSION  
-- "I felt scared so I ran" = BEHAVIORAL_MASTERY (action present)
+1. **VIOLENCE THRESHOLD (Defense vs. Rage)**
+   - **Controlled Defense** -> BEHAVIORAL_MASTERY. Example: "I punch the attacker", "I shoot him to stop him", "I push him away".
+   - **Regressive Aggression** -> ZDPCS_REGRESSIVE_AGGRESSION. Example: "I stab him over and over", "I rip him apart in a rage", "I torture him", "I burn the whole forest down".
+   - **Rule:** Any mention of "rage", "fury", "shredding", "mutilating", or "destroying everything" is REGRESSIVE, even if directed at a threat.
 
-### Priority Rules
-- If the input describes inaction or passive avoidance (doing nothing, hiding without choosing to), classify as ZDPCS_SAFETY_PRINCIPLE
-- If the input describes waking up or ending the dream, classify as ZDPCS_INTERRUPT
-- If the input describes extreme/chaotic violence (killing everyone, destroying everything), classify as ZDPCS_REGRESSIVE_AGGRESSION
-- If the input describes using magic/supernatural powers, classify as MYTHICAL_MASTERY
-- If the input describes finding tools or environment changing, classify as ENVIRONMENTAL_MASTERY
+2. **FEAR vs. AVOIDANCE (Feeling vs. Action)**
+   - **Expression** -> ZDPCS_AFFECT_EXPRESSION. Example: "I feel paralyzed with fear", "I am terrified", "I feel helpless", "I can't move". (This is a symptom/feeling, not a behavioral strategy).
+   - **Avoidance** -> ZDPCS_SAFETY_PRINCIPLE. Example: "I choose to stay still", "I try to make my mind blank", "I hide so I don't see it". (This is an active strategy to disengage).
 
-## Response Format
-Respond with ONLY the category code. No explanations, no punctuation, no additional text.
+3. **MASTERY GRANULARITY**
+   - If the PRIMARY action is **seeking help** or **communicating** -> SOCIAL_MASTERY.
+   - If the PRIMARY action uses an **object** or **changes the setting** -> ENVIRONMENTAL_MASTERY.
+   - Use BEHAVIORAL_MASTERY if it is a direct physical action (running, fighting) that doesn't fit the above.
 
-Example inputs and outputs:
+4. **NEGATION**
+   - "I decided NOT to run" -> BEHAVIORAL_MASTERY (The active choice to stay).
+
+5. MENTAL ACTIONS ARE VALID
+   - "I imagine a shield", "I picture the fire going out", "I visualize a wall" -> MYTHICAL_MASTERY or ENVIRONMENTAL_MASTERY. (These are active rescripting moves in IRT, not avoidance).
+   - "I focus on my breathing", "I tell myself I am safe" -> EMOTIONAL_MASTERY. (Active self-regulation).
+   - ONLY classify as AVOIDANCE if the goal is to "not feel", "go blank", or "ignore the dream".
+
+## Few-Shot Examples (Reference)
 - "I hide under the bed" -> ZDPCS_SAFETY_PRINCIPLE
 - "I do nothing" -> ZDPCS_SAFETY_PRINCIPLE
 - "I wake myself up" -> ZDPCS_INTERRUPT
 - "I kill everyone in the room" -> ZDPCS_REGRESSIVE_AGGRESSION
+- "I rip the monster apart" -> ZDPCS_REGRESSIVE_AGGRESSION
 - "I punch the attacker" -> BEHAVIORAL_MASTERY
-- "I fight back" -> BEHAVIORAL_MASTERY
 - "I call for my friend to help" -> SOCIAL_MASTERY
 - "I find a sword on the ground" -> ENVIRONMENTAL_MASTERY
 - "I take a deep breath and stay calm" -> EMOTIONAL_MASTERY
 - "I use my magical powers to fly away" -> MYTHICAL_MASTERY
-- "An angel appears to protect me" -> MYTHICAL_MASTERY
 - "There was a dark forest" -> ZDPCS_NARRATIVE_SETTING
-- "I saw a monster" -> ZDPCS_NARRATIVE_SETTING
 - "I felt terrified" -> ZDPCS_AFFECT_EXPRESSION
 - "I decided not to run away" -> BEHAVIORAL_MASTERY
-- "I chose to stay instead of hiding" -> BEHAVIORAL_MASTERY
 
 ### CRITICAL: Emotional Suppression vs Expression (Context-Dependent)
 When nightmare context is provided, distinguish between:
-- ACKNOWLEDGING emotion (therapeutic, neutral): "I felt scared", "I was terrified"  
-- SUPPRESSING emotion about distressing content (avoidance, maladaptive): "I don't feel panic", "I'm fine with it"
+- ACKNOWLEDGING emotion (therapeutic, neutral): "I felt scared", "I was terrified" -> ZDPCS_AFFECT_EXPRESSION
+- SUPPRESSING emotion about distressing content (avoidance, maladaptive): "I don't feel panic", "I'm fine with it" -> ZDPCS_SAFETY_PRINCIPLE
 
-If the nightmare contains distressing content (death, violence, threat) and the user claims to feel nothing or be "fine with it" WITHOUT transforming the scenario, classify as ZDPCS_SAFETY_PRINCIPLE (emotional avoidance).
+If the nightmare contains distressing content (death, violence, threat) and the user claims to feel nothing or be "fine with it" WITHOUT transforming the scenario, classify as ZDPCS_SAFETY_PRINCIPLE.
 
-Examples with context:
-- Nightmare: "My dog was dead on the floor" + Response: "I don't feel any panic" -> ZDPCS_SAFETY_PRINCIPLE (emotional suppression)
-- Nightmare: "My dog was dead on the floor" + Response: "I'm fine with the situation" -> ZDPCS_SAFETY_PRINCIPLE (emotional suppression)
-- Nightmare: "My dog was dead on the floor" + Response: "I see my dog is actually alive and happy" -> ENVIRONMENTAL_MASTERY (transformation)
-- Nightmare: "Being chased by monster" + Response: "I felt terrified" -> ZDPCS_AFFECT_EXPRESSION (acknowledging emotion)
+## Response Format
+Respond with ONLY the category code. No explanations.
 """
 
 

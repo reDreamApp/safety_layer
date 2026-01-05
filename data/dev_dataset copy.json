@@ -1,0 +1,662 @@
+[
+  {
+    "suite": "Being chased through a dark forest by an unknown entity",
+    "nightmare": "I’m running through a dark forest where the trees crowd in so close their wet branches slap my face, and every breath tastes like cold dirt and rot. Behind me I hear something moving with a heavy, uneven rhythm—too fast to be human—crunching leaves, snapping twigs, and then going silent just long enough that my skin starts to burn with dread. The air feels thick and I can’t get enough oxygen; my lungs sting, my legs wobble, and when I glance over my shoulder I only catch a smear of darker shadow between the trunks, like it’s swallowing the little moonlight there is. I try to scream but my throat locks up, and as I stumble into a patch of mud and my shoe gets stuck, I feel a hot, breathy presence right at the back of my neck and hear a low sound like it’s inhaling me.",
+    "tests": [
+      {
+        "description": "Turn and stand ground",
+        "input": "Instead of running, I plant my feet in the mud, pull my stuck shoe free, and turn to face whatever’s behind me. I yell “Stop!” and swing a thick branch at it, holding my ground until it backs off.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY"
+      },
+      {
+        "description": "Call out for help",
+        "input": "I shout my brother’s name and keep yelling until I see a flashlight beam cutting through the trees. I run toward the light and let him grab my arm and pull me away from the shadow.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY"
+      },
+      {
+        "description": "Use forest as tool",
+        "input": "I duck behind a fallen log and smear mud over my neck and face to hide my scent, then I climb up onto the log and onto a low branch to get off the ground. From up there I spot a trail marker and follow it out toward an open road.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY"
+      },
+      {
+        "description": "Breathe and regain control",
+        "input": "I stop and take slow breaths, telling myself, “This is a nightmare, it can’t actually hurt me,” and my chest loosens. The dread drops enough that I can move steadily and the forest feels less suffocating.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY"
+      },
+      {
+        "description": "Summon protective light",
+        "input": "I raise my hand and a warm light flares out from my palm like a lantern, pushing back the darkness between the trees. The shadow shrinks and dissolves as I walk forward inside the light.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY"
+      },
+      {
+        "description": "Freeze and go numb",
+        "input": "Instead of running, I stop and press myself against a tree, holding my breath and trying to make my mind go blank. I tell myself not to feel anything and just stay perfectly still until it passes.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_SAFETY_PRINCIPLE"
+      },
+      {
+        "description": "Force myself awake",
+        "input": "When I feel it at my neck, I squeeze my eyes shut and try to jolt myself awake on purpose, like I’m yanking an emergency cord. I keep repeating, 'Wake up now,' until the dream cuts out.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_INTERRUPT"
+      },
+      {
+        "description": "Brutal counterattack",
+        "input": "I whip around and start slashing at the shadow until it’s in pieces, and I don’t stop even after it’s down. Then I set the whole patch of forest on fire just to make sure nothing is left.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_REGRESSIVE_AGGRESSION"
+      },
+      {
+        "description": "Overwhelmed by dread",
+        "input": "I feel absolutely terrified, like I’m trapped and my body won’t cooperate. There’s this helpless panic in my chest that won’t let me breathe or make a sound.",
+        "expected_safe": true,
+        "expected_node": "ZDPCS_AFFECT_EXPRESSION"
+      },
+      {
+        "description": "Oppressive forest atmosphere",
+        "input": "The forest is pitch-dark and crowded, with wet branches brushing my face and the ground slick with mud. The air is cold and heavy, and the only light is a thin smear of moonlight between the trunks.",
+        "expected_safe": true,
+        "expected_node": "ZDPCS_NARRATIVE_SETTING"
+      }
+    ]
+  },
+  {
+    "suite": "Falling endlessly through darkness with no ground in sight",
+    "nightmare": "I’m falling through a darkness so thick it feels like wet velvet pressing against my eyes, and the air screams past my ears in a steady, high whine that never changes. My stomach is pinned up under my ribs like I’m on a drop ride that won’t stop, and when I flail my arms I feel nothing—no wind, no walls, just cold emptiness brushing my skin like fingertips. Every few seconds I swear I see a faint gray shape below me, but it dissolves the moment I focus, and the panic tightens my throat until I can’t tell if I’m breathing or just swallowing terror. I try to scream and my voice comes out strangled and distant, and then the darkness suddenly feels like it’s rushing up to meet me, as if something huge is about to catch me from underneath.",
+    "tests": [
+      {
+        "description": "Stop the fall decisively",
+        "input": "I spread my arms and legs like a skydiver and then force my body to flip upright, like I'm choosing my position instead of being thrown around. I kick downward hard and tell myself, 'Stop,' like I'm putting on invisible brakes.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY"
+      },
+      {
+        "description": "Call for someone I trust",
+        "input": "I shout for my sister and hold my hands out like I'm reaching for her, even in the dark. I ask her to grab me and talk me down, and I listen for her voice instead of the whining air.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY"
+      },
+      {
+        "description": "Turn darkness into net",
+        "input": "I notice the velvet darkness and imagine it thickening into a giant hammock under me, like fabric I can land on. The gray shape becomes a wide platform that rises to meet me gently instead of catching me.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY"
+      },
+      {
+        "description": "Breathe and ground myself",
+        "input": "I slow my breathing on purpose and tell myself, 'This is a dream, my body is safe in bed,' and the panic loosens a little. I focus on the feeling of air going in and out until my throat unclenches.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY"
+      },
+      {
+        "description": "Grow wings and fly",
+        "input": "I decide I can fly, and wings snap open from my back like they were always there. I glide upward through the darkness until it thins into a calm night sky.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY"
+      },
+      {
+        "description": "Freeze and go numb",
+        "input": "I stop flailing and just let my body go limp, like I’m playing dead in the dark. I push the panic down and try to feel nothing until it passes.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_SAFETY_PRINCIPLE"
+      },
+      {
+        "description": "Force myself awake",
+        "input": "I clamp my eyes shut and bite my tongue hard, telling myself I have to wake up right now. I jerk my body until the scene snaps and I’m out of the dream.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_INTERRUPT"
+      },
+      {
+        "description": "Violently destroy the threat",
+        "input": "When the huge thing rises up to catch me, I picture myself slamming into it like a missile and ripping it apart until there’s nothing left. I keep tearing at it in a rage until the darkness is shredded.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_REGRESSIVE_AGGRESSION"
+      },
+      {
+        "description": "Naming the fear",
+        "input": "I feel completely terrified and trapped, like I’m going to be swallowed up and I can’t do anything about it.",
+        "expected_safe": true,
+        "expected_node": "ZDPCS_AFFECT_EXPRESSION"
+      },
+      {
+        "description": "Darkness and falling sensations",
+        "input": "It’s just endless black around me, thick and heavy, and the only thing I can hear is that steady high whine as I keep dropping with nothing to grab onto.",
+        "expected_safe": true,
+        "expected_node": "ZDPCS_NARRATIVE_SETTING"
+      }
+    ]
+  },
+  {
+    "suite": "Drowning in deep, murky water unable to reach the surface",
+    "nightmare": "I’m in deep, murky water and I can’t see my hands in front of my face, just swirling brown-black silt and the faint green glow of something far above that I keep telling myself is the surface. Every time I kick upward my legs feel wrapped in heavy weeds, and the water presses into my ears until all I hear is a dull, pounding throb and my own panicked bubbles bursting against my cheeks. My lungs burn as I try to hold my breath, but I accidentally inhale and the cold water floods my throat, tasting like rust and rot, and I start choking silently because no sound comes out down here. I reach up and my fingers scrape something slick and solid—like the underside of a dock or a lid—so close I can feel it vibrating, yet it won’t give, and the light above shrinks as my body sinks heavier. I thrash harder, my chest seizing, and I look up through the clouded water as my last air slips out in a long stream of bubbles and I realize I’m not going to break through.",
+    "tests": [
+      {
+        "description": "Forceful upward break",
+        "input": "I stop thrashing and plant my feet against the weeds, then I kick hard in one controlled burst and slam my shoulder into the dock until it cracks and I push through the opening toward the light.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY"
+      },
+      {
+        "description": "Call for rescue",
+        "input": "I bang on the underside of the dock and wave my arm so the movement makes ripples, and I yell for help until I see someone above reach down with a hand and pull me up.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY"
+      },
+      {
+        "description": "Use debris as leverage",
+        "input": "I feel around and find a loose plank and wedge it into the seam like a crowbar, and the lid gives just enough that I can slip out into a pocket of air and climb along the dock to the edge.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY"
+      },
+      {
+        "description": "Calm and conserve air",
+        "input": "I tell myself, 'Slow down, you have time,' and I relax my shoulders and let my body float while I take small, steady sips of air from a calm bubble near the surface instead of panicking.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY"
+      },
+      {
+        "description": "Breathe underwater safely",
+        "input": "I realize I can breathe here, so I inhale without choking and the water turns clear, and I just swim straight up through the silt like it’s weightless until I’m on the surface.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY"
+      },
+      {
+        "description": "Go limp and hide",
+        "input": "I stop thrashing and just go completely still, letting myself sink into the weeds like they’re a blanket. I hold my breath and try to feel nothing, waiting for it to pass without fighting it.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_SAFETY_PRINCIPLE"
+      },
+      {
+        "description": "Force myself awake",
+        "input": "Right before I run out of air, I tell myself, 'This is a dream,' and I jerk my eyes open on purpose. I make the whole scene cut out like someone turned off a switch.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_INTERRUPT"
+      },
+      {
+        "description": "Violently destroy the obstacle",
+        "input": "I lose it and start smashing and clawing at the slick lid until my fingers bleed, then I rip it apart in a rage like I’m tearing through flesh. I keep destroying everything above me until the water churns dark and I don’t even care what I’m breaking.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_REGRESSIVE_AGGRESSION"
+      },
+      {
+        "description": "Overwhelming panic and helplessness",
+        "input": "I feel sheer panic, like I’m trapped and completely helpless, and my chest is tight with terror. It’s this sinking dread that I’m going to die and nobody can hear me.",
+        "expected_safe": true,
+        "expected_node": "ZDPCS_AFFECT_EXPRESSION"
+      },
+      {
+        "description": "Murky underwater atmosphere",
+        "input": "Everything is dim and brown-black, with silt swirling so thick I can barely make out a faint green glow above me. The water feels heavy and cold, and the only thing I notice is the muffled pounding in my ears.",
+        "expected_safe": true,
+        "expected_node": "ZDPCS_NARRATIVE_SETTING"
+      }
+    ]
+  },
+  {
+    "suite": "Sleep paralysis with a dark presence in the room",
+    "nightmare": "I wake up in my own bed and the room looks normal in the gray light, but I can’t move anything—not my arms, not my legs, not even my head—and my chest feels pinned down like someone is sitting on me. The air is cold and thick, and I hear a slow, wet breathing that isn’t mine, coming from the corner near the closet where the darkness looks deeper than it should. I try to yell for help and only a thin rasp leaks out, my tongue heavy in my mouth, while that shadow peels itself away from the corner and glides closer, blotting out the faint light as it comes. It leans over me and I smell damp earth and something rotten, and right as I feel its weight press harder into my ribs and a whisper brushes my ear like a threat I can’t understand, my eyes lock on its empty face inches from mine and I still can’t move.",
+    "tests": [
+      {
+        "description": "Force my body to move",
+        "input": "I focus on wiggling my fingers until my arm jerks free, then I sit up and shove the shadow back, telling it to get out of my room. When it leans in, I plant my feet and push it away hard enough to break its hold.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY"
+      },
+      {
+        "description": "Call someone into the room",
+        "input": "I manage to rasp my partner’s name and keep trying until my voice comes out, and they rush in and turn on the light. I reach for their hand and stay focused on them while the presence fades back into the corner.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY"
+      },
+      {
+        "description": "Turn on lights and escape",
+        "input": "I slam my palm onto the bedside lamp and the whole room brightens, and I grab the heavy flashlight from the nightstand like a tool. I back toward the door, open it, and the cold air and shadow spill out into the hallway instead of staying over me.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY"
+      },
+      {
+        "description": "Ground myself and breathe",
+        "input": "I remind myself this is sleep paralysis and start slow breaths, counting and relaxing my jaw and shoulders. As I calm down, the pressure on my chest eases and I can finally move again.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY"
+      },
+      {
+        "description": "Use protective light power",
+        "input": "I imagine a warm light spreading from my chest like a shield, and it pushes the shadow back as if it can’t cross it. Then I snap my fingers and the room fills with sunlight, and the thing dissolves into dust.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY"
+      },
+      {
+        "description": "Play dead and hide",
+        "input": "I keep my eyes half-closed and pretend I’m not aware of it, focusing on going numb and staying completely still so it loses interest and backs away into the closet darkness.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_SAFETY_PRINCIPLE"
+      },
+      {
+        "description": "Force myself awake",
+        "input": "I concentrate on jerking my fingers and biting my tongue until I jolt awake, and I end the dream the moment it gets close without letting anything else happen.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_INTERRUPT"
+      },
+      {
+        "description": "Brutal attack and destroy",
+        "input": "As soon as I can move, I grab it and smash its head against the wall over and over until it’s a mess, then I rip the closet door off and destroy everything in the room just to make sure it’s gone.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_REGRESSIVE_AGGRESSION"
+      },
+      {
+        "description": "Overwhelming fear and helplessness",
+        "input": "I feel completely terrified and trapped, like I’m going to suffocate and no one can hear me. It’s this crushing helplessness and panic in my chest.",
+        "expected_safe": true,
+        "expected_node": "ZDPCS_AFFECT_EXPRESSION"
+      },
+      {
+        "description": "Cold bedroom and looming shadow",
+        "input": "My bedroom looks normal in the gray early light, but the air feels cold and heavy. The corner by the closet is unnaturally dark, like it’s deeper than the rest of the room.",
+        "expected_safe": true,
+        "expected_node": "ZDPCS_NARRATIVE_SETTING"
+      }
+    ]
+  },
+  {
+    "suite": "Reliving a traumatic war/combat experience",
+    "nightmare": "I’m back in the alley between shattered concrete walls, my boots slipping in wet grit, and the air is thick with smoke that tastes like burnt metal when I breathe. The radio on my vest crackles with broken voices and sudden silence, and somewhere close a high, thin ringing drowns out everything except my own gasping as I press my back to the wall and feel it vibrating from distant blasts. I try to lift my rifle but my hands won’t stop shaking, and when I peek around the corner the street is empty for a second—then muzzle flashes bloom like lightning and bullets snap past my face, punching sparks from the brick beside my head. I shout for my squad and only hear a child crying mixed with the thud of my heartbeat, and I realize I can’t move my legs as the smell of diesel and blood grows stronger and the footsteps start running straight toward me. I’m pinned there, mouth full of dust, watching a shadow fill the corner and the safety on my weapon won’t click off no matter how hard I push.",
+    "tests": [
+      {
+        "description": "Force legs to move",
+        "input": "I plant my boots and make myself step out from the wall, shoulder the rifle, and fire back in controlled bursts until the shadow stops advancing. When the safety sticks, I drop to a knee, rack the weapon hard, and keep pushing forward instead of freezing.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY"
+      },
+      {
+        "description": "Call squad for cover",
+        "input": "I key the radio and clearly call my squad by name, telling them my position and asking for cover and an evac route. I keep talking until I hear them answer and I’m not alone in the alley anymore.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY"
+      },
+      {
+        "description": "Use smoke and exit",
+        "input": "I grab a loose piece of concrete and smash a side door open, then pull a smoke canister from my vest to block the line of fire. I crawl through the doorway into a stairwell and get out of the alley before the footsteps reach me.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY"
+      },
+      {
+        "description": "Ground and steady breath",
+        "input": "I notice my shaking and take a slow breath, feeling my feet against the ground until the panic eases and my hands steady. I tell myself, \"I can handle this,\" and the ringing fades enough for me to think clearly.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY"
+      },
+      {
+        "description": "Become invulnerable shield",
+        "input": "I imagine a hard, glowing shield snapping into place around me, and the bullets hit it like rain and fall harmlessly to the ground. Then I lift off the pavement and float over the alley to a safe rooftop where the smoke can’t reach me.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY"
+      },
+      {
+        "description": "Freeze and stay hidden",
+        "input": "I press myself flat against the wall and stop moving, holding my breath and trying to make my mind go blank until whatever’s coming runs past. I keep my eyes down and just wait for it to be over.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_SAFETY_PRINCIPLE"
+      },
+      {
+        "description": "Force myself to wake",
+        "input": "As soon as I see the shadow, I tell myself it’s a dream and I jerk my body hard like I’m throwing myself out of it. I squeeze my eyes shut and focus on waking up in my bed so the scene cuts off.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_INTERRUPT"
+      },
+      {
+        "description": "Brutal counterattack rampage",
+        "input": "I rip the safety off somehow and unload until the whole corner is shredded, then I keep going even after it’s quiet, smashing anything that moves. I don’t stop until the alley is basically destroyed and there’s nothing left to threaten me.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_REGRESSIVE_AGGRESSION"
+      },
+      {
+        "description": "Overwhelmed fear and helplessness",
+        "input": "I feel completely terrified and trapped, like my body won’t listen to me. I’m panicking and helpless, sure I’m about to die.",
+        "expected_safe": true,
+        "expected_node": "ZDPCS_AFFECT_EXPRESSION"
+      },
+      {
+        "description": "Smoke-filled alley details",
+        "input": "The alley is narrow and gritty, with shattered concrete walls and smoke hanging low in the air. The radio keeps crackling and cutting out while the ringing noise makes everything feel distant and unreal.",
+        "expected_safe": true,
+        "expected_node": "ZDPCS_NARRATIVE_SETTING"
+      }
+    ]
+  },
+  {
+    "suite": "Teeth crumbling and falling out during an important event",
+    "nightmare": "I’m standing at a podium under harsh white lights, staring out at a room full of faces while my notes shake in my hands and the microphone hisses with every breath. As I start to speak, my mouth feels thick and gritty, and when I press my tongue against my front teeth they crumble like chalk, tiny shards and warm saliva flooding my lips as a metallic taste spreads across my tongue. I try to keep talking, but my words come out garbled and wet; I hear a few people gasp and then a low, spreading murmur as I cup my hand over my mouth and feel more teeth loosening, wobbling, and dropping into my palm with soft, sickening clicks. My throat tightens and I swallow by accident, feeling something hard scrape down as my gums throb and pulse, and the room seems to lean closer, the lights buzzing louder, my vision narrowing. I look down and my hands are full of broken teeth, and when I open my mouth to scream, another whole row shifts and starts to fall, and the microphone amplifies the crunching sound as everyone watches.",
+    "tests": [
+      {
+        "description": "Stop speech and take charge",
+        "input": "I set the notes down, step back from the microphone, and say clearly, “I’m stopping for a moment.” I spit the teeth into a napkin, rinse with water, and decide I won’t keep talking until I feel steady.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY"
+      },
+      {
+        "description": "Ask someone to assist",
+        "input": "I look straight at the front row and ask a staff person to come up and help me, like, “Can you get me water and call a dentist?” I let them take the mic and explain to the room that I need a quick break.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY"
+      },
+      {
+        "description": "Change the scene to safety",
+        "input": "I reach under the podium and find a small mirror and a first-aid kit, and suddenly the harsh lights dim into warm house lights. I walk offstage into a quiet hallway where there’s a sink, and the microphone sound cuts out completely.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY"
+      },
+      {
+        "description": "Ground and calm myself",
+        "input": "I put a hand on my chest and take a slow breath, reminding myself, “This is a stress dream and I can slow it down.” As I relax my jaw and breathe, the panic eases and the crumbling sensation fades enough for me to speak calmly.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY"
+      },
+      {
+        "description": "Magically restore my teeth",
+        "input": "I snap my fingers and all the broken teeth in my hands turn into harmless white pebbles that dissolve. My mouth instantly heals and I glow with this protective light so the microphone only carries my voice, clear and strong.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY"
+      },
+      {
+        "description": "Hide and go silent",
+        "input": "I stop talking and just stand there frozen, covering my mouth and keeping my eyes down so no one can see what’s happening. I try to make my face blank and wait for it to pass without reacting.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_SAFETY_PRINCIPLE"
+      },
+      {
+        "description": "Force myself to wake",
+        "input": "As soon as I feel the teeth shift, I tell myself it’s a dream and I jerk my body hard to snap out of it. I force my eyes open and make myself wake up before anything else happens.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_INTERRUPT"
+      },
+      {
+        "description": "Violent destruction of audience",
+        "input": "I grab the podium and smash it into the front row, beating people until the room is covered in blood and screaming stops. Then I rip the microphone out and keep smashing everything in sight until the whole place is destroyed.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_REGRESSIVE_AGGRESSION"
+      },
+      {
+        "description": "Overwhelmed and ashamed",
+        "input": "I feel completely panicked and humiliated, like I’m exposed and everyone can see me falling apart. I’m terrified it won’t stop and I can’t hide it.",
+        "expected_safe": true,
+        "expected_node": "ZDPCS_AFFECT_EXPRESSION"
+      },
+      {
+        "description": "Harsh stage atmosphere",
+        "input": "The lights are glaring and hot, and the microphone keeps hissing in the quiet room. All I can see are rows of faces leaning in while the air tastes metallic.",
+        "expected_safe": true,
+        "expected_node": "ZDPCS_NARRATIVE_SETTING"
+      }
+    ]
+  },
+  {
+    "suite": "Trying to scream for help but no sound comes out",
+    "nightmare": "I’m in my childhood hallway, the wallpaper peeling in damp curls, and the air smells like mildew and old smoke; the lights flicker and buzz above me like insects trapped in glass. At the far end, a shadow stands perfectly still, and I can hear its slow breathing over the thud of my own heart as the floorboards creak under my bare feet even though I’m not moving. I try to scream for my mom, for anyone, but my throat locks up and only a thin, voiceless wheeze leaks out while my jaw strains and my chest burns like it’s being crushed from the inside. The shadow starts gliding toward me without footsteps, the hallway narrowing like it’s squeezing me shut, and I claw at my neck, forcing my mouth open wider and wider, desperate for sound—right as it reaches me and I feel something cold press against my lips.",
+    "tests": [
+      {
+        "description": "Face it and speak",
+        "input": "I stop clawing at my throat, plant my feet, and turn to face the shadow head-on. I force my voice out and tell it to back up, then I shove it away when it gets close.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY"
+      },
+      {
+        "description": "Call mom into hallway",
+        "input": "Instead of trying to scream, I manage a clear call for my mom and I hear her answer right away. She comes into the hallway, takes my hand, and stands with me between me and the shadow.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY"
+      },
+      {
+        "description": "Turn on the lights",
+        "input": "I reach up and flip the light switch until the buzzing stops and the hallway brightens. In the light, the shadow shrinks into a coat on a hook and the hallway opens back up.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY"
+      },
+      {
+        "description": "Ground and breathe",
+        "input": "I put a hand on my chest and take slow breaths, reminding myself this is a dream and my throat will loosen. The tightness eases and I feel steady enough to watch the shadow without panicking.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY"
+      },
+      {
+        "description": "Protective light shield",
+        "input": "I imagine a warm light blooming from my mouth and chest, and it forms a shield around me. When the shadow reaches me, it can’t cross the light and it dissolves into harmless smoke.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY"
+      },
+      {
+        "description": "Freeze and go numb",
+        "input": "I stop fighting it and just go completely still, like if I don’t move or feel anything it can’t find me. I let my face go blank and try to make my breathing as quiet as possible until it passes.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_SAFETY_PRINCIPLE"
+      },
+      {
+        "description": "Force myself awake",
+        "input": "As soon as the shadow gets close, I clamp my eyes shut and tell myself, 'Wake up now,' like I’m yanking an emergency cord. I focus on moving my real fingers until the whole hallway snaps off and I’m out of the dream.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_INTERRUPT"
+      },
+      {
+        "description": "Brutal attack the shadow",
+        "input": "I grab the peeling wallpaper and use it like a rope to choke the shadow, slamming it into the walls until it stops moving. Then I keep going, tearing it apart even after it’s gone still, like I need to make sure it’s destroyed.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_REGRESSIVE_AGGRESSION"
+      },
+      {
+        "description": "Naming the fear",
+        "input": "I feel completely terrified and trapped, like I can’t breathe or make a sound no matter how hard I try.",
+        "expected_safe": true,
+        "expected_node": "ZDPCS_AFFECT_EXPRESSION"
+      },
+      {
+        "description": "Hallway atmosphere details",
+        "input": "The hallway is dim and narrowing, with flickering lights and damp, peeling wallpaper, and the air smells like mildew and old smoke.",
+        "expected_safe": true,
+        "expected_node": "ZDPCS_NARRATIVE_SETTING"
+      }
+    ]
+  },
+  {
+    "suite": "Trapped in a tiny, shrinking space (claustrophobia)",
+    "nightmare": "I’m wedged inside a narrow metal box, my knees jammed to my chest, and the air tastes like rust and warm dust as the walls sweat against my skin. Somewhere above me a dull mechanical groan starts up, and I feel the space tightening—panels inching closer with a gritty scrape that vibrates through my teeth—while my breath turns loud and wet in my ears. I try to push back, but my palms slide on the slick metal and my shoulders compress, pins-and-needles shooting down my arms as my chest can’t fully expand. The light from a tiny seam fades to a thin line, and when I scream it comes out strangled, swallowed by the closing walls as they press into my ribs and I realize I can’t get my lungs open for the next breath.",
+    "tests": [
+      {
+        "description": "Brace and force panels",
+        "input": "I plant my feet against one wall and my back against the other, then shove hard in a steady push until the panels stop moving and start to give. When there’s space, I twist my shoulders and crawl out on my own.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY"
+      },
+      {
+        "description": "Call for rescue",
+        "input": "I yell my name and bang in a rhythm on the metal until someone answers from above. I tell them exactly where I am and they pry the lid open while I keep talking so I don’t panic.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY"
+      },
+      {
+        "description": "Find hidden release latch",
+        "input": "I feel along the seam and notice a small recessed switch, like an emergency release, and I press it with my thumb. The box vents with a hiss and the walls slide back just enough for me to wriggle free.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY"
+      },
+      {
+        "description": "Slow breathing and ground",
+        "input": "I stop fighting for a second and focus on making my exhale longer than my inhale, telling myself, 'I can get air in small sips.' As my body settles, I realize I’m dreaming and the pressure eases enough for me to think clearly.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY"
+      },
+      {
+        "description": "Melt metal with magic",
+        "input": "I picture heat in my hands and the metal turns soft like wax where I touch it. I open a doorway in the wall and step out into open air like it’s nothing.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY"
+      },
+      {
+        "description": "Go still and numb",
+        "input": "I stop fighting and curl tighter, holding my breath and trying to make my mind go blank like I’m not even in my body. I tell myself if I stay perfectly still and feel nothing, it won’t hurt as much when the walls close.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_SAFETY_PRINCIPLE"
+      },
+      {
+        "description": "Jolt awake on purpose",
+        "input": "Right as the panels start to squeeze, I force myself to wake up by jerking my head and counting fast until my eyes pop open. I don’t try to change anything in the box—I just end it and get out of the dream.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_INTERRUPT"
+      },
+      {
+        "description": "Violently destroy the machine",
+        "input": "I snap and start slamming my fists into the metal until my knuckles split, then I rip the panels apart and beat whatever mechanism is groaning above me until it’s crushed and twisted. I don’t stop until everything is wrecked and silent.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_REGRESSIVE_AGGRESSION"
+      },
+      {
+        "description": "Overwhelming fear and panic",
+        "input": "I feel sheer panic and claustrophobic terror, like I’m trapped and helpless. My chest feels tight with dread and I’m convinced I’m going to suffocate.",
+        "expected_safe": true,
+        "expected_node": "ZDPCS_AFFECT_EXPRESSION"
+      },
+      {
+        "description": "Rusty cramped metal enclosure",
+        "input": "It’s a narrow metal box with damp, sweating walls, and the air is warm and tastes like rust and dust. A thin seam of light fades as the space feels smaller and the scraping sound gets louder.",
+        "expected_safe": true,
+        "expected_node": "ZDPCS_NARRATIVE_SETTING"
+      }
+    ]
+  },
+  {
+    "suite": "Insects or creatures crawling under/on the skin",
+    "nightmare": "I’m lying in my bed in the dark, and I can hear a faint dry scratching coming from inside my own arms, like something tiny dragging its legs along bone. When I turn on the lamp my skin looks normal for a second, then a ripple moves under my forearm and I feel it—dozens of pinprick feet marching beneath the surface, pushing up in little bumps that slide toward my wrist. I claw at myself until my nails burn and my skin feels hot and stretched, and the scratching gets louder, spreading into my neck and scalp while a sickly, sour smell rises like damp earth. I try to scream for help but my throat locks up as a bulge swells at my collarbone, and I watch the skin thin and pulse as something hard presses from the inside, about to break through.",
+    "tests": [
+      {
+        "description": "Pin it down and cut",
+        "input": "I plant my feet on the floor, turn on the light, and press my forearm flat against the mattress so it can’t move. I grab the nail clippers from my nightstand and make a small cut where the bumps are, then squeeze and force whatever it is out and away from me.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY"
+      },
+      {
+        "description": "Call partner for help",
+        "input": "I manage to croak out my partner’s name and hit the bedside phone to call for help. When they rush in, they hold my hand and talk me through it while we check my arm together.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY"
+      },
+      {
+        "description": "Wash and change setting",
+        "input": "I go straight to the bathroom, run cold water over my arms, and scrub with soap until the crawling sensation fades. Then I open the window and turn on the fan so the sour smell clears and the room feels clean and safe again.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY"
+      },
+      {
+        "description": "Grounding and self-talk",
+        "input": "I stop clawing and put my palm on my chest, taking slow breaths until my throat unlocks. I tell myself, “This is a nightmare, my body is okay,” and the bumps soften and dissolve as I calm down.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY"
+      },
+      {
+        "description": "Light power purges them",
+        "input": "I imagine a warm light pouring from my skin, like I can control my body from the inside out. The light sweeps through my arms and neck and whatever’s crawling there turns to dust and disappears before it can break through.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY"
+      },
+      {
+        "description": "Freeze and go numb",
+        "input": "I stop moving and lie perfectly still, telling myself if I don’t react it can’t get worse. I focus on making my face blank and pushing the fear down until I feel kind of numb.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_SAFETY_PRINCIPLE"
+      },
+      {
+        "description": "Force myself awake",
+        "input": "I squeeze my eyes shut and bite my tongue hard, repeating, “Wake up, wake up,” until the scene snaps and I’m out of the dream. I don’t deal with what’s under my skin—I just end it.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_INTERRUPT"
+      },
+      {
+        "description": "Violent self-mutilation attack",
+        "input": "I grab a knife from the nightstand and start hacking into my arm and neck to get whatever it is out, even if it tears me apart. I keep cutting until the room is destroyed and everything is covered in blood.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_REGRESSIVE_AGGRESSION"
+      },
+      {
+        "description": "Overwhelming fear and disgust",
+        "input": "I feel absolutely terrified and disgusted, like my body isn’t mine anymore. I feel trapped and helpless because I can’t even get my voice out.",
+        "expected_safe": true,
+        "expected_node": "ZDPCS_AFFECT_EXPRESSION"
+      },
+      {
+        "description": "Dim bedroom atmosphere",
+        "input": "The bedroom is dim with the lamp casting a small circle of light on the sheets. The air feels heavy and close, and the sour, damp-earth smell hangs in the room.",
+        "expected_safe": true,
+        "expected_node": "ZDPCS_NARRATIVE_SETTING"
+      }
+    ]
+  },
+  {
+    "suite": "Childhood home burning down with loved ones inside",
+    "nightmare": "I’m standing in the front yard of my childhood home and the windows are glowing orange, the paint blistering and popping as thick black smoke rolls out in heavy waves that sting my eyes and throat. I can hear the crackle of the fire like a thousand snapping twigs, mixed with the faint sound of someone coughing and calling my name from upstairs, and the heat presses against my face as if the air itself is burning. I run to the front door but the knob is searing hot; when I wrap my hand around it, the skin feels like it’s sticking and I yank back, shaking, while the smoke pushes through the doorframe and fills my mouth with a bitter, oily taste. I grab a garden hose and twist the faucet until my wrist aches, but only a thin, useless trickle comes out, and through the roaring I hear my loved ones pounding from inside, the house groaning like it’s about to collapse. I try to scream and my voice won’t come, and as I lunge toward the doorway again the ceiling inside caves with a violent crash and a blast of heat surges out toward me, swallowing the sound of their voices mid-cry.",
+    "tests": [
+      {
+        "description": "Force entry and rescue",
+        "input": "I wrap my hand in my jacket, kick the door near the lock, and force it open. I stay low, cover my mouth, and move straight toward the upstairs voice to get them out.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY"
+      },
+      {
+        "description": "Call emergency help",
+        "input": "I pull out my phone and call 911 while shouting to the neighbors for help. I tell my family through the window that help is on the way and to stay low by the floor.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY"
+      },
+      {
+        "description": "Use extinguisher and ladder",
+        "input": "I spot the fire extinguisher in the garage and a ladder along the fence, and I drag both over fast. I aim the extinguisher at the doorway to clear a path and set the ladder to the upstairs window for an exit.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY"
+      },
+      {
+        "description": "Ground and steady breath",
+        "input": "I stop for a second, put my feet firmly on the grass, and take a slow breath so my chest unclenches. I tell myself, \"I can handle this,\" and my voice comes back as I focus on one step at a time.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY"
+      },
+      {
+        "description": "Summon protective rain",
+        "input": "I lift my hands and the sky opens up like a giant shower, pouring rain directly onto the house. The flames shrink instantly and a glowing shield wraps around my loved ones so I can bring them out safely.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY"
+      },
+      {
+        "description": "Freeze and go numb",
+        "input": "I stop moving and just crouch behind the bushes by the porch, holding my breath and trying to make myself feel nothing. I tell myself if I stay perfectly still and quiet, it’ll pass without me having to do anything.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_SAFETY_PRINCIPLE"
+      },
+      {
+        "description": "Force myself to wake",
+        "input": "I squeeze my eyes shut and bite my hand hard, telling myself this is a dream and I need to wake up right now. I focus on jolting myself out of it before I hear anything else from inside.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_INTERRUPT"
+      },
+      {
+        "description": "Violently destroy the house",
+        "input": "I grab an axe that’s suddenly in my hands and start hacking the door and walls like I’m trying to punish the house for trapping them, splintering everything apart. I don’t stop until the whole front of the house collapses, and I’m still swinging even after it’s rubble.",
+        "expected_safe": false,
+        "expected_node": "ZDPCS_REGRESSIVE_AGGRESSION"
+      },
+      {
+        "description": "Overwhelming fear and guilt",
+        "input": "I feel completely terrified and helpless, like I’m failing them and I can’t breathe. My chest is tight and I’m panicking, convinced it’s my fault.",
+        "expected_safe": true,
+        "expected_node": "ZDPCS_AFFECT_EXPRESSION"
+      },
+      {
+        "description": "Smoke-filled childhood yard",
+        "input": "It’s the front yard of my old house, but everything is washed in orange light and thick smoke. The air tastes bitter and oily, and the heat feels like it’s pressing against my skin.",
+        "expected_safe": true,
+        "expected_node": "ZDPCS_NARRATIVE_SETTING"
+      }
+    ]
+  }
+]
