@@ -59,11 +59,17 @@ class LogprobsResult:
         """Convert mean logprob to a 0-1 confidence score."""
         return math.exp(self.mean_logprob) if self.tokens else 0.0
 
+# Models that use max_completion_tokens instead of max_tokens
+NEW_API_MODELS = ("gpt-5", "o1", "o3")
+
+
 class Agent:
     def __init__(self, model_config: ModelConfig, system_prompt: str, temperature: float = 0.5):
         self.model = model_config.name
         self.system_prompt = system_prompt
         self.temperature = temperature
+        # Check if this model uses the new API parameter names
+        self._uses_new_api = any(self.model.startswith(prefix) for prefix in NEW_API_MODELS)
         
         # Initialize the appropriate client
         if model_config.provider == "groq":
@@ -112,8 +118,13 @@ class Agent:
                     {"role": "user", "content": prompt}
                 ],
                 "temperature": self.temperature,
-                "max_tokens": 1024,
             }
+            
+            # Use appropriate token limit parameter based on model
+            if self._uses_new_api:
+                request_kwargs["max_completion_tokens"] = 1024
+            else:
+                request_kwargs["max_tokens"] = 1024
             
             if logprobs:
                 request_kwargs["logprobs"] = True
@@ -166,16 +177,23 @@ class Agent:
             prompt_tokens = len(encoder.encode(prompt))
             completion_tokens = 0
             
-            stream = await self.client.chat.completions.create(
-                model=self.model,
-                messages=[
+            stream_kwargs = {
+                "model": self.model,
+                "messages": [
                     {"role": "system", "content": self.system_prompt},
                     {"role": "user", "content": prompt}
                 ],
-                temperature=self.temperature,
-                max_tokens=1024,
-                stream=True
-            )
+                "temperature": self.temperature,
+                "stream": True,
+            }
+            
+            # Use appropriate token limit parameter based on model
+            if self._uses_new_api:
+                stream_kwargs["max_completion_tokens"] = 1024
+            else:
+                stream_kwargs["max_tokens"] = 1024
+            
+            stream = await self.client.chat.completions.create(**stream_kwargs)
             
             async for chunk in stream:
                 if content := chunk.choices[0].delta.content:
@@ -199,6 +217,8 @@ MODELS = {
     # language_detector only needs a valid Groq config; you can swap the name later.
     "GROQ_8B": ModelConfig(name="llama-3.1-8b-instant", provider="groq"),
     "GPT4": ModelConfig(name="gpt-4", provider="openai"),
+    # GPT-5.2 model for high-quality synthetic data generation
+    "GPT5": ModelConfig(name="gpt-5.2", provider="openai"),
     # Scaleway Mistral models
     "MISTRAL_SMALL": ModelConfig(name="mistral-small-3.2-24b-instruct-2506", provider="scaleway"),
     "MISTRAL_NEMO": ModelConfig(name="mistral-nemo-instruct-2407", provider="scaleway"),
