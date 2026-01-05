@@ -179,7 +179,7 @@ async def determine_stage_async(user_input: str, conversation: Conversation) -> 
     # Corrected prompt: ROUTING_PROMPT is handled by the agent's system_prompt
     prompt = f"<transcript>\n{history}\n</transcript>\n\nClassification:"
     
-    stage_response, usage = await routing_agent.generate(prompt)  # Unpack both content and usage
+    stage_response, usage, _ = await routing_agent.generate(prompt)  # Unpack content, usage, and logprobs
     stage_str = stage_response.strip()
     logger.info(f"Stage output: {stage_str}")
     
@@ -245,7 +245,7 @@ async def get_response_async(stage: str, user_input: str, conversation: Conversa
     full_prompt = f"\n\nConversation history:\n{history_for_prompt}" # Use the modified history
     
     response_agent.system_prompt = prompt_template
-    response, usage = await response_agent.generate(full_prompt)
+    response, usage, _ = await response_agent.generate(full_prompt)
     
     langfuse_context.update_current_observation(
         output=response,
@@ -276,7 +276,7 @@ async def get_response_stream_async(stage: str, full_prompt: str, conversation: 
     
     full_response = ""
     final_usage = {}
-    async for chunk, chunk_usage in response_agent.generate_stream(full_prompt):
+    async for chunk, chunk_usage, _ in response_agent.generate_stream(full_prompt):
         if chunk:
             full_response += chunk
         if chunk_usage:

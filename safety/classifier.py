@@ -18,7 +18,7 @@ load_dotenv(find_dotenv())
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from AI.agent import Agent, ModelConfig, MODELS
+from AI.agent import Agent, ModelConfig, MODELS, LogprobsResult
 from .graph_definitions import build_clinical_graph, get_all_node_ids, get_maladaptive_nodes, get_adaptive_nodes
 
 logger = logging.getLogger(__name__)
@@ -137,16 +137,22 @@ class ClinicalClassifier:
         logger.info(f"ClinicalClassifier initialized with model: {self.model_config.name}")
         logger.info(f"Valid node IDs: {self.valid_node_ids}")
     
-    async def classify_intent(self, user_text: str, context: Optional[str] = None) -> str:
+    async def classify_intent(
+        self, 
+        user_text: str, 
+        context: Optional[str] = None,
+        return_logprobs: bool = False
+    ) -> Tuple[str, Optional[LogprobsResult]]:
         """
         Classify user dream intervention text into a clinical category.
         
         Args:
             user_text: The user's proposed dream action/intervention
             context: Optional context about the original nightmare for disambiguation
+            return_logprobs: Whether to request and return log probabilities
             
         Returns:
-            The node ID (category code) that best matches the input
+            Tuple of (node_id, logprobs_result or None)
             
         Raises:
             ValueError: If the LLM returns an invalid node ID
@@ -164,8 +170,12 @@ Classify the rewriting attempt above. Remember: If the user claims to feel nothi
             else:
                 classification_input = user_text
             
-            # Send classification request
-            response, usage = await self.agent.generate(classification_input)
+            # Send classification request with optional logprobs
+            response, usage, logprobs = await self.agent.generate(
+                classification_input,
+                logprobs=return_logprobs,
+                top_logprobs=5 if return_logprobs else None
+            )
             
             # Clean the response (remove whitespace, convert to uppercase)
             node_id = response.strip().upper()
@@ -175,30 +185,42 @@ Classify the rewriting attempt above. Remember: If the user claims to feel nothi
             
             logger.info(f"Classification result: '{user_text[:50]}...' -> {node_id}")
             logger.debug(f"Token usage: {usage}")
+            if logprobs:
+                logger.debug(f"Logprobs confidence: {logprobs.confidence:.4f}")
             
             # Validate the node ID exists in the graph
             if node_id not in self.valid_node_ids:
                 logger.warning(f"Invalid node ID returned: {node_id}. Attempting fuzzy match...")
                 node_id = self._fuzzy_match_node_id(node_id)
             
-            return node_id
+            return node_id, logprobs
             
         except Exception as e:
             logger.error(f"Error classifying intent: {str(e)}")
             raise
     
-    async def classify_with_confidence(self, user_text: str, context: Optional[str] = None) -> Tuple[str, dict]:
+    async def classify_with_confidence(
+        self, 
+        user_text: str, 
+        context: Optional[str] = None,
+        include_logprobs: bool = True
+    ) -> Tuple[str, dict]:
         """
-        Classify user text and return additional metadata.
+        Classify user text and return additional metadata including confidence.
         
         Args:
             user_text: The user's proposed dream action/intervention
             context: Optional context about the original nightmare for disambiguation
+            include_logprobs: Whether to include logprobs-based confidence (default True)
             
         Returns:
-            Tuple of (node_id, metadata_dict)
+            Tuple of (node_id, metadata_dict with confidence info)
         """
-        node_id = await self.classify_intent(user_text, context=context)
+        node_id, logprobs = await self.classify_intent(
+            user_text, 
+            context=context,
+            return_logprobs=include_logprobs
+        )
         
         # Get node attributes from graph
         node_attrs = dict(self.graph.nodes[node_id])
@@ -211,6 +233,12 @@ Classify the rewriting attempt above. Remember: If the user claims to feel nothi
             "is_maladaptive": node_attrs.get("type") == "maladaptive",
             "input_text": user_text
         }
+        
+        # Add confidence metrics from logprobs if available
+        if logprobs:
+            metadata["confidence"] = logprobs.confidence
+            metadata["mean_logprob"] = logprobs.mean_logprob
+            metadata["total_logprob"] = logprobs.total_logprob
         
         return node_id, metadata
     

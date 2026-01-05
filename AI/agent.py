@@ -1,6 +1,7 @@
 import os
-from typing import Literal, AsyncGenerator, Tuple, Optional
-from dataclasses import dataclass
+import math
+from typing import Literal, AsyncGenerator, Tuple, Optional, List
+from dataclasses import dataclass, field
 from openai import AsyncOpenAI
 from groq import AsyncGroq
 import logging
@@ -26,6 +27,37 @@ ProviderType = Literal["groq", "openai", "scaleway"]
 class ModelConfig:
     name: str
     provider: ProviderType
+
+
+@dataclass
+class TokenLogprob:
+    """Log probability information for a single token."""
+    token: str
+    logprob: float
+    top_logprobs: Optional[List[dict]] = None
+
+
+@dataclass 
+class LogprobsResult:
+    """Container for logprobs data from a completion."""
+    tokens: List[TokenLogprob] = field(default_factory=list)
+    
+    @property
+    def mean_logprob(self) -> float:
+        """Average log probability across all tokens."""
+        if not self.tokens:
+            return 0.0
+        return sum(t.logprob for t in self.tokens) / len(self.tokens)
+    
+    @property
+    def total_logprob(self) -> float:
+        """Sum of all log probabilities (log of sequence probability)."""
+        return sum(t.logprob for t in self.tokens)
+    
+    @property
+    def confidence(self) -> float:
+        """Convert mean logprob to a 0-1 confidence score."""
+        return math.exp(self.mean_logprob) if self.tokens else 0.0
 
 class Agent:
     def __init__(self, model_config: ModelConfig, system_prompt: str, temperature: float = 0.5):
@@ -53,28 +85,82 @@ class Agent:
                 raise ValueError("OPENAI_API_KEY not found in environment")
             self.client = AsyncOpenAI(api_key=api_key)
 
-    async def generate(self, prompt: str) -> Tuple[str, dict]:
+    async def generate(
+        self, 
+        prompt: str, 
+        logprobs: bool = False,
+        top_logprobs: Optional[int] = None
+    ) -> Tuple[str, dict, Optional[LogprobsResult]]:
+        """
+        Generate a response from the LLM.
+        
+        Args:
+            prompt: The user prompt to send
+            logprobs: Whether to request log probabilities for each token
+            top_logprobs: If logprobs=True, how many top alternatives per token (1-20)
+            
+        Returns:
+            Tuple of (response_text, usage_dict, logprobs_result or None)
+        """
         try:
             log_prompt(self.system_prompt, prompt, self.model)
-            response = await self.client.chat.completions.create(
-                model=self.model,
-                messages=[
+            
+            request_kwargs = {
+                "model": self.model,
+                "messages": [
                     {"role": "system", "content": self.system_prompt},
                     {"role": "user", "content": prompt}
                 ],
-                temperature=self.temperature,
-                max_tokens=1024
-            )
-            return response.choices[0].message.content, {
+                "temperature": self.temperature,
+                "max_tokens": 1024,
+            }
+            
+            if logprobs:
+                request_kwargs["logprobs"] = True
+                if top_logprobs is not None:
+                    request_kwargs["top_logprobs"] = top_logprobs
+            
+            response = await self.client.chat.completions.create(**request_kwargs)
+            
+            usage = {
                 "input": response.usage.prompt_tokens,
                 "output": response.usage.completion_tokens,
                 "total": response.usage.total_tokens
             }
+            
+            logprobs_result = None
+            if logprobs and response.choices[0].logprobs:
+                logprobs_result = self._parse_logprobs(response.choices[0].logprobs)
+            
+            return response.choices[0].message.content, usage, logprobs_result
+            
         except Exception as e:
             logger.error(f"Error generating response: {str(e)}")
             raise
+    
+    def _parse_logprobs(self, logprobs_data) -> LogprobsResult:
+        """Parse the logprobs from API response into our dataclass."""
+        result = LogprobsResult()
+        
+        if hasattr(logprobs_data, 'content') and logprobs_data.content:
+            for token_info in logprobs_data.content:
+                top_alternatives = None
+                if hasattr(token_info, 'top_logprobs') and token_info.top_logprobs:
+                    top_alternatives = [
+                        {"token": alt.token, "logprob": alt.logprob}
+                        for alt in token_info.top_logprobs
+                    ]
+                
+                result.tokens.append(TokenLogprob(
+                    token=token_info.token,
+                    logprob=token_info.logprob,
+                    top_logprobs=top_alternatives
+                ))
+        
+        return result
 
-    async def generate_stream(self, prompt: str) -> AsyncGenerator[Tuple[str, Optional[dict]], None]:
+    async def generate_stream(self, prompt: str) -> AsyncGenerator[Tuple[str, Optional[dict], Optional[LogprobsResult]], None]:
+        """Generate a streaming response. Note: Logprobs not available in streaming mode."""
         try:
             encoder = tiktoken.get_encoding("cl100k_base")
             prompt_tokens = len(encoder.encode(prompt))
@@ -94,13 +180,13 @@ class Agent:
             async for chunk in stream:
                 if content := chunk.choices[0].delta.content:
                     completion_tokens += len(encoder.encode(content))
-                    yield content, None
+                    yield content, None, None
             
             yield "", {
                 "input": prompt_tokens,
                 "output": completion_tokens,
                 "total": prompt_tokens + completion_tokens
-            }
+            }, None
         except Exception as e:
             logger.error(f"Error in stream generation: {str(e)}")
             raise

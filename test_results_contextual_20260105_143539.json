@@ -1,0 +1,1325 @@
+{
+  "timestamp": "2026-01-05T14:35:39.345189",
+  "total_tests": 55,
+  "passed": 52,
+  "failed": 3,
+  "pass_rate": 94.54545454545455,
+  "avg_confidence": 0.9808908382797477,
+  "suites": {
+    "Chase Nightmare - Adaptive Behaviors": {
+      "total": 5,
+      "passed": 5,
+      "failed": 0,
+      "pass_rate": 100.0,
+      "avg_confidence": 0.9689263775448704,
+      "details": [
+        {
+          "description": "Turn and fight",
+          "input": "I stop running and turn around to face whatever is chasing me",
+          "expected_safe": true,
+          "expected_node": "BEHAVIORAL_MASTERY",
+          "actual_safe": true,
+          "actual_node": "BEHAVIORAL_MASTERY",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9978266028068006,
+          "mean_logprob": -0.002175762448593509,
+          "segment_confidences": [
+            {
+              "text": "I stop running and turn around to face whatever is chasing me",
+              "node_id": "BEHAVIORAL_MASTERY",
+              "confidence": 0.9978266028068006,
+              "mean_logprob": -0.002175762448593509
+            }
+          ]
+        },
+        {
+          "description": "Call for help",
+          "input": "I shout as loud as I can for someone to help me",
+          "expected_safe": true,
+          "expected_node": "SOCIAL_MASTERY",
+          "actual_safe": true,
+          "actual_node": "SOCIAL_MASTERY",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9904239403252606,
+          "mean_logprob": -0.009622204963842964,
+          "segment_confidences": [
+            {
+              "text": "I shout as loud as I can for someone to help me",
+              "node_id": "SOCIAL_MASTERY",
+              "confidence": 0.9904239403252606,
+              "mean_logprob": -0.009622204963842964
+            }
+          ]
+        },
+        {
+          "description": "Find weapon",
+          "input": "I notice a large branch on the ground and pick it up to defend myself",
+          "expected_safe": true,
+          "expected_node": "ENVIRONMENTAL_MASTERY",
+          "actual_safe": true,
+          "actual_node": "BEHAVIORAL_MASTERY",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9683154749875507,
+          "mean_logprob": -0.03219734088794565,
+          "segment_confidences": [
+            {
+              "text": "I notice a large branch on the ground and pick it up to defend myself",
+              "node_id": "BEHAVIORAL_MASTERY",
+              "confidence": 0.9683154749875507,
+              "mean_logprob": -0.03219734088794565
+            }
+          ]
+        },
+        {
+          "description": "Calm down",
+          "input": "I take a deep breath and try to calm myself, then look around carefully",
+          "expected_safe": true,
+          "expected_node": "EMOTIONAL_MASTERY",
+          "actual_safe": true,
+          "actual_node": "EMOTIONAL_MASTERY",
+          "passed": true,
+          "segments": 2,
+          "confidence": 0.9871581708429812,
+          "mean_logprob": -0.012924998241088836,
+          "segment_confidences": [
+            {
+              "text": "I take a deep breath and try to calm myself",
+              "node_id": "EMOTIONAL_MASTERY",
+              "confidence": 0.9871581708429812,
+              "mean_logprob": -0.012924998241088836
+            },
+            {
+              "text": "then look around carefully",
+              "node_id": "BEHAVIORAL_MASTERY",
+              "confidence": 0.9362982184125911,
+              "mean_logprob": -0.065821243834585
+            }
+          ]
+        },
+        {
+          "description": "Magical powers",
+          "input": "I realize I can fly and I soar up above the trees",
+          "expected_safe": true,
+          "expected_node": "MYTHICAL_MASTERY",
+          "actual_safe": true,
+          "actual_node": "ENVIRONMENTAL_MASTERY",
+          "passed": true,
+          "segments": 2,
+          "confidence": 0.9009076987617597,
+          "mean_logprob": -0.10435246972715756,
+          "segment_confidences": [
+            {
+              "text": "I realize I can fly",
+              "node_id": "ENVIRONMENTAL_MASTERY",
+              "confidence": 0.9009076987617597,
+              "mean_logprob": -0.10435246972715756
+            },
+            {
+              "text": "and I soar up above the trees",
+              "node_id": "BEHAVIORAL_MASTERY",
+              "confidence": 0.8971684031978548,
+              "mean_logprob": -0.10851169407854083
+            }
+          ]
+        }
+      ]
+    },
+    "Chase Nightmare - Maladaptive Behaviors": {
+      "total": 4,
+      "passed": 4,
+      "failed": 0,
+      "pass_rate": 100.0,
+      "avg_confidence": 0.9972236057308312,
+      "details": [
+        {
+          "description": "Wake up (HIGH)",
+          "input": "I force myself to wake up from the nightmare",
+          "expected_safe": false,
+          "expected_node": "ZDPCS_INTERRUPT",
+          "actual_safe": false,
+          "actual_node": "ZDPCS_INTERRUPT",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9991560715945953,
+          "mean_logprob": -0.0008442847134612445,
+          "segment_confidences": [
+            {
+              "text": "I force myself to wake up from the nightmare",
+              "node_id": "ZDPCS_INTERRUPT",
+              "confidence": 0.9991560715945953,
+              "mean_logprob": -0.0008442847134612445
+            }
+          ]
+        },
+        {
+          "description": "Hide (MODERATE)",
+          "input": "I hide behind a big tree and hope it doesn't find me",
+          "expected_safe": false,
+          "expected_node": "ZDPCS_SAFETY_PRINCIPLE",
+          "actual_safe": false,
+          "actual_node": "ZDPCS_SAFETY_PRINCIPLE",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9960761530994159,
+          "mean_logprob": -0.003931565385217693,
+          "segment_confidences": [
+            {
+              "text": "I hide behind a big tree and hope it doesn't find me",
+              "node_id": "ZDPCS_SAFETY_PRINCIPLE",
+              "confidence": 0.9960761530994159,
+              "mean_logprob": -0.003931565385217693
+            }
+          ]
+        },
+        {
+          "description": "Do nothing (MODERATE)",
+          "input": "I just freeze and do nothing, waiting for it to pass",
+          "expected_safe": false,
+          "expected_node": "ZDPCS_SAFETY_PRINCIPLE",
+          "actual_safe": false,
+          "actual_node": "ZDPCS_SAFETY_PRINCIPLE",
+          "passed": true,
+          "segments": 2,
+          "confidence": 0.9985367486966685,
+          "mean_logprob": -0.0014643229009918862,
+          "segment_confidences": [
+            {
+              "text": "I just freeze and do nothing",
+              "node_id": "ZDPCS_SAFETY_PRINCIPLE",
+              "confidence": 0.9985367486966685,
+              "mean_logprob": -0.0014643229009918862
+            },
+            {
+              "text": "waiting for it to pass",
+              "node_id": "ZDPCS_SAFETY_PRINCIPLE",
+              "confidence": 0.9962828711621432,
+              "mean_logprob": -0.0037240545290398836
+            }
+          ]
+        },
+        {
+          "description": "Extreme violence (CRITICAL)",
+          "input": "I turn around and destroy everything - I kill the creature and burn down the whole forest",
+          "expected_safe": false,
+          "expected_node": "ZDPCS_REGRESSIVE_AGGRESSION",
+          "actual_safe": false,
+          "actual_node": "ZDPCS_REGRESSIVE_AGGRESSION",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9951254495326458,
+          "mean_logprob": -0.004886469838643629,
+          "segment_confidences": [
+            {
+              "text": "I turn around and destroy everything - I kill the creature and burn down the whole forest",
+              "node_id": "ZDPCS_REGRESSIVE_AGGRESSION",
+              "confidence": 0.9951254495326458,
+              "mean_logprob": -0.004886469838643629
+            }
+          ]
+        }
+      ]
+    },
+    "Chase Nightmare - Neutral & Mixed": {
+      "total": 10,
+      "passed": 9,
+      "failed": 1,
+      "pass_rate": 90.0,
+      "avg_confidence": 0.9924726539404871,
+      "details": [
+        {
+          "description": "Neutral - feeling only",
+          "input": "I feel absolutely terrified",
+          "expected_safe": true,
+          "expected_node": "ZDPCS_AFFECT_EXPRESSION",
+          "actual_safe": true,
+          "actual_node": "ZDPCS_AFFECT_EXPRESSION",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9984216134462495,
+          "mean_logprob": -0.0015796335181076674,
+          "segment_confidences": [
+            {
+              "text": "I feel absolutely terrified",
+              "node_id": "ZDPCS_AFFECT_EXPRESSION",
+              "confidence": 0.9984216134462495,
+              "mean_logprob": -0.0015796335181076674
+            }
+          ]
+        },
+        {
+          "description": "Neutral - scene description",
+          "input": "The forest is dark and the trees are twisted",
+          "expected_safe": true,
+          "expected_node": "ZDPCS_NARRATIVE_SETTING",
+          "actual_safe": true,
+          "actual_node": "ZDPCS_NARRATIVE_SETTING",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9979747007027511,
+          "mean_logprob": -0.0020273529892331035,
+          "segment_confidences": [
+            {
+              "text": "The forest is dark and the trees are twisted",
+              "node_id": "ZDPCS_NARRATIVE_SETTING",
+              "confidence": 0.9979747007027511,
+              "mean_logprob": -0.0020273529892331035
+            }
+          ]
+        },
+        {
+          "description": "Mixed - META + adaptive action",
+          "input": "I don't really like this exercise, but fine, I turn and fight the creature",
+          "expected_safe": true,
+          "expected_node": null,
+          "actual_safe": false,
+          "actual_node": "ZDPCS_SAFETY_PRINCIPLE",
+          "passed": false,
+          "segments": 2,
+          "confidence": 0.9704572949472452,
+          "mean_logprob": -0.029987880486787435,
+          "segment_confidences": [
+            {
+              "text": "but fine, I turn and fight the creature",
+              "node_id": "ZDPCS_SAFETY_PRINCIPLE",
+              "confidence": 0.9704572949472452,
+              "mean_logprob": -0.029987880486787435
+            }
+          ]
+        },
+        {
+          "description": "Mixed - feeling + adaptive action",
+          "input": "I'm scared but I decide to stand my ground and face it",
+          "expected_safe": true,
+          "expected_node": null,
+          "actual_safe": true,
+          "actual_node": "BEHAVIORAL_MASTERY",
+          "passed": true,
+          "segments": 2,
+          "confidence": 0.9935134447990872,
+          "mean_logprob": -0.006507684319792083,
+          "segment_confidences": [
+            {
+              "text": "I'm scared",
+              "node_id": "ZDPCS_AFFECT_EXPRESSION",
+              "confidence": 0.9975756249745038,
+              "mean_logprob": -0.0024273185811125586
+            },
+            {
+              "text": "but I decide to stand my ground and face it",
+              "node_id": "BEHAVIORAL_MASTERY",
+              "confidence": 0.9935134447990872,
+              "mean_logprob": -0.006507684319792083
+            }
+          ]
+        },
+        {
+          "description": "Mixed - feeling + maladaptive (violence)",
+          "input": "I'm so angry and scared that I brutally kill everything in sight",
+          "expected_safe": false,
+          "expected_node": "ZDPCS_REGRESSIVE_AGGRESSION",
+          "actual_safe": false,
+          "actual_node": "ZDPCS_REGRESSIVE_AGGRESSION",
+          "passed": true,
+          "segments": 2,
+          "confidence": 0.9986564298025538,
+          "mean_logprob": -0.0013444735971618754,
+          "segment_confidences": [
+            {
+              "text": "I'm so angry and scared",
+              "node_id": "ZDPCS_AFFECT_EXPRESSION",
+              "confidence": 0.9963095015674615,
+              "mean_logprob": -0.0036973251229813864
+            },
+            {
+              "text": "that I brutally kill everything in sight",
+              "node_id": "ZDPCS_REGRESSIVE_AGGRESSION",
+              "confidence": 0.9986564298025538,
+              "mean_logprob": -0.0013444735971618754
+            }
+          ]
+        },
+        {
+          "description": "Mixed - adaptive + maladaptive (triage test)",
+          "input": "I try calling for help but when no one comes I just wake myself up",
+          "expected_safe": false,
+          "expected_node": "ZDPCS_INTERRUPT",
+          "actual_safe": false,
+          "actual_node": "ZDPCS_INTERRUPT",
+          "passed": true,
+          "segments": 2,
+          "confidence": 0.9986788516901717,
+          "mean_logprob": -0.0013220217956776044,
+          "segment_confidences": [
+            {
+              "text": "I try calling for help but when no one comes",
+              "node_id": "ZDPCS_SAFETY_PRINCIPLE",
+              "confidence": 0.9203182102595362,
+              "mean_logprob": -0.08303578802510968
+            },
+            {
+              "text": "I just wake myself up",
+              "node_id": "ZDPCS_INTERRUPT",
+              "confidence": 0.9986788516901717,
+              "mean_logprob": -0.0013220217956776044
+            }
+          ]
+        },
+        {
+          "description": "Negation - decided not to run",
+          "input": "I decide not to keep running away",
+          "expected_safe": true,
+          "expected_node": "BEHAVIORAL_MASTERY",
+          "actual_safe": true,
+          "actual_node": "BEHAVIORAL_MASTERY",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9913613783723032,
+          "mean_logprob": -0.00867615080942288,
+          "segment_confidences": [
+            {
+              "text": "I decide not to keep running away",
+              "node_id": "BEHAVIORAL_MASTERY",
+              "confidence": 0.9913613783723032,
+              "mean_logprob": -0.00867615080942288
+            }
+          ]
+        },
+        {
+          "description": "Negation - chose not to hide",
+          "input": "I choose not to hide this time",
+          "expected_safe": true,
+          "expected_node": "BEHAVIORAL_MASTERY",
+          "actual_safe": true,
+          "actual_node": "BEHAVIORAL_MASTERY",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9907800677810953,
+          "mean_logprob": -0.009262698867334822,
+          "segment_confidences": [
+            {
+              "text": "I choose not to hide this time",
+              "node_id": "BEHAVIORAL_MASTERY",
+              "confidence": 0.9907800677810953,
+              "mean_logprob": -0.009262698867334822
+            }
+          ]
+        },
+        {
+          "description": "Pure META - should pass through",
+          "input": "I don't understand why we have to do this",
+          "expected_safe": true,
+          "expected_node": null,
+          "actual_safe": true,
+          "actual_node": "META_ONLY",
+          "passed": true,
+          "segments": 1,
+          "confidence": null,
+          "mean_logprob": null,
+          "segment_confidences": []
+        },
+        {
+          "description": "Complex multi-part",
+          "input": "The forest was terrifying. I felt like I couldn't breathe. But then I remembered I could control this dream, so I turned around and shouted at the creature to stop.",
+          "expected_safe": true,
+          "expected_node": null,
+          "actual_safe": true,
+          "actual_node": "BEHAVIORAL_MASTERY",
+          "passed": true,
+          "segments": 2,
+          "confidence": 0.9924101039229273,
+          "mean_logprob": -0.007618845915506729,
+          "segment_confidences": [
+            {
+              "text": "The forest was terrifying. I felt like I couldn't breathe.",
+              "node_id": "ZDPCS_AFFECT_EXPRESSION",
+              "confidence": 0.980884695518405,
+              "mean_logprob": -0.019300364022724767
+            },
+            {
+              "text": "But then I remembered I could control this dream, so I turned around and shouted at the creature to stop.",
+              "node_id": "BEHAVIORAL_MASTERY",
+              "confidence": 0.9924101039229273,
+              "mean_logprob": -0.007618845915506729
+            }
+          ]
+        }
+      ]
+    },
+    "Home Intruder - Adaptive Behaviors": {
+      "total": 6,
+      "passed": 6,
+      "failed": 0,
+      "pass_rate": 100.0,
+      "avg_confidence": 0.966471552048466,
+      "details": [
+        {
+          "description": "Confront verbally",
+          "input": "I find my voice and shout 'Get out of my house!'",
+          "expected_safe": true,
+          "expected_node": "BEHAVIORAL_MASTERY",
+          "actual_safe": true,
+          "actual_node": "BEHAVIORAL_MASTERY",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9927919694728751,
+          "mean_logprob": -0.007234133890695678,
+          "segment_confidences": [
+            {
+              "text": "I find my voice and shout 'Get out of my house!'",
+              "node_id": "BEHAVIORAL_MASTERY",
+              "confidence": 0.9927919694728751,
+              "mean_logprob": -0.007234133890695678
+            }
+          ]
+        },
+        {
+          "description": "Call for help",
+          "input": "I grab my phone and call for help",
+          "expected_safe": true,
+          "expected_node": "SOCIAL_MASTERY",
+          "actual_safe": true,
+          "actual_node": "BEHAVIORAL_MASTERY",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9449222454002469,
+          "mean_logprob": -0.05665263487331787,
+          "segment_confidences": [
+            {
+              "text": "I grab my phone and call for help",
+              "node_id": "BEHAVIORAL_MASTERY",
+              "confidence": 0.9449222454002469,
+              "mean_logprob": -0.05665263487331787
+            }
+          ]
+        },
+        {
+          "description": "Find protection",
+          "input": "I grab the lamp from my nightstand to defend myself",
+          "expected_safe": true,
+          "expected_node": "ENVIRONMENTAL_MASTERY",
+          "actual_safe": true,
+          "actual_node": "BEHAVIORAL_MASTERY",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9943443720123287,
+          "mean_logprob": -0.005671681609126406,
+          "segment_confidences": [
+            {
+              "text": "I grab the lamp from my nightstand to defend myself",
+              "node_id": "BEHAVIORAL_MASTERY",
+              "confidence": 0.9943443720123287,
+              "mean_logprob": -0.005671681609126406
+            }
+          ]
+        },
+        {
+          "description": "Escape purposefully",
+          "input": "I jump out of bed and run to the window to escape",
+          "expected_safe": true,
+          "expected_node": "BEHAVIORAL_MASTERY",
+          "actual_safe": true,
+          "actual_node": "BEHAVIORAL_MASTERY",
+          "passed": true,
+          "segments": 2,
+          "confidence": 0.9925588595437703,
+          "mean_logprob": -0.007468963853006648,
+          "segment_confidences": [
+            {
+              "text": "I jump out of bed",
+              "node_id": "BEHAVIORAL_MASTERY",
+              "confidence": 0.9925588595437703,
+              "mean_logprob": -0.007468963853006648
+            },
+            {
+              "text": "and run to the window to escape",
+              "node_id": "BEHAVIORAL_MASTERY",
+              "confidence": 0.9919228232513271,
+              "mean_logprob": -0.008109973865581802
+            }
+          ]
+        },
+        {
+          "description": "Regain control",
+          "input": "I realize this is my dream and I have power here. I stand up confidently.",
+          "expected_safe": true,
+          "expected_node": "EMOTIONAL_MASTERY",
+          "actual_safe": true,
+          "actual_node": "BEHAVIORAL_MASTERY",
+          "passed": true,
+          "segments": 2,
+          "confidence": 0.8912186053286729,
+          "mean_logprob": -0.11516553331173579,
+          "segment_confidences": [
+            {
+              "text": "I realize this is my dream and I have power here",
+              "node_id": "BEHAVIORAL_MASTERY",
+              "confidence": 0.8912186053286729,
+              "mean_logprob": -0.11516553331173579
+            },
+            {
+              "text": "I stand up confidently",
+              "node_id": "BEHAVIORAL_MASTERY",
+              "confidence": 0.9925435678746525,
+              "mean_logprob": -0.007484370281316741
+            }
+          ]
+        },
+        {
+          "description": "Transform threat",
+          "input": "As the figure approaches, I see it's actually my guardian angel coming to protect me",
+          "expected_safe": true,
+          "expected_node": "MYTHICAL_MASTERY",
+          "actual_safe": true,
+          "actual_node": "ENVIRONMENTAL_MASTERY",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9829932605329026,
+          "mean_logprob": -0.017153014877900812,
+          "segment_confidences": [
+            {
+              "text": "As the figure approaches, I see it's actually my guardian angel coming to protect me",
+              "node_id": "ENVIRONMENTAL_MASTERY",
+              "confidence": 0.9829932605329026,
+              "mean_logprob": -0.017153014877900812
+            }
+          ]
+        }
+      ]
+    },
+    "Home Intruder - Maladaptive Behaviors": {
+      "total": 5,
+      "passed": 4,
+      "failed": 1,
+      "pass_rate": 80.0,
+      "avg_confidence": 0.9844367698754601,
+      "details": [
+        {
+          "description": "Stay frozen (MODERATE)",
+          "input": "I stay frozen in bed, hoping they don't see me",
+          "expected_safe": false,
+          "expected_node": "ZDPCS_SAFETY_PRINCIPLE",
+          "actual_safe": false,
+          "actual_node": "ZDPCS_SAFETY_PRINCIPLE",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9958999060641437,
+          "mean_logprob": -0.004108522367126507,
+          "segment_confidences": [
+            {
+              "text": "I stay frozen in bed, hoping they don't see me",
+              "node_id": "ZDPCS_SAFETY_PRINCIPLE",
+              "confidence": 0.9958999060641437,
+              "mean_logprob": -0.004108522367126507
+            }
+          ]
+        },
+        {
+          "description": "Hide under covers (MODERATE)",
+          "input": "I pull the blanket over my head and hide",
+          "expected_safe": false,
+          "expected_node": "ZDPCS_SAFETY_PRINCIPLE",
+          "actual_safe": false,
+          "actual_node": "ZDPCS_SAFETY_PRINCIPLE",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9940890085213786,
+          "mean_logprob": -0.005928530538392961,
+          "segment_confidences": [
+            {
+              "text": "I pull the blanket over my head and hide",
+              "node_id": "ZDPCS_SAFETY_PRINCIPLE",
+              "confidence": 0.9940890085213786,
+              "mean_logprob": -0.005928530538392961
+            }
+          ]
+        },
+        {
+          "description": "Wake up (HIGH)",
+          "input": "I wake myself up before anything bad happens",
+          "expected_safe": false,
+          "expected_node": "ZDPCS_INTERRUPT",
+          "actual_safe": false,
+          "actual_node": "ZDPCS_INTERRUPT",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9990985293774101,
+          "mean_logprob": -0.0009018771915899985,
+          "segment_confidences": [
+            {
+              "text": "I wake myself up before anything bad happens",
+              "node_id": "ZDPCS_INTERRUPT",
+              "confidence": 0.9990985293774101,
+              "mean_logprob": -0.0009018771915899985
+            }
+          ]
+        },
+        {
+          "description": "Revenge violence (CRITICAL)",
+          "input": "I grab a knife and stab the intruder over and over until they're dead",
+          "expected_safe": false,
+          "expected_node": "ZDPCS_REGRESSIVE_AGGRESSION",
+          "actual_safe": true,
+          "actual_node": "BEHAVIORAL_MASTERY",
+          "passed": false,
+          "segments": 1,
+          "confidence": 0.9355576823528505,
+          "mean_logprob": -0.06661247578579656,
+          "segment_confidences": [
+            {
+              "text": "I grab a knife and stab the intruder over and over until they're dead",
+              "node_id": "BEHAVIORAL_MASTERY",
+              "confidence": 0.9355576823528505,
+              "mean_logprob": -0.06661247578579656
+            }
+          ]
+        },
+        {
+          "description": "Destroy everything (CRITICAL)",
+          "input": "I lose control and kill them, then burn the house down",
+          "expected_safe": false,
+          "expected_node": "ZDPCS_REGRESSIVE_AGGRESSION",
+          "actual_safe": false,
+          "actual_node": "ZDPCS_REGRESSIVE_AGGRESSION",
+          "passed": true,
+          "segments": 2,
+          "confidence": 0.9975387230615175,
+          "mean_logprob": -0.002464310859802656,
+          "segment_confidences": [
+            {
+              "text": "I lose control and kill them",
+              "node_id": "ZDPCS_REGRESSIVE_AGGRESSION",
+              "confidence": 0.9975387230615175,
+              "mean_logprob": -0.002464310859802656
+            },
+            {
+              "text": "then burn the house down",
+              "node_id": "ZDPCS_REGRESSIVE_AGGRESSION",
+              "confidence": 0.9965356236849615,
+              "mean_logprob": -0.0034703911624791753
+            }
+          ]
+        }
+      ]
+    },
+    "Home Intruder - Neutral & Mixed": {
+      "total": 8,
+      "passed": 7,
+      "failed": 1,
+      "pass_rate": 87.5,
+      "avg_confidence": 0.9716050112022862,
+      "details": [
+        {
+          "description": "Neutral - describe paralysis feeling",
+          "input": "I feel completely paralyzed with fear",
+          "expected_safe": true,
+          "expected_node": "ZDPCS_AFFECT_EXPRESSION",
+          "actual_safe": true,
+          "actual_node": "ZDPCS_AFFECT_EXPRESSION",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9847736102980793,
+          "mean_logprob": -0.01534350148751235,
+          "segment_confidences": [
+            {
+              "text": "I feel completely paralyzed with fear",
+              "node_id": "ZDPCS_AFFECT_EXPRESSION",
+              "confidence": 0.9847736102980793,
+              "mean_logprob": -0.01534350148751235
+            }
+          ]
+        },
+        {
+          "description": "Neutral - describe scene",
+          "input": "The room is dark and I can see shadows moving",
+          "expected_safe": true,
+          "expected_node": "ZDPCS_NARRATIVE_SETTING",
+          "actual_safe": true,
+          "actual_node": "ZDPCS_NARRATIVE_SETTING",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9885803982251777,
+          "mean_logprob": -0.011485306117729502,
+          "segment_confidences": [
+            {
+              "text": "The room is dark and I can see shadows moving",
+              "node_id": "ZDPCS_NARRATIVE_SETTING",
+              "confidence": 0.9885803982251777,
+              "mean_logprob": -0.011485306117729502
+            }
+          ]
+        },
+        {
+          "description": "Mixed - fear but action",
+          "input": "I'm absolutely terrified but I force myself to get up and face the intruder",
+          "expected_safe": true,
+          "expected_node": null,
+          "actual_safe": true,
+          "actual_node": "BEHAVIORAL_MASTERY",
+          "passed": true,
+          "segments": 2,
+          "confidence": 0.9865293247620992,
+          "mean_logprob": -0.013562227897314946,
+          "segment_confidences": [
+            {
+              "text": "I'm absolutely terrified",
+              "node_id": "ZDPCS_AFFECT_EXPRESSION",
+              "confidence": 0.9974694213752918,
+              "mean_logprob": -0.0025337859508660836
+            },
+            {
+              "text": "but I force myself to get up and face the intruder",
+              "node_id": "BEHAVIORAL_MASTERY",
+              "confidence": 0.9865293247620992,
+              "mean_logprob": -0.013562227897314946
+            }
+          ]
+        },
+        {
+          "description": "Mixed - META resistance + compliance",
+          "input": "This is too scary, but okay... I guess I call for my parents",
+          "expected_safe": true,
+          "expected_node": null,
+          "actual_safe": false,
+          "actual_node": "ZDPCS_SAFETY_PRINCIPLE",
+          "passed": false,
+          "segments": 2,
+          "confidence": 0.9588139110569391,
+          "mean_logprob": -0.042058267706822604,
+          "segment_confidences": [
+            {
+              "text": "This is too scary",
+              "node_id": "ZDPCS_SAFETY_PRINCIPLE",
+              "confidence": 0.9588139110569391,
+              "mean_logprob": -0.042058267706822604
+            },
+            {
+              "text": "but okay... I guess I call for my parents",
+              "node_id": "SOCIAL_MASTERY",
+              "confidence": 0.876367051919393,
+              "mean_logprob": -0.13197026676511672
+            }
+          ]
+        },
+        {
+          "description": "Mixed - starts adaptive, ends maladaptive",
+          "input": "I try to confront them but I'm too scared so I just wake up",
+          "expected_safe": false,
+          "expected_node": "ZDPCS_INTERRUPT",
+          "actual_safe": false,
+          "actual_node": "ZDPCS_INTERRUPT",
+          "passed": true,
+          "segments": 2,
+          "confidence": 0.9977913541451762,
+          "mean_logprob": -0.002211088510383282,
+          "segment_confidences": [
+            {
+              "text": "I try to confront them",
+              "node_id": "BEHAVIORAL_MASTERY",
+              "confidence": 0.9946769482049004,
+              "mean_logprob": -0.005337269712893228
+            },
+            {
+              "text": "but I'm too scared so I just wake up",
+              "node_id": "ZDPCS_INTERRUPT",
+              "confidence": 0.9977913541451762,
+              "mean_logprob": -0.002211088510383282
+            }
+          ]
+        },
+        {
+          "description": "Triage test - multiple maladaptive (violence wins)",
+          "input": "I hide at first, then when they find me I kill them brutally",
+          "expected_safe": false,
+          "expected_node": "ZDPCS_REGRESSIVE_AGGRESSION",
+          "actual_safe": false,
+          "actual_node": "ZDPCS_REGRESSIVE_AGGRESSION",
+          "passed": true,
+          "segments": 2,
+          "confidence": 0.9975250470939552,
+          "mean_logprob": -0.0024780206647392333,
+          "segment_confidences": [
+            {
+              "text": "I hide at first",
+              "node_id": "ZDPCS_SAFETY_PRINCIPLE",
+              "confidence": 0.9962536892062166,
+              "mean_logprob": -0.0037533457917540147
+            },
+            {
+              "text": "then when they find me I kill them brutally",
+              "node_id": "ZDPCS_REGRESSIVE_AGGRESSION",
+              "confidence": 0.9975250470939552,
+              "mean_logprob": -0.0024780206647392333
+            }
+          ]
+        },
+        {
+          "description": "Negation - refuse to stay frozen",
+          "input": "I refuse to stay frozen. I will not just lie here helpless.",
+          "expected_safe": true,
+          "expected_node": "BEHAVIORAL_MASTERY",
+          "actual_safe": true,
+          "actual_node": "EMOTIONAL_MASTERY",
+          "passed": true,
+          "segments": 2,
+          "confidence": 0.9108081070153021,
+          "mean_logprob": -0.09342304384918165,
+          "segment_confidences": [
+            {
+              "text": "I refuse to stay frozen",
+              "node_id": "EMOTIONAL_MASTERY",
+              "confidence": 0.9108081070153021,
+              "mean_logprob": -0.09342304384918165
+            },
+            {
+              "text": "I will not just lie here helpless",
+              "node_id": "BEHAVIORAL_MASTERY",
+              "confidence": 0.9936454544368425,
+              "mean_logprob": -0.006374821630250456
+            }
+          ]
+        },
+        {
+          "description": "Complex - narrative + feeling + action",
+          "input": "The figure was terrifying. I was so scared I could barely breathe. But then I remembered what we practiced - I took a deep breath, grabbed my phone, and called for help.",
+          "expected_safe": true,
+          "expected_node": null,
+          "actual_safe": true,
+          "actual_node": "BEHAVIORAL_MASTERY",
+          "passed": true,
+          "segments": 4,
+          "confidence": 0.9480183370215601,
+          "mean_logprob": -0.053381434064438814,
+          "segment_confidences": [
+            {
+              "text": "The figure was terrifying",
+              "node_id": "ZDPCS_AFFECT_EXPRESSION",
+              "confidence": 0.9967251910117811,
+              "mean_logprob": -0.0032801829107608105
+            },
+            {
+              "text": "I was so scared I could barely breathe",
+              "node_id": "ZDPCS_AFFECT_EXPRESSION",
+              "confidence": 0.9877397963451243,
+              "mean_logprob": -0.012335979943817289
+            },
+            {
+              "text": "But then I remembered what we practiced",
+              "node_id": "BEHAVIORAL_MASTERY",
+              "confidence": 0.9480183370215601,
+              "mean_logprob": -0.053381434064438814
+            },
+            {
+              "text": "I took a deep breath, grabbed my phone, and called for help",
+              "node_id": "BEHAVIORAL_MASTERY",
+              "confidence": 0.9069717618104628,
+              "mean_logprob": -0.09764396296746883
+            }
+          ]
+        }
+      ]
+    },
+    "Dog Loss - Emotional Suppression Tests (CRITICAL)": {
+      "total": 4,
+      "passed": 4,
+      "failed": 0,
+      "pass_rate": 100.0,
+      "avg_confidence": 0.999507125257617,
+      "details": [
+        {
+          "description": "Emotional suppression - don't feel panic (SHOULD BE UNSAFE)",
+          "input": "I just dont feel any panic and am fine with the situation",
+          "expected_safe": false,
+          "expected_node": "ZDPCS_SAFETY_PRINCIPLE",
+          "actual_safe": false,
+          "actual_node": "ZDPCS_SAFETY_PRINCIPLE",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9995535669452714,
+          "mean_logprob": -0.00044653273563304604,
+          "segment_confidences": [
+            {
+              "text": "I just don't feel any panic and am fine with the situation",
+              "node_id": "ZDPCS_SAFETY_PRINCIPLE",
+              "confidence": 0.9995535669452714,
+              "mean_logprob": -0.00044653273563304604
+            }
+          ]
+        },
+        {
+          "description": "Emotional suppression - I'm fine with it (SHOULD BE UNSAFE)",
+          "input": "I'm fine with seeing my dog dead",
+          "expected_safe": false,
+          "expected_node": "ZDPCS_SAFETY_PRINCIPLE",
+          "actual_safe": false,
+          "actual_node": "ZDPCS_SAFETY_PRINCIPLE",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9995313857026922,
+          "mean_logprob": -0.0004687241313021673,
+          "segment_confidences": [
+            {
+              "text": "I'm fine with seeing my dog dead",
+              "node_id": "ZDPCS_SAFETY_PRINCIPLE",
+              "confidence": 0.9995313857026922,
+              "mean_logprob": -0.0004687241313021673
+            }
+          ]
+        },
+        {
+          "description": "Emotional suppression - don't feel anything (SHOULD BE UNSAFE)",
+          "input": "I don't feel anything about it anymore",
+          "expected_safe": false,
+          "expected_node": "ZDPCS_SAFETY_PRINCIPLE",
+          "actual_safe": false,
+          "actual_node": "ZDPCS_SAFETY_PRINCIPLE",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9995008272533595,
+          "mean_logprob": -0.0004992973748316436,
+          "segment_confidences": [
+            {
+              "text": "I don't feel anything about it anymore",
+              "node_id": "ZDPCS_SAFETY_PRINCIPLE",
+              "confidence": 0.9995008272533595,
+              "mean_logprob": -0.0004992973748316436
+            }
+          ]
+        },
+        {
+          "description": "Emotional suppression - it doesn't bother me (SHOULD BE UNSAFE)",
+          "input": "It doesn't bother me, I just accept it",
+          "expected_safe": false,
+          "expected_node": "ZDPCS_SAFETY_PRINCIPLE",
+          "actual_safe": false,
+          "actual_node": "ZDPCS_SAFETY_PRINCIPLE",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9994427211291449,
+          "mean_logprob": -0.0005574342084386785,
+          "segment_confidences": [
+            {
+              "text": "It doesn't bother me, I just accept it",
+              "node_id": "ZDPCS_SAFETY_PRINCIPLE",
+              "confidence": 0.9994427211291449,
+              "mean_logprob": -0.0005574342084386785
+            }
+          ]
+        }
+      ]
+    },
+    "Dog Loss - Adaptive Transformations": {
+      "total": 6,
+      "passed": 6,
+      "failed": 0,
+      "pass_rate": 100.0,
+      "avg_confidence": 0.9680679440381578,
+      "details": [
+        {
+          "description": "Transform: dog is alive",
+          "input": "I see that my dog is actually alive and wagging his tail",
+          "expected_safe": true,
+          "expected_node": "ENVIRONMENTAL_MASTERY",
+          "actual_safe": true,
+          "actual_node": "ENVIRONMENTAL_MASTERY",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9981652294425191,
+          "mean_logprob": -0.001836455810664322,
+          "segment_confidences": [
+            {
+              "text": "I see that my dog is actually alive and wagging his tail",
+              "node_id": "ENVIRONMENTAL_MASTERY",
+              "confidence": 0.9981652294425191,
+              "mean_logprob": -0.001836455810664322
+            }
+          ]
+        },
+        {
+          "description": "Transform: dog wakes up",
+          "input": "I realize my dog was just sleeping and he wakes up when I call his name",
+          "expected_safe": true,
+          "expected_node": "ENVIRONMENTAL_MASTERY",
+          "actual_safe": true,
+          "actual_node": "ENVIRONMENTAL_MASTERY",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9943978540914055,
+          "mean_logprob": -0.005617896781321481,
+          "segment_confidences": [
+            {
+              "text": "I realize my dog was just sleeping and he wakes up when I call his name",
+              "node_id": "ENVIRONMENTAL_MASTERY",
+              "confidence": 0.9943978540914055,
+              "mean_logprob": -0.005617896781321481
+            }
+          ]
+        },
+        {
+          "description": "Call for help",
+          "input": "I immediately call for my grandparents to help",
+          "expected_safe": true,
+          "expected_node": "SOCIAL_MASTERY",
+          "actual_safe": true,
+          "actual_node": "SOCIAL_MASTERY",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9195417384454919,
+          "mean_logprob": -0.0838798434225753,
+          "segment_confidences": [
+            {
+              "text": "I immediately call for my grandparents to help",
+              "node_id": "SOCIAL_MASTERY",
+              "confidence": 0.9195417384454919,
+              "mean_logprob": -0.0838798434225753
+            }
+          ]
+        },
+        {
+          "description": "Take action",
+          "input": "I rush to my dog and start trying to revive him",
+          "expected_safe": true,
+          "expected_node": "BEHAVIORAL_MASTERY",
+          "actual_safe": true,
+          "actual_node": "ENVIRONMENTAL_MASTERY",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9364609572340911,
+          "mean_logprob": -0.06564744805344465,
+          "segment_confidences": [
+            {
+              "text": "I rush to my dog and start trying to revive him",
+              "node_id": "ENVIRONMENTAL_MASTERY",
+              "confidence": 0.9364609572340911,
+              "mean_logprob": -0.06564744805344465
+            }
+          ]
+        },
+        {
+          "description": "Emotional mastery with engagement",
+          "input": "I take a deep breath to calm myself and then kneel down to check on my dog",
+          "expected_safe": true,
+          "expected_node": "EMOTIONAL_MASTERY",
+          "actual_safe": true,
+          "actual_node": "EMOTIONAL_MASTERY",
+          "passed": true,
+          "segments": 2,
+          "confidence": 0.9724653453392498,
+          "mean_logprob": -0.027920838737060194,
+          "segment_confidences": [
+            {
+              "text": "I take a deep breath to calm myself",
+              "node_id": "EMOTIONAL_MASTERY",
+              "confidence": 0.9724653453392498,
+              "mean_logprob": -0.027920838737060194
+            },
+            {
+              "text": "and then kneel down to check on my dog",
+              "node_id": "ZDPCS_NARRATIVE_SETTING",
+              "confidence": 0.8876975881357482,
+              "mean_logprob": -0.11912414789280017
+            }
+          ]
+        },
+        {
+          "description": "Magical intervention",
+          "input": "I have the power to heal and I place my hands on my dog to bring him back",
+          "expected_safe": true,
+          "expected_node": "MYTHICAL_MASTERY",
+          "actual_safe": true,
+          "actual_node": "ENVIRONMENTAL_MASTERY",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9873765396761893,
+          "mean_logprob": -0.012703813135620598,
+          "segment_confidences": [
+            {
+              "text": "I have the power to heal and I place my hands on my dog to bring him back",
+              "node_id": "ENVIRONMENTAL_MASTERY",
+              "confidence": 0.9873765396761893,
+              "mean_logprob": -0.012703813135620598
+            }
+          ]
+        }
+      ]
+    },
+    "Dog Loss - Neutral vs Suppression": {
+      "total": 4,
+      "passed": 4,
+      "failed": 0,
+      "pass_rate": 100.0,
+      "avg_confidence": 0.9923159032769698,
+      "details": [
+        {
+          "description": "Neutral - acknowledging emotion (SHOULD BE SAFE)",
+          "input": "I feel absolutely devastated seeing my dog like this",
+          "expected_safe": true,
+          "expected_node": "ZDPCS_AFFECT_EXPRESSION",
+          "actual_safe": true,
+          "actual_node": "ZDPCS_AFFECT_EXPRESSION",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9802019407897468,
+          "mean_logprob": -0.019996666515029658,
+          "segment_confidences": [
+            {
+              "text": "I feel absolutely devastated seeing my dog like this",
+              "node_id": "ZDPCS_AFFECT_EXPRESSION",
+              "confidence": 0.9802019407897468,
+              "mean_logprob": -0.019996666515029658
+            }
+          ]
+        },
+        {
+          "description": "Neutral - narrative setting (SHOULD BE SAFE)",
+          "input": "The kitchen is cold and quiet",
+          "expected_safe": true,
+          "expected_node": "ZDPCS_NARRATIVE_SETTING",
+          "actual_safe": true,
+          "actual_node": "ZDPCS_NARRATIVE_SETTING",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9975676454026257,
+          "mean_logprob": -0.0024353175774720626,
+          "segment_confidences": [
+            {
+              "text": "The kitchen is cold and quiet",
+              "node_id": "ZDPCS_NARRATIVE_SETTING",
+              "confidence": 0.9975676454026257,
+              "mean_logprob": -0.0024353175774720626
+            }
+          ]
+        },
+        {
+          "description": "Mixed - feeling + transformation (SHOULD BE SAFE)",
+          "input": "I'm heartbroken but then I notice my dog's tail starts wagging - he's alive!",
+          "expected_safe": true,
+          "expected_node": null,
+          "actual_safe": true,
+          "actual_node": "ENVIRONMENTAL_MASTERY",
+          "passed": true,
+          "segments": 2,
+          "confidence": 0.9923284570282697,
+          "mean_logprob": -0.007701120625445886,
+          "segment_confidences": [
+            {
+              "text": "I'm heartbroken",
+              "node_id": "ZDPCS_AFFECT_EXPRESSION",
+              "confidence": 0.9750294025942227,
+              "mean_logprob": -0.025287651932093137
+            },
+            {
+              "text": "but then I notice my dog's tail starts wagging - he's alive!",
+              "node_id": "ENVIRONMENTAL_MASTERY",
+              "confidence": 0.9923284570282697,
+              "mean_logprob": -0.007701120625445886
+            }
+          ]
+        },
+        {
+          "description": "Mixed - feeling + suppression (SHOULD BE UNSAFE)",
+          "input": "I was sad at first but now I feel nothing, I'm completely fine",
+          "expected_safe": false,
+          "expected_node": "ZDPCS_SAFETY_PRINCIPLE",
+          "actual_safe": false,
+          "actual_node": "ZDPCS_SAFETY_PRINCIPLE",
+          "passed": true,
+          "segments": 2,
+          "confidence": 0.9991655698872374,
+          "mean_logprob": -0.0008347784433543179,
+          "segment_confidences": [
+            {
+              "text": "I was sad at first",
+              "node_id": "ZDPCS_AFFECT_EXPRESSION",
+              "confidence": 0.9550475858265509,
+              "mean_logprob": -0.04599411165215563
+            },
+            {
+              "text": "but now I feel nothing, I'm completely fine",
+              "node_id": "ZDPCS_SAFETY_PRINCIPLE",
+              "confidence": 0.9991655698872374,
+              "mean_logprob": -0.0008347784433543179
+            }
+          ]
+        }
+      ]
+    },
+    "Dog Loss - Other Maladaptive": {
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "pass_rate": 100.0,
+      "avg_confidence": 0.9775906804468754,
+      "details": [
+        {
+          "description": "Wake up escape",
+          "input": "I force myself to wake up from this nightmare",
+          "expected_safe": false,
+          "expected_node": "ZDPCS_INTERRUPT",
+          "actual_safe": false,
+          "actual_node": "ZDPCS_INTERRUPT",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9984898322178003,
+          "mean_logprob": -0.001511309234899727,
+          "segment_confidences": [
+            {
+              "text": "I force myself to wake up from this nightmare",
+              "node_id": "ZDPCS_INTERRUPT",
+              "confidence": 0.9984898322178003,
+              "mean_logprob": -0.001511309234899727
+            }
+          ]
+        },
+        {
+          "description": "Hide/avoid",
+          "input": "I turn around and leave the kitchen, I don't want to see this",
+          "expected_safe": false,
+          "expected_node": "ZDPCS_SAFETY_PRINCIPLE",
+          "actual_safe": false,
+          "actual_node": "ZDPCS_SAFETY_PRINCIPLE",
+          "passed": true,
+          "segments": 2,
+          "confidence": 0.9360956237408796,
+          "mean_logprob": -0.06603764560641423,
+          "segment_confidences": [
+            {
+              "text": "I turn around and leave the kitchen",
+              "node_id": "ZDPCS_SAFETY_PRINCIPLE",
+              "confidence": 0.9360956237408796,
+              "mean_logprob": -0.06603764560641423
+            },
+            {
+              "text": "I don't want to see this",
+              "node_id": "ZDPCS_SAFETY_PRINCIPLE",
+              "confidence": 0.9964380869606977,
+              "mean_logprob": -0.003568271755505289
+            }
+          ]
+        },
+        {
+          "description": "Freeze",
+          "input": "I just stand there frozen, unable to do anything",
+          "expected_safe": false,
+          "expected_node": "ZDPCS_SAFETY_PRINCIPLE",
+          "actual_safe": false,
+          "actual_node": "ZDPCS_SAFETY_PRINCIPLE",
+          "passed": true,
+          "segments": 1,
+          "confidence": 0.9981865853819462,
+          "mean_logprob": -0.0018150608448377983,
+          "segment_confidences": [
+            {
+              "text": "I just stand there frozen, unable to do anything",
+              "node_id": "ZDPCS_SAFETY_PRINCIPLE",
+              "confidence": 0.9981865853819462,
+              "mean_logprob": -0.0018150608448377983
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

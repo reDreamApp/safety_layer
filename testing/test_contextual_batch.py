@@ -11,9 +11,13 @@ import sys
 import os
 from typing import Dict, List
 from datetime import datetime
+from dotenv import load_dotenv, find_dotenv
 
-# Add parent directory to path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Load environment variables
+load_dotenv(find_dotenv())
+
+# Add parent directory to path (go up from testing/ to code/)
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from safety.critic import SafetyCritic
 
@@ -21,8 +25,11 @@ from safety.critic import SafetyCritic
 async def run_contextual_batch_tests():
     """Run all contextual batch tests and report results."""
     
+    # Get project root directory
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    
     # Load test data
-    test_file = "scenarios/contextual_batch_tests.json"
+    test_file = os.path.join(project_root, "scenarios", "contextual_batch_tests.json")
     with open(test_file, 'r') as f:
         test_suites = json.load(f)
     
@@ -89,9 +96,13 @@ async def run_contextual_batch_tests():
                 safety_str = "SAFE" if result.is_safe else f"UNSAFE{severity_str}"
                 expected_str = "SAFE" if expected_safe else "UNSAFE"
                 
+                # Format confidence as percentage
+                conf_str = f" | conf: {result.confidence*100:.1f}%" if result.confidence is not None else ""
+                logprob_str = f" (logp: {result.mean_logprob:.3f})" if result.mean_logprob is not None else ""
+                
                 print(f"{status} Test {i}: {description}")
                 print(f"  Input: \"{user_input[:60]}...\"" if len(user_input) > 60 else f"  Input: \"{user_input}\"")
-                print(f"  Result: {safety_str} → {result.node_id}")
+                print(f"  Result: {safety_str} → {result.node_id}{conf_str}{logprob_str}")
                 
                 if expected_node:
                     print(f"  Expected: {expected_str} → {expected_node}")
@@ -104,6 +115,14 @@ async def run_contextual_batch_tests():
                     if not node_match:
                         print(f"  ⚠️  Node mismatch! Expected: {expected_node}")
                 
+                # Show per-segment confidence if multiple segments
+                if len(result.segments) > 1:
+                    print(f"  Segments ({len(result.segments)}):")
+                    for seg in result.segments:
+                        seg_conf = f" [{seg.confidence*100:.1f}%]" if seg.confidence is not None else ""
+                        seg_text = seg.text[:40] + "..." if len(seg.text) > 40 else seg.text
+                        print(f"    • {seg.segment_type}: \"{seg_text}\" → {seg.node_id}{seg_conf}")
+                
                 # Store detailed results
                 suite_details.append({
                     "description": description,
@@ -113,7 +132,13 @@ async def run_contextual_batch_tests():
                     "actual_safe": result.is_safe,
                     "actual_node": result.node_id,
                     "passed": test_passed,
-                    "segments": len(result.segments)
+                    "segments": len(result.segments),
+                    "confidence": result.confidence,
+                    "mean_logprob": result.mean_logprob,
+                    "segment_confidences": [
+                        {"text": s.text, "node_id": s.node_id, "confidence": s.confidence, "mean_logprob": s.mean_logprob}
+                        for s in result.segments if s.node_id
+                    ]
                 })
                 
             except Exception as e:
@@ -129,17 +154,31 @@ async def run_contextual_batch_tests():
                     "passed": False
                 })
         
+        # Calculate average confidence for the suite
+        confidences = [d.get("confidence") for d in suite_details if d.get("confidence") is not None]
+        avg_confidence = sum(confidences) / len(confidences) if confidences else None
+        
         # Store suite results
         results_by_suite[suite_name] = {
             "total": len(tests),
             "passed": suite_passed,
             "failed": suite_failed,
             "pass_rate": (suite_passed / len(tests) * 100) if len(tests) > 0 else 0,
+            "avg_confidence": avg_confidence,
             "details": suite_details
         }
         
         # Print suite summary
-        print(f"\nSuite Summary: {suite_passed}/{len(tests)} passed ({suite_passed/len(tests)*100:.1f}%)")
+        conf_summary = f" | Avg Confidence: {avg_confidence*100:.1f}%" if avg_confidence else ""
+        print(f"\nSuite Summary: {suite_passed}/{len(tests)} passed ({suite_passed/len(tests)*100:.1f}%){conf_summary}")
+    
+    # Calculate overall average confidence
+    all_confidences = []
+    for stats in results_by_suite.values():
+        for detail in stats["details"]:
+            if detail.get("confidence") is not None:
+                all_confidences.append(detail["confidence"])
+    overall_avg_conf = sum(all_confidences) / len(all_confidences) if all_confidences else None
     
     # Print overall summary
     print(f"\n{'=' * 80}")
@@ -148,16 +187,19 @@ async def run_contextual_batch_tests():
     print(f"Total Tests: {total_tests}")
     print(f"Passed: {passed_tests} ({passed_tests/total_tests*100:.1f}%)")
     print(f"Failed: {failed_tests} ({failed_tests/total_tests*100:.1f}%)")
+    if overall_avg_conf:
+        print(f"Average Confidence: {overall_avg_conf*100:.1f}%")
     print()
     
     # Print suite breakdown
     print("Suite Breakdown:")
     for suite_name, stats in results_by_suite.items():
         status_emoji = "✅" if stats["failed"] == 0 else "⚠️"
-        print(f"  {status_emoji} {suite_name}: {stats['passed']}/{stats['total']} ({stats['pass_rate']:.1f}%)")
+        conf_str = f" | conf: {stats['avg_confidence']*100:.1f}%" if stats.get('avg_confidence') else ""
+        print(f"  {status_emoji} {suite_name}: {stats['passed']}/{stats['total']} ({stats['pass_rate']:.1f}%){conf_str}")
     
     # Save detailed results to JSON
-    output_file = f"test_results_contextual_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    output_file = os.path.join(project_root, f"test_results_contextual_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json")
     with open(output_file, 'w') as f:
         json.dump({
             "timestamp": datetime.now().isoformat(),
@@ -165,6 +207,7 @@ async def run_contextual_batch_tests():
             "passed": passed_tests,
             "failed": failed_tests,
             "pass_rate": passed_tests/total_tests*100 if total_tests > 0 else 0,
+            "avg_confidence": overall_avg_conf,
             "suites": results_by_suite
         }, f, indent=2)
     

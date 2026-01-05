@@ -95,6 +95,8 @@ class SegmentResult:
     node_id: Optional[str] = None
     node_type: Optional[str] = None  # adaptive, maladaptive, neutral
     category: Optional[str] = None
+    confidence: Optional[float] = None  # Classification confidence from logprobs (0-1)
+    mean_logprob: Optional[float] = None  # Mean log probability of classification tokens
 
 
 @dataclass
@@ -114,6 +116,8 @@ class SafetyResult:
         segments: List of all classified segments
         adaptive_segments: List of adaptive/neutral segments to validate
         severity: Severity level of the primary risk (if unsafe)
+        confidence: Classification confidence for the primary node (0-1)
+        mean_logprob: Mean log probability for the primary classification
     """
     is_safe: bool
     node_id: str
@@ -126,6 +130,8 @@ class SafetyResult:
     segments: List[SegmentResult] = field(default_factory=list)
     adaptive_segments: List[SegmentResult] = field(default_factory=list)
     severity: Optional[str] = None
+    confidence: Optional[float] = None
+    mean_logprob: Optional[float] = None
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
@@ -138,9 +144,20 @@ class SafetyResult:
             "correction_strategies": self.correction_strategies,
             "input_text": self.input_text,
             "clinical_guideline": self.clinical_guideline,
-            "segments": [{"text": s.text, "type": s.segment_type, "node_id": s.node_id, "node_type": s.node_type} for s in self.segments],
+            "segments": [
+                {
+                    "text": s.text, 
+                    "type": s.segment_type, 
+                    "node_id": s.node_id, 
+                    "node_type": s.node_type,
+                    "confidence": s.confidence
+                } 
+                for s in self.segments
+            ],
             "adaptive_segments": [{"text": s.text, "node_id": s.node_id} for s in self.adaptive_segments],
-            "severity": self.severity
+            "severity": self.severity,
+            "confidence": self.confidence,
+            "mean_logprob": self.mean_logprob
         }
 
 
@@ -198,7 +215,7 @@ class SafetyCritic:
             else:
                 segmenter_input = f"Input: \"{user_input}\""
             
-            response, _ = await self.segmenter.generate(segmenter_input)
+            response, _, _ = await self.segmenter.generate(segmenter_input)
             
             # Clean the response - remove any markdown code blocks if present
             cleaned = response.strip()
@@ -210,6 +227,12 @@ class SafetyCritic:
                 if lines and lines[-1].strip() == "```":
                     lines = lines[:-1]
                 cleaned = "\n".join(lines)
+            
+            # Extract JSON array - find the first [ and last ] to handle extra text
+            start_idx = cleaned.find('[')
+            end_idx = cleaned.rfind(']')
+            if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
+                cleaned = cleaned[start_idx:end_idx + 1]
             
             # Parse JSON
             segments_data = json.loads(cleaned)
@@ -283,7 +306,11 @@ class SafetyCritic:
             for segment in dream_segments:
                 # Use segment-level context if available, otherwise fall back to nightmare context
                 segment_context = segment.context or nightmare_context
-                node_id = await self.classifier.classify_intent(segment.text, context=segment_context)
+                node_id, logprobs = await self.classifier.classify_intent(
+                    segment.text, 
+                    context=segment_context,
+                    return_logprobs=True  # Always request logprobs for confidence
+                )
                 
                 if node_id not in self.graph:
                     logger.warning(f"Node '{node_id}' not found in graph")
@@ -293,6 +320,11 @@ class SafetyCritic:
                 segment.node_id = node_id
                 segment.node_type = node_attrs.get("type", "unknown")
                 segment.category = node_attrs.get("category", "unknown")
+                
+                # Store confidence metrics from logprobs
+                if logprobs:
+                    segment.confidence = logprobs.confidence
+                    segment.mean_logprob = logprobs.mean_logprob
                 
                 if segment.node_type == "maladaptive":
                     maladaptive_segments.append(segment)
@@ -314,7 +346,9 @@ class SafetyCritic:
                     input_text=user_input,
                     segments=segments,
                     adaptive_segments=adaptive_segments + neutral_segments,
-                    constraint=self._build_validation_message(adaptive_segments + neutral_segments)
+                    constraint=self._build_validation_message(adaptive_segments + neutral_segments),
+                    confidence=primary_segment.confidence,
+                    mean_logprob=primary_segment.mean_logprob
                 )
                 logger.info(f"SAFE: All segments are adaptive/neutral")
                 return result
@@ -348,7 +382,9 @@ class SafetyCritic:
                 clinical_guideline=node_attrs.get("clinical_guideline", ""),
                 segments=segments,
                 adaptive_segments=adaptive_segments + neutral_segments,
-                severity=severity
+                severity=severity,
+                confidence=primary_risk.confidence,
+                mean_logprob=primary_risk.mean_logprob
             )
             
             logger.warning(f"UNSAFE: Primary risk is {primary_risk.node_id} ({severity})")
