@@ -117,7 +117,7 @@ class ClinicalClassifier:
             model_config: Optional model configuration. Defaults to MISTRAL_NEMO for speed.
         """
         # Use small Mistral model for classification
-        self.model_config = model_config or MODELS["MISTRAL_NEMO"]
+        self.model_config = model_config or MODELS["MISTRAL_SMALL"]
         
         # Initialize the agent with clinical coder prompt
         self.agent = Agent(

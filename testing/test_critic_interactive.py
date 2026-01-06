@@ -32,6 +32,9 @@ from dotenv import load_dotenv, find_dotenv
 # Load environment variables
 load_dotenv(find_dotenv())
 
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 # Import safety module
 from safety.critic import SafetyCritic, SafetyResult
 

@@ -31,7 +31,47 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from safety.critic import SafetyCritic
 
 
-async def run_benchmark(input_file: Path, output_file: Path) -> pd.DataFrame:
+def format_segments(segments) -> str:
+    """Format segment list into a readable summary string."""
+    if not segments:
+        return ""
+    
+    parts = []
+    for seg in segments:
+        seg_type = seg.segment_type
+        node = seg.node_id or "?"
+        # Truncate text for readability
+        text = seg.text[:40] + "..." if len(seg.text) > 40 else seg.text
+        conf = f"{seg.confidence:.0%}" if seg.confidence else "?"
+        # Include context if present
+        ctx = f" ctx:{seg.context[:25]}..." if seg.context and len(seg.context) > 25 else (f" ctx:{seg.context}" if seg.context else "")
+        parts.append(f"[{seg_type}]{ctx} \"{text}\" → {node} ({conf})")
+    
+    return " | ".join(parts)
+
+
+def extract_contexts(segments) -> str:
+    """Extract just the contexts from segments for a dedicated column."""
+    if not segments:
+        return ""
+    
+    contexts = []
+    for seg in segments:
+        if seg.context:
+            contexts.append(seg.context)
+    
+    # Deduplicate while preserving order
+    seen = set()
+    unique = []
+    for ctx in contexts:
+        if ctx not in seen:
+            seen.add(ctx)
+            unique.append(ctx)
+    
+    return " | ".join(unique) if unique else "(no context extracted)"
+
+
+async def run_benchmark(input_file: Path, output_file: Path, limit_suites: Optional[int] = None) -> pd.DataFrame:
     """
     Run the benchmark evaluation on a dataset.
     
@@ -54,6 +94,11 @@ async def run_benchmark(input_file: Path, output_file: Path) -> pd.DataFrame:
     print("Loading dataset...")
     with open(input_file, 'r', encoding='utf-8') as f:
         suites = json.load(f)
+    
+    # Apply limit if specified
+    if limit_suites:
+        suites = suites[:limit_suites]
+        print(f"✓ Limited to first {limit_suites} suite(s)")
     
     total_tests = sum(len(suite.get("tests", [])) for suite in suites)
     print(f"✓ Loaded {len(suites)} suites with {total_tests} total tests")
@@ -97,7 +142,11 @@ async def run_benchmark(input_file: Path, output_file: Path) -> pd.DataFrame:
                 predicted_safe = result.is_safe
                 predicted_node = result.node_id
                 confidence_score = result.confidence
-                constraint_text = result.constraint or ""
+                severity = result.severity
+                
+                # Format segments for readable output
+                segments_formatted = format_segments(result.segments)
+                contexts_extracted = extract_contexts(result.segments)
                 
                 # Calculate correctness
                 is_safety_correct = (predicted_safe == expected_safe) if expected_safe is not None else None
@@ -108,20 +157,23 @@ async def run_benchmark(input_file: Path, output_file: Path) -> pd.DataFrame:
                 else:
                     is_node_correct = None  # NaN in pandas
                 
-                # Store result
+                # Store result (use short suite ID instead of full name)
+                suite_short = suite_name[:40] + "..." if len(suite_name) > 40 else suite_name
                 results.append({
-                    "suite_name": suite_name,
-                    "nightmare_context": nightmare[:100] + "..." if len(nightmare) > 100 else nightmare,
-                    "test_description": description,
+                    "suite_id": suite_idx,
+                    "suite": suite_short,
+                    "test": description,
                     "user_input": user_input,
-                    "ground_truth_safe": expected_safe,
-                    "ground_truth_node": expected_node,
-                    "predicted_safe": predicted_safe,
-                    "predicted_node": predicted_node,
-                    "confidence_score": confidence_score,
-                    "is_safety_correct": is_safety_correct,
-                    "is_node_correct": is_node_correct,
-                    "critic_constraint": constraint_text[:500] if constraint_text else "",  # Truncate long constraints
+                    "gt_safe": expected_safe,
+                    "gt_node": expected_node,
+                    "pred_safe": predicted_safe,
+                    "pred_node": predicted_node,
+                    "conf": confidence_score,
+                    "severity": severity if not predicted_safe else "",
+                    "safe_ok": is_safety_correct,
+                    "node_ok": is_node_correct,
+                    "contexts": contexts_extracted,
+                    "segments": segments_formatted,
                 })
                 
                 # Brief status indicator
@@ -130,19 +182,22 @@ async def run_benchmark(input_file: Path, output_file: Path) -> pd.DataFrame:
                 
             except Exception as e:
                 print(f"    ✗ [{test_counter}/{total_tests}] {description} - ERROR: {e}")
+                suite_short = suite_name[:40] + "..." if len(suite_name) > 40 else suite_name
                 results.append({
-                    "suite_name": suite_name,
-                    "nightmare_context": nightmare[:100] + "..." if len(nightmare) > 100 else nightmare,
-                    "test_description": description,
+                    "suite_id": suite_idx,
+                    "suite": suite_short,
+                    "test": description,
                     "user_input": user_input,
-                    "ground_truth_safe": expected_safe,
-                    "ground_truth_node": expected_node,
-                    "predicted_safe": None,
-                    "predicted_node": "ERROR",
-                    "confidence_score": None,
-                    "is_safety_correct": False,
-                    "is_node_correct": False,
-                    "critic_constraint": f"ERROR: {str(e)}",
+                    "gt_safe": expected_safe,
+                    "gt_node": expected_node,
+                    "pred_safe": None,
+                    "pred_node": "ERROR",
+                    "conf": None,
+                    "severity": "ERROR",
+                    "safe_ok": False,
+                    "node_ok": False,
+                    "contexts": "ERROR",
+                    "segments": f"ERROR: {str(e)}",
                 })
         
         print()
@@ -169,15 +224,15 @@ async def run_benchmark(input_file: Path, output_file: Path) -> pd.DataFrame:
     print()
     
     # Safety accuracy
-    safety_correct = df["is_safety_correct"].sum()
-    safety_total = df["is_safety_correct"].notna().sum()
+    safety_correct = df["safe_ok"].sum()
+    safety_total = df["safe_ok"].notna().sum()
     safety_accuracy = (safety_correct / safety_total * 100) if safety_total > 0 else 0
     print(f"Safety Accuracy: {safety_correct}/{safety_total} ({safety_accuracy:.1f}%)")
     
     # Node accuracy (only where expected_node was provided)
-    node_df = df[df["ground_truth_node"].notna()]
+    node_df = df[df["gt_node"].notna()]
     if len(node_df) > 0:
-        node_correct = node_df["is_node_correct"].sum()
+        node_correct = node_df["node_ok"].sum()
         node_total = len(node_df)
         node_accuracy = (node_correct / node_total * 100) if node_total > 0 else 0
         print(f"Node Accuracy (strict): {node_correct}/{node_total} ({node_accuracy:.1f}%)")
@@ -185,7 +240,7 @@ async def run_benchmark(input_file: Path, output_file: Path) -> pd.DataFrame:
         print("Node Accuracy: N/A (no expected_node labels)")
     
     # Average confidence
-    avg_confidence = df["confidence_score"].mean()
+    avg_confidence = df["conf"].mean()
     if pd.notna(avg_confidence):
         print(f"Average Confidence: {avg_confidence*100:.1f}%")
     
@@ -193,15 +248,15 @@ async def run_benchmark(input_file: Path, output_file: Path) -> pd.DataFrame:
     
     # Breakdown by ground truth
     print("Breakdown by Ground Truth:")
-    safe_tests = df[df["ground_truth_safe"] == True]
-    unsafe_tests = df[df["ground_truth_safe"] == False]
+    safe_tests = df[df["gt_safe"] == True]
+    unsafe_tests = df[df["gt_safe"] == False]
     
     if len(safe_tests) > 0:
-        safe_correct = safe_tests["is_safety_correct"].sum()
+        safe_correct = safe_tests["safe_ok"].sum()
         print(f"  Safe (expected): {safe_correct}/{len(safe_tests)} correct ({safe_correct/len(safe_tests)*100:.1f}%)")
     
     if len(unsafe_tests) > 0:
-        unsafe_correct = unsafe_tests["is_safety_correct"].sum()
+        unsafe_correct = unsafe_tests["safe_ok"].sum()
         print(f"  Unsafe (expected): {unsafe_correct}/{len(unsafe_tests)} correct ({unsafe_correct/len(unsafe_tests)*100:.1f}%)")
     
     print()
@@ -209,9 +264,9 @@ async def run_benchmark(input_file: Path, output_file: Path) -> pd.DataFrame:
     # Breakdown by node type (where applicable)
     if len(node_df) > 0:
         print("Breakdown by Expected Node:")
-        for node in node_df["ground_truth_node"].unique():
-            node_subset = node_df[node_df["ground_truth_node"] == node]
-            correct = node_subset["is_node_correct"].sum()
+        for node in node_df["gt_node"].unique():
+            node_subset = node_df[node_df["gt_node"] == node]
+            correct = node_subset["node_ok"].sum()
             total = len(node_subset)
             print(f"  {node}: {correct}/{total} ({correct/total*100:.1f}%)")
     
@@ -221,10 +276,10 @@ async def run_benchmark(input_file: Path, output_file: Path) -> pd.DataFrame:
     print("Safety Confusion Matrix:")
     print("                    Predicted Safe    Predicted Unsafe")
     
-    tp = len(df[(df["ground_truth_safe"] == True) & (df["predicted_safe"] == True)])
-    fp = len(df[(df["ground_truth_safe"] == False) & (df["predicted_safe"] == True)])
-    tn = len(df[(df["ground_truth_safe"] == False) & (df["predicted_safe"] == False)])
-    fn = len(df[(df["ground_truth_safe"] == True) & (df["predicted_safe"] == False)])
+    tp = len(df[(df["gt_safe"] == True) & (df["pred_safe"] == True)])
+    fp = len(df[(df["gt_safe"] == False) & (df["pred_safe"] == True)])
+    tn = len(df[(df["gt_safe"] == False) & (df["pred_safe"] == False)])
+    fn = len(df[(df["gt_safe"] == True) & (df["pred_safe"] == False)])
     
     print(f"  Actually Safe:    {tp:>10}          {fn:>10}")
     print(f"  Actually Unsafe:  {fp:>10}          {tn:>10}")
@@ -271,6 +326,13 @@ Examples:
         help="Path to output CSV results (default: data/benchmark_results.csv)"
     )
     
+    parser.add_argument(
+        '--limit',
+        type=int,
+        default=None,
+        help="Limit to first N suites (for quick testing)"
+    )
+    
     args = parser.parse_args()
     
     # Resolve paths relative to project root
@@ -289,7 +351,7 @@ Examples:
         sys.exit(1)
     
     # Run benchmark
-    asyncio.run(run_benchmark(input_file, output_file))
+    asyncio.run(run_benchmark(input_file, output_file, limit_suites=args.limit))
 
 
 if __name__ == "__main__":
