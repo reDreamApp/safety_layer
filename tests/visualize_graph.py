@@ -87,7 +87,7 @@ def visualize_clinical_graph(save_path: str = "clinical_graph.png"):
     labels = {}
     for node in G.nodes():
         # Format label with newlines
-        label = node.replace('_', '\n').replace('ZDPCS\n', 'ZDPCS_')
+        label = node.replace('_', '\n')
         labels[node] = label
     
     nx.draw_networkx_labels(
@@ -113,23 +113,23 @@ def visualize_clinical_graph(save_path: str = "clinical_graph.png"):
     
     # Add title and legend
     ax.set_title(
-        'Clinical Knowledge Graph: ZDPCS (Maladaptive) → MMS (Adaptive)\n'
+        'Clinical Knowledge Graph: Maladaptive (IRT) → Adaptive (MMS)\n'
         'Neuro-Symbolic Safety Layer Ontology',
         fontsize=14,
         fontweight='bold',
         pad=20
     )
-    
+
     # Create legend
-    red_patch = mpatches.Patch(color='#FF6B6B', label='Maladaptive (ZDPCS) - Risks')
+    red_patch = mpatches.Patch(color='#FF6B6B', label='Maladaptive (IRT) - Risks')
     teal_patch = mpatches.Patch(color='#4ECDC4', label='Adaptive (MMS) - Goals')
     ax.legend(handles=[red_patch, teal_patch], loc='upper right', fontsize=10)
     
     # Add annotations for each node
     annotations = {
-        'ZDPCS_SAFETY_PRINCIPLE': 'Avoidance:\nHiding, freezing,\nlooking away',
-        'ZDPCS_INTERRUPT': 'Escape:\nWaking up,\nending dream',
-        'ZDPCS_REGRESSIVE_AGGRESSION': 'Violence:\nChaotic destruction,\nuncontrolled rage',
+        'AVOIDANCE': 'Avoidance:\nHiding, freezing,\nlooking away',
+        'INTERRUPTION': 'Escape:\nWaking up,\nending dream',
+        'VIOLENT_REVENGE': 'Violence:\nChaotic destruction,\nuncontrolled rage',
         'BEHAVIORAL_MASTERY': 'Action:\nFighting back,\ntaking control',
         'SOCIAL_MASTERY': 'Help:\nCalling for help,\nallies appearing',
         'ENVIRONMENTAL_MASTERY': 'Environment:\nTools, safe places,\nsetting changes',
@@ -182,14 +182,14 @@ def print_ontology_summary():
     print(f"   Total Edges: {G.number_of_edges()}")
     
     print("\n" + "-" * 80)
-    print("🔴 MALADAPTIVE NODES (Source: ZDPCS - Fischmann et al., 2021)")
+    print("🔴 MALADAPTIVE NODES (Sources: IRT guidelines, DSM-5, Germain et al.)")
     print("-" * 80)
-    
+
     for node_id, attrs in get_maladaptive_nodes(G).items():
         print(f"\n  📌 {node_id}")
         print(f"     Category: {attrs.get('category', 'N/A')}")
         print(f"     Severity: {attrs.get('severity', 'N/A')}")
-        print(f"     ZDPCS Concept: {attrs.get('zdpcs_concept', 'N/A')}")
+        print(f"     Clinical Concept: {attrs.get('clinical_concept', 'N/A')}")
         print(f"     Description: {attrs.get('description', 'N/A')[:80]}...")
         
         # Show correction strategies
@@ -217,15 +217,15 @@ def print_ontology_summary():
     │ 3. Environmental Mastery → ✅ INCLUDED (ENVIRONMENTAL_MASTERY) │
     │ 4. Emotional Mastery     → ✅ INCLUDED (EMOTIONAL_MASTERY)     │
     │ 5. Mythical Mastery      → ✅ INCLUDED (MYTHICAL_MASTERY)      │
-    │ 6. Avoidance             → ⚡ Mapped to ZDPCS nodes            │
+    │ 6. Avoidance             → ⚡ Mapped to maladaptive nodes      │
     └─────────────────────────────────────────────────────────────┘
-    
+
     ✅ All MMS mastery subscales are now represented!
-    
-    ZDPCS Maladaptive concepts:
-    - Safety Principle (Avoidance) → ZDPCS_SAFETY_PRINCIPLE
-    - Dream Interruption → ZDPCS_INTERRUPT  
-    - Regressive Aggression → ZDPCS_REGRESSIVE_AGGRESSION
+
+    Maladaptive concepts (IRT/DSM-5/Germain):
+    - Avoidance → AVOIDANCE
+    - Dream Interruption → INTERRUPTION
+    - Violent Revenge → VIOLENT_REVENGE
     """)
     
     print("\n" + "=" * 80)

@@ -125,19 +125,19 @@ The knowledge graph is a **directed graph** (NetworkX DiGraph) with:
 
 ### Maladaptive Nodes (Risks)
 
-From ZDPCS (Zurich Dream Process Coding System):
+From IRT clinical guidelines (Krakow & Zadra, 2006), DSM-5, and Germain et al. (2004):
 
 ```
 ┌─────────────────────────────────┬──────────┬─────────────────────────────────┐
 │ Node ID                         │ Severity │ Description                     │
 ├─────────────────────────────────┼──────────┼─────────────────────────────────┤
-│ ZDPCS_REGRESSIVE_AGGRESSION     │ CRITICAL │ Extreme violence, killing,      │
+│ VIOLENT_REVENGE                 │ CRITICAL │ Extreme violence, killing,      │
 │                                 │ (1)      │ destroying everything           │
 ├─────────────────────────────────┼──────────┼─────────────────────────────────┤
-│ ZDPCS_INTERRUPT                 │ HIGH     │ Waking up, ending the dream,    │
+│ INTERRUPTION                    │ HIGH     │ Waking up, ending the dream,    │
 │                                 │ (2)      │ escaping the narrative          │
 ├─────────────────────────────────┼──────────┼─────────────────────────────────┤
-│ ZDPCS_SAFETY_PRINCIPLE          │ MODERATE │ Hiding, freezing, avoidance,    │
+│ AVOIDANCE                       │ MODERATE │ Hiding, freezing, avoidance,    │
 │                                 │ (3)      │ doing nothing                   │
 └─────────────────────────────────┴──────────┴─────────────────────────────────┘
 ```
@@ -164,8 +164,8 @@ From MMS (Mastery Measurement Scale):
 ┌─────────────────────────────────┬─────────────────────────────────────────────┐
 │ Node ID                         │ Description                                 │
 ├─────────────────────────────────┼─────────────────────────────────────────────┤
-│ ZDPCS_NARRATIVE_SETTING         │ Scene description without action            │
-│ ZDPCS_AFFECT_EXPRESSION         │ Feeling statement without action            │
+│ NARRATIVE_SETTING                │ Scene description without action            │
+│ AFFECT_EXPRESSION                │ Feeling statement without action            │
 └─────────────────────────────────┴─────────────────────────────────────────────┘
 ```
 
@@ -174,17 +174,17 @@ From MMS (Mastery Measurement Scale):
 Each maladaptive node has edges to multiple adaptive nodes, prioritized:
 
 ```
-ZDPCS_SAFETY_PRINCIPLE (Avoidance)
+AVOIDANCE
     ├── [PRIMARY]   → BEHAVIORAL_MASTERY    "What action could you take?"
     ├── [SECONDARY] → SOCIAL_MASTERY        "Who could help you?"
     └── [TERTIARY]  → MYTHICAL_MASTERY      "What power would help?"
 
-ZDPCS_INTERRUPT (Escape)
+INTERRUPTION (Escape)
     ├── [PRIMARY]   → EMOTIONAL_MASTERY     "How could you calm yourself?"
     ├── [SECONDARY] → ENVIRONMENTAL_MASTERY "What would make you feel safe?"
     └── [TERTIARY]  → MYTHICAL_MASTERY      "What protective presence?"
 
-ZDPCS_REGRESSIVE_AGGRESSION (Violence)
+VIOLENT_REVENGE (Violence)
     ├── [PRIMARY]   → BEHAVIORAL_MASTERY    "What focused action instead?"
     ├── [SECONDARY] → SOCIAL_MASTERY        "Who could help handle this?"
     └── [TERTIARY]  → EMOTIONAL_MASTERY     "What feeling drives this?"
@@ -252,9 +252,9 @@ Maps free-text user input to a single graph node ID using LLM-based classificati
 You are a Clinical Coder for IRT. Classify dream actions into:
 
 MALADAPTIVE:
-1. ZDPCS_SAFETY_PRINCIPLE - avoidance, hiding, doing nothing
-2. ZDPCS_INTERRUPT - waking up, ending dream
-3. ZDPCS_REGRESSIVE_AGGRESSION - extreme violence
+1. AVOIDANCE - avoidance, hiding, doing nothing
+2. INTERRUPTION - waking up, ending dream
+3. VIOLENT_REVENGE - extreme violence
 
 ADAPTIVE:
 4. BEHAVIORAL_MASTERY - active response, fighting
@@ -264,8 +264,8 @@ ADAPTIVE:
 8. MYTHICAL_MASTERY - supernatural powers
 
 NEUTRAL:
-9. ZDPCS_NARRATIVE_SETTING - scene description
-10. ZDPCS_AFFECT_EXPRESSION - feeling statement
+9. NARRATIVE_SETTING - scene description
+10. AFFECT_EXPRESSION - feeling statement
 
 NEGATION HANDLING:
 - "I decided not to run" → BEHAVIORAL_MASTERY (the decision, not the avoided action)
@@ -279,9 +279,9 @@ If LLM returns invalid/partial ID, keyword matching recovers:
 
 ```python
 keyword_map = {
-    "HIDE": "ZDPCS_SAFETY_PRINCIPLE",
-    "WAKE": "ZDPCS_INTERRUPT",
-    "KILL": "ZDPCS_REGRESSIVE_AGGRESSION",
+    "HIDE": "AVOIDANCE",
+    "WAKE": "INTERRUPTION",
+    "KILL": "VIOLENT_REVENGE",
     "FIGHT": "BEHAVIORAL_MASTERY",
     ...
 }
@@ -378,9 +378,9 @@ When multiple maladaptive segments exist, select the most critical:
 
 ```python
 SEVERITY_PRIORITY = {
-    "ZDPCS_REGRESSIVE_AGGRESSION": 1,  # CRITICAL
-    "ZDPCS_INTERRUPT": 2,               # HIGH
-    "ZDPCS_SAFETY_PRINCIPLE": 3,        # MODERATE
+    "VIOLENT_REVENGE": 1,               # CRITICAL
+    "INTERRUPTION": 2,                  # HIGH
+    "AVOIDANCE": 3,                     # MODERATE
 }
 
 def _sort_by_severity(segments):
@@ -395,9 +395,9 @@ Input: "I try calling for help but when no one comes I just wake myself up"
 
 Segments:
 - "I try calling for help" → SOCIAL_MASTERY (adaptive)
-- "I just wake myself up" → ZDPCS_INTERRUPT (maladaptive, HIGH)
+- "I just wake myself up" → INTERRUPTION (maladaptive, HIGH)
 
-Result: UNSAFE, primary_risk = ZDPCS_INTERRUPT
+Result: UNSAFE, primary_risk = INTERRUPTION
 ```
 
 ### Stage 5: Constraint Synthesis
@@ -466,7 +466,7 @@ class SafetyResult:
 
 ```
 VALIDATE: User demonstrated adaptive responses: 
-'I turn around' (BEHAVIORAL_MASTERY), 'I felt scared' (ZDPCS_AFFECT_EXPRESSION). 
+'I turn around' (BEHAVIORAL_MASTERY), 'I felt scared' (AFFECT_EXPRESSION). 
 Proceed with encouragement.
 ```
 
@@ -478,7 +478,7 @@ Proceed with encouragement.
 VALIDATE: The user showed positive elements: 'I tried calling for help'. 
 Acknowledge these first (e.g., "Good job noticing..." or "I appreciate that you...").
 
-CORRECT: User demonstrated "ZDPCS_INTERRUPT" - this is a HIGH risk.
+CORRECT: User demonstrated "INTERRUPTION" - this is a HIGH risk.
 Risk Description: Breaking the dream narrative completely to stop the affect...
 Clinical Guideline: Interrupting the dream prevents emotional processing...
 

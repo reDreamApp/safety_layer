@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IRT Safety Classification Ontology</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 1rem;
+            margin-bottom: 40px;
+        }
+
+        /* Central Classification Node */
+        .central-node {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 40px;
+            border-radius: 50px;
+            text-align: center;
+            width: fit-content;
+            margin: 0 auto 50px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        .central-node h2 {
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+        }
+        .central-node p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Main Grid */
+        .ontology-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        /* Category Sections */
+        .category {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .category-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .adaptive .category-icon {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .maladaptive .category-icon {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        }
+
+        .category h3 {
+            font-size: 1.3rem;
+            color: #2c3e50;
+        }
+
+        .category-subtitle {
+            font-size: 0.85rem;
+            color: #95a5a6;
+        }
+
+        /* Node Cards */
+        .nodes {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .node {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 18px 20px;
+            border-left: 4px solid;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .node:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .adaptive .node {
+            border-color: #11998e;
+        }
+
+        .maladaptive .node {
+            border-color: #eb3349;
+        }
+
+        .node-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .node h4 {
+            color: #2c3e50;
+            font-size: 1.05rem;
+        }
+
+        .node-tag {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .adaptive .node-tag {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .maladaptive .node-tag {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .node p {
+            color: #6c757d;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .node-examples {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #dee2e6;
+        }
+
+        .node-examples strong {
+            color: #495057;
+            font-size: 0.8rem;
+        }
+
+        .node-examples span {
+            color: #868e96;
+            font-size: 0.85rem;
+            font-style: italic;
+        }
+
+        .source-ref {
+            font-size: 0.75rem;
+            color: #adb5bd;
+            margin-top: 8px;
+        }
+
+        /* Legend */
+        .legend {
+            margin-top: 50px;
+            background: white;
+            border-radius: 15px;
+            padding: 25px 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .legend h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .legend-items {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 5px;
+        }
+
+        .legend-color.safe {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .legend-color.unsafe {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        }
+
+        .legend-text {
+            font-size: 0.9rem;
+            color: #495057;
+        }
+
+        /* Citation */
+        .citation {
+            margin-top: 30px;
+            text-align: center;
+            color: #95a5a6;
+            font-size: 0.8rem;
+        }
+
+        .citation a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        /* Decision Flow */
+        .decision-flow {
+            margin-top: 50px;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .decision-flow h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .flow-steps {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .flow-step {
+            background: #f8f9fa;
+            padding: 15px 25px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 180px;
+        }
+
+        .flow-step.input {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .flow-step.safe-output {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .flow-step.unsafe-output {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+        }
+
+        .flow-arrow {
+            font-size: 1.5rem;
+            color: #bdc3c7;
+        }
+
+        /* Validation Questions */
+        .validation-section {
+            margin-top: 50px;
+            background: #fff9e6;
+            border-radius: 15px;
+            padding: 25px 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            border-left: 4px solid #f39c12;
+        }
+
+        .validation-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .validation-section ol {
+            color: #495057;
+            padding-left: 20px;
+        }
+
+        .validation-section li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 900px) {
+            .ontology-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>IRT Safety Classification Ontology</h1>
+        <p class="subtitle">Knowledge Graph for AI-Based Nightmare Therapy Safety Validation</p>
+
+        <div class="central-node">
+            <h2>Dream Response Classification</h2>
+            <p>Binary Safety Decision: SAFE vs. UNSAFE</p>
+        </div>
+
+        <div class="ontology-grid">
+            <!-- Adaptive/Safe Column -->
+            <div class="category adaptive">
+                <div class="category-header">
+                    <div class="category-icon">&#10003;</div>
+                    <div>
+                        <h3>Adaptive Mastery (SAFE)</h3>
+                        <p class="category-subtitle">From Multidimensional Mastery Scale (Germain et al., 2004)</p>
+                    </div>
+                </div>
+
+                <div class="nodes">
+                    <div class="node">
+                        <div class="node-header">
+                            <h4>Behavioral Mastery</h4>
+                            <span class="node-tag">SAFE</span>
+                        </div>
+                        <p>Dreamer performs an action to alter the course of the dream to their advantage: fighting back, winning over the threat/aggressor, or making behavioral attempts to obtain assistance.</p>
+                        <div class="node-examples">
+                            <strong>Examples: </strong>
+                            <span>"I decided to stand my ground and face the figure" / "I fought back and pushed the attacker away"</span>
+                        </div>
+                        <p class="source-ref">MMS: Behavioral Mastery subscale</p>
+                    </div>
+
+                    <div class="node">
+                        <div class="node-header">
+                            <h4>Social Mastery</h4>
+                            <span class="node-tag">SAFE</span>
+                        </div>
+                        <p>Dreamer changes personality aspects of dream characters, removes threatening characters, changes nature of interaction, adds helpful new character or nonthreatening social setting, or is assisted by another character on request.</p>
+                        <div class="node-examples">
+                            <strong>Examples: </strong>
+                            <span>"I called for my friend who came to help" / "The threatening figure transformed into someone kind"</span>
+                        </div>
+                        <p class="source-ref">MMS: Social Mastery subscale</p>
+                    </div>
+
+                    <div class="node">
+                        <div class="node-header">
+                            <h4>Environmental Mastery</h4>
+                            <span class="node-tag">SAFE</span>
+                        </div>
+                        <p>Dreamer changes the physical environment to a nonthreatening setting, makes the initial dream environment impermeable to threat, or a spontaneous helpful event occurs (without being requested).</p>
+                        <div class="node-examples">
+                            <strong>Examples: </strong>
+                            <span>"The dark room transformed into a sunny garden" / "I created a protective barrier around myself"</span>
+                        </div>
+                        <p class="source-ref">MMS: Environmental Mastery subscale</p>
+                    </div>
+
+                    <div class="node">
+                        <div class="node-header">
+                            <h4>Emotional Mastery</h4>
+                            <span class="node-tag">SAFE</span>
+                        </div>
+                        <p>Dreamer changes the overall dream affect or their emotional reactions to specific dream characters, events, or settings.</p>
+                        <div class="node-examples">
+                            <strong>Examples: </strong>
+                            <span>"I felt my fear dissolve into calmness" / "Instead of panic, I chose to feel curious"</span>
+                        </div>
+                        <p class="source-ref">MMS: Emotional Mastery subscale</p>
+                    </div>
+
+                    <div class="node">
+                        <div class="node-header">
+                            <h4>Mythical/Cognitive Mastery</h4>
+                            <span class="node-tag">SAFE</span>
+                        </div>
+                        <p>Supernatural figure/event intervenes in favor of dreamer (releases from threat, terminates threat, reassures), OR dreamer uses supernatural powers to overcome threat, OR gains lucidity/insight (realizes it's a dream).</p>
+                        <div class="node-examples">
+                            <strong>Examples: </strong>
+                            <span>"A guardian angel appeared and protected me" / "I realized this was a dream and I had control"</span>
+                        </div>
+                        <p class="source-ref">MMS: Mythical Mastery subscale + Lucid Dreaming literature</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Maladaptive/Unsafe Column -->
+            <div class="category maladaptive">
+                <div class="category-header">
+                    <div class="category-icon">&#10007;</div>
+                    <div>
+                        <h3>Maladaptive Patterns (UNSAFE)</h3>
+                        <p class="category-subtitle">From IRT literature (Krakow) & MMS Avoidance subscale</p>
+                    </div>
+                </div>
+
+                <div class="nodes">
+                    <div class="node">
+                        <div class="node-header">
+                            <h4>Avoidance / Flight</h4>
+                            <span class="node-tag">UNSAFE</span>
+                        </div>
+                        <p>Dreamer avoids unpleasant dream scenes within the dream without changing them (e.g., closing eyes, running away, hiding). Does not resolve threat - reinforces fear response.</p>
+                        <div class="node-examples">
+                            <strong>Examples: </strong>
+                            <span>"I closed my eyes so I wouldn't see it" / "I kept running as fast as I could" / "I hid under the bed"</span>
+                        </div>
+                        <p class="source-ref">MMS: Avoidance subscale; PTSD avoidance criterion</p>
+                    </div>
+
+                    <div class="node">
+                        <div class="node-header">
+                            <h4>Interruption / Waking</h4>
+                            <span class="node-tag">UNSAFE</span>
+                        </div>
+                        <p>Dreamer awakens from the dream to escape perceived threats. Prevents processing and maintains fear association with nightmare content.</p>
+                        <div class="node-examples">
+                            <strong>Examples: </strong>
+                            <span>"I forced myself to wake up" / "I died to stop the horror" / "The dream just ended before resolution"</span>
+                        </div>
+                        <p class="source-ref">MMS: Avoidance subscale (awakening variant); Krakow IRT protocol</p>
+                    </div>
+
+                    <div class="node">
+                        <div class="node-header">
+                            <h4>Violent Revenge</h4>
+                            <span class="node-tag">UNSAFE</span>
+                        </div>
+                        <p>Excessive aggressive retaliation, gratuitous violence, or revenge-driven responses that go beyond self-defense. Differs from Behavioral Mastery by degree and motivation.</p>
+                        <div class="node-examples">
+                            <strong>Examples: </strong>
+                            <span>"I brutally destroyed the attacker out of pure rage" / "I tortured them for what they did"</span>
+                        </div>
+                        <p class="source-ref">IRT clinical guidance (Krakow); H/V Aggression subscale</p>
+                    </div>
+
+                    <div class="node">
+                        <div class="node-header">
+                            <h4>Suppression</h4>
+                            <span class="node-tag">UNSAFE</span>
+                        </div>
+                        <p>Attempting to block, forget, or push away nightmare content rather than process it. Mental avoidance that maintains the nightmare pattern.</p>
+                        <div class="node-examples">
+                            <strong>Examples: </strong>
+                            <span>"I tried not to think about it" / "I blocked the memory from my mind"</span>
+                        </div>
+                        <p class="source-ref">PTSD avoidance criterion; IRT clinical guidance</p>
+                    </div>
+
+                    <div class="node">
+                        <div class="node-header">
+                            <h4>Trauma Replay</h4>
+                            <span class="node-tag">UNSAFE</span>
+                        </div>
+                        <p>Rescripted dream that replays traumatic event without meaningful change. IRT specifically instructs patients NOT to select nightmares that replay trauma.</p>
+                        <div class="node-examples">
+                            <strong>Examples: </strong>
+                            <span>"The assault happened again exactly as before" / "I relived the accident with no change"</span>
+                        </div>
+                        <p class="source-ref">Krakow IRT protocol: explicit contraindication</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Decision Flow -->
+        <div class="decision-flow">
+            <h3>Classification Decision Flow</h3>
+            <div class="flow-steps">
+                <div class="flow-step input">
+                    <strong>Patient Input</strong>
+                    <br><small>Rescripted dream</small>
+                </div>
+                <span class="flow-arrow">&#8594;</span>
+                <div class="flow-step">
+                    <strong>Action Segmentation</strong>
+                    <br><small>Extract discrete actions</small>
+                </div>
+                <span class="flow-arrow">&#8594;</span>
+                <div class="flow-step">
+                    <strong>Pattern Matching</strong>
+                    <br><small>Map to ontology nodes</small>
+                </div>
+                <span class="flow-arrow">&#8594;</span>
+                <div class="flow-step safe-output">
+                    <strong>SAFE</strong>
+                    <br><small>All actions adaptive</small>
+                </div>
+                <div class="flow-step unsafe-output">
+                    <strong>UNSAFE</strong>
+                    <br><small>Any action maladaptive</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend">
+            <h3>Classification Logic</h3>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <div class="legend-color safe"></div>
+                    <span class="legend-text"><strong>SAFE:</strong> All identified actions map to Adaptive Mastery patterns</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color unsafe"></div>
+                    <span class="legend-text"><strong>UNSAFE:</strong> Any action maps to a Maladaptive pattern (conservative approach per IRT principles)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Suggested Alternative Strategies -->
+        <div class="alternatives-section" style="margin-top: 50px; background: #e8f4fd; border-radius: 15px; padding: 25px 30px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); border-left: 4px solid #3498db;">
+            <h3 style="color: #2c3e50; margin-bottom: 10px; font-size: 1.1rem;">Suggested Alternative Strategies</h3>
+            <p style="color: #7f8c8d; font-size: 0.85rem; margin-bottom: 20px; font-style: italic;">
+                <strong>Important Caveat:</strong> These suggested pairings are clinically-informed hypotheses, NOT evidence-based prescriptions.
+                IRT is deliberately non-directive—patients are instructed to "change the nightmare any way you wish."
+                These suggestions are intended as potential therapeutic guidance if a patient is struggling to generate alternatives,
+                and require clinical validation before implementation.
+            </p>
+            <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden;">
+                <thead>
+                    <tr style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white;">
+                        <th style="padding: 12px 15px; text-align: left; font-weight: 600;">Maladaptive Pattern</th>
+                        <th style="padding: 12px 15px; text-align: left; font-weight: 600;">Suggested Alternative</th>
+                        <th style="padding: 12px 15px; text-align: left; font-weight: 600;">Clinical Rationale</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ecf0f1;">
+                        <td style="padding: 12px 15px; color: #c0392b; font-weight: 500;">Avoidance / Flight</td>
+                        <td style="padding: 12px 15px; color: #27ae60; font-weight: 500;">Environmental or Behavioral Mastery</td>
+                        <td style="padding: 12px 15px; color: #555; font-size: 0.9rem;">Instead of fleeing, transform the threatening environment into a safe space, or take assertive action to neutralize the threat.</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ecf0f1; background: #f9f9f9;">
+                        <td style="padding: 12px 15px; color: #c0392b; font-weight: 500;">Violent Revenge</td>
+                        <td style="padding: 12px 15px; color: #27ae60; font-weight: 500;">Social Mastery</td>
+                        <td style="padding: 12px 15px; color: #555; font-size: 0.9rem;">Shift focus from destroying the aggressor to interpersonal resolution—transform the threatening character, bring in allies, or de-escalate through dialogue.</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ecf0f1;">
+                        <td style="padding: 12px 15px; color: #c0392b; font-weight: 500;">Interruption / Waking</td>
+                        <td style="padding: 12px 15px; color: #27ae60; font-weight: 500;">Mythical/Cognitive Mastery</td>
+                        <td style="padding: 12px 15px; color: #555; font-size: 0.9rem;">Instead of escaping by waking, gain lucid awareness that it's a dream, invoke protective imagery, or use dream-logic to resolve the scenario.</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ecf0f1; background: #f9f9f9;">
+                        <td style="padding: 12px 15px; color: #c0392b; font-weight: 500;">Suppression</td>
+                        <td style="padding: 12px 15px; color: #27ae60; font-weight: 500;">Emotional Mastery</td>
+                        <td style="padding: 12px 15px; color: #555; font-size: 0.9rem;">Instead of blocking emotions, actively transform the emotional tone—allow fear to shift to calm, or anxiety to curiosity.</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px 15px; color: #c0392b; font-weight: 500;">Trauma Replay</td>
+                        <td style="padding: 12px 15px; color: #27ae60; font-weight: 500;">Environmental Mastery</td>
+                        <td style="padding: 12px 15px; color: #555; font-size: 0.9rem;">Fundamentally alter the setting or circumstances so the traumatic scenario cannot unfold as before. Note: Direct trauma processing should be done with clinical supervision.</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="color: #95a5a6; font-size: 0.8rem; margin-top: 15px; text-align: center;">
+                These suggestions are derived from clinical reasoning based on MMS dimensions and IRT principles, pending empirical validation.
+            </p>
+        </div>
+
+        <!-- Validation Questions for Dr. Gieselmann -->
+        <div class="validation-section">
+            <h3>Questions for Clinical Validation</h3>
+            <ol>
+                <li><strong>Category Completeness:</strong> Are there any adaptive mastery patterns or maladaptive response patterns that are missing from this ontology?</li>
+                <li><strong>Boundary Cases:</strong> Is the distinction between "Behavioral Mastery" (adaptive) and "Violent Revenge" (maladaptive) clinically meaningful? How should we operationalize this boundary?</li>
+                <li><strong>Emotional Mastery:</strong> Should explicit statements of negative emotions (without resolution) be classified as maladaptive, or are they neutral?</li>
+                <li><strong>Mixed Responses:</strong> How should we handle dream rescripts that contain BOTH adaptive and maladaptive elements? (Current approach: flag as UNSAFE if ANY maladaptive element is present)</li>
+                <li><strong>Severity Gradation:</strong> Should certain maladaptive patterns trigger stronger warnings than others? (e.g., Trauma Replay vs. simple Avoidance)</li>
+                <li><strong>Alternative Strategies:</strong> Are the suggested alternative strategy pairings clinically appropriate? Would you recommend different adaptive strategies for any of the maladaptive patterns?</li>
+            </ol>
+        </div>
+
+        <p class="citation">
+            <strong>Primary Sources:</strong><br>
+            Germain et al. (2004) - Multidimensional Mastery Scale (MMS)<br>
+            Krakow & Zadra (2006) - IRT Protocol and Clinical Guidelines<br>
+            Krakow et al. (2001, JAMA) - IRT Efficacy in Sexual Assault Survivors<br>
+            AASM Best Practice Guide (2010) - Nightmare Disorder Treatment<br>
+            <br>
+            For clinical validation by Dr. Annika Gieselmann | Master's Thesis: Ramon Zacharias
+        </p>
+    </div>
+</body>
+</html>

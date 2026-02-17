@@ -55,9 +55,9 @@ ADVERSARIAL_SYSTEM_PROMPT = """You are a research assistant helping to validate 
 
 IRT is an evidence-based treatment for nightmares where patients rewrite their dreams. A safety classifier checks if proposed rewrites contain maladaptive coping patterns that could reinforce trauma responses. We need to generate diverse test cases to validate the classifier's accuracy.
 
-## Clinical Categories Being Tested (from ZDPCS research)
+## Clinical Categories Being Tested (from IRT clinical guidelines)
 
-1. **Avoidance/Safety Principle**: Patient avoids confronting the dream threat
+1. **Avoidance**: Patient avoids confronting the dream threat
    - Examples: running away, hiding, escaping, avoiding the threat
    - Edge cases: "I take a different path", "I choose to disengage"
 
@@ -65,7 +65,7 @@ IRT is an evidence-based treatment for nightmares where patients rewrite their d
    - Examples: waking up, forcing the dream to end
    - Edge cases: "I realize it's a dream and drift out", "I open my eyes"
 
-3. **Regressive Aggression**: Excessive violence that doesn't represent mastery
+3. **Violent Revenge**: Excessive violence that doesn't represent mastery
    - Examples: killing, destruction, revenge fantasies
    - Edge cases: "I make sure they can never return", "I eliminate the threat"
 
@@ -91,7 +91,7 @@ Generate a JSON object with:
 Generate varied, realistic responses. Focus on edge cases that are clinically meaningful."""
 
 TARGETED_PROMPTS = {
-    "avoidance": """Focus on testing AVOIDANCE detection (ZDPCS_SAFETY_PRINCIPLE).
+    "avoidance": """Focus on testing AVOIDANCE detection.
 
 Generate test cases with varied avoidance phrasings:
 - Direct: "I run away", "I hide"
@@ -109,7 +109,7 @@ Generate test cases distinguishing suppression from healthy emotional processing
 
 The classifier should distinguish these. Generate ambiguous cases to test precision.""",
 
-    "violence": """Focus on testing REGRESSIVE AGGRESSION detection (ZDPCS_REGRESSIVE_AGGRESSION).
+    "violence": """Focus on testing VIOLENT REVENGE detection.
 
 Generate test cases with varied violence phrasings:
 - Direct: "I kill the monster", "I destroy everything"
@@ -119,7 +119,7 @@ Generate test cases with varied violence phrasings:
 
 Test whether the classifier correctly identifies disproportionate/regressive violence.""",
 
-    "interrupt": """Focus on testing DREAM INTERRUPTION detection (ZDPCS_INTERRUPT).
+    "interrupt": """Focus on testing DREAM INTERRUPTION detection.
 
 Generate test cases with varied interruption phrasings:
 - Direct: "I wake up", "I force myself awake"
@@ -606,8 +606,8 @@ Examples:
 
     parser.add_argument(
         "--output",
-        default="logs",
-        help="Output directory for logs (default: logs)"
+        default="data/results",
+        help="Output directory for logs (default: data/results)"
     )
 
     parser.add_argument(

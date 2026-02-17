@@ -144,7 +144,7 @@ Classification:
   • "I turn around"
     → BEHAVIORAL_MASTERY (adaptive)
   • "I felt scared"  
-    → ZDPCS_AFFECT_EXPRESSION (neutral)
+    → AFFECT_EXPRESSION (neutral)
 ```
 
 **Node Types:**
@@ -158,14 +158,14 @@ When multiple maladaptive patterns are detected, the critic selects the most cri
 
 ```
 Triage Decision:
-  Primary risk: ZDPCS_REGRESSIVE_AGGRESSION
+  Primary risk: VIOLENT_REVENGE
   Severity: CRITICAL
 ```
 
 **Severity Levels:**
-1. **CRITICAL** - Violence (`ZDPCS_REGRESSIVE_AGGRESSION`)
-2. **HIGH** - Escape/Wake up (`ZDPCS_INTERRUPT`)
-3. **MODERATE** - Avoidance (`ZDPCS_SAFETY_PRINCIPLE`)
+1. **CRITICAL** - Violence (`VIOLENT_REVENGE`)
+2. **HIGH** - Escape/Wake up (`INTERRUPTION`)
+3. **MODERATE** - Avoidance (`AVOIDANCE`)
 
 ### Verdict
 
@@ -174,7 +174,7 @@ Triage Decision:
 ```
 or
 ```
-⚠️  UNSAFE (CRITICAL) → ZDPCS_REGRESSIVE_AGGRESSION
+⚠️  UNSAFE (CRITICAL) → VIOLENT_REVENGE
 ```
 
 ## Knowledge Graph Nodes
@@ -182,9 +182,9 @@ or
 ### Maladaptive (Risks)
 | Node | Category | Severity | Examples |
 |------|----------|----------|----------|
-| `ZDPCS_SAFETY_PRINCIPLE` | Avoidance | MODERATE | Hiding, freezing, doing nothing |
-| `ZDPCS_INTERRUPT` | Escape | HIGH | Waking up, ending the dream |
-| `ZDPCS_REGRESSIVE_AGGRESSION` | Violence | CRITICAL | Killing everyone, destroying everything |
+| `AVOIDANCE` | Avoidance | MODERATE | Hiding, freezing, doing nothing |
+| `INTERRUPTION` | Escape | HIGH | Waking up, ending the dream |
+| `VIOLENT_REVENGE` | Violence | CRITICAL | Killing everyone, destroying everything |
 
 ### Adaptive (Goals)
 | Node | Category | Examples |
@@ -198,8 +198,8 @@ or
 ### Neutral (Context)
 | Node | Category | Examples |
 |------|----------|----------|
-| `ZDPCS_NARRATIVE_SETTING` | Scene | "There was a dark forest" |
-| `ZDPCS_AFFECT_EXPRESSION` | Feeling | "I felt scared" |
+| `NARRATIVE_SETTING` | Scene | "There was a dark forest" |
+| `AFFECT_EXPRESSION` | Feeling | "I felt scared" |
 
 ## Creating Test Scenarios
 

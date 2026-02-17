@@ -144,7 +144,7 @@ def format_segments(result: SafetyResult) -> str:
         node_abbrev = ""
         if seg.node_id:
             # Shorten node names
-            node_abbrev = seg.node_id.replace("ZDPCS_", "").replace("_MASTERY", "").replace("_", " ")
+            node_abbrev = seg.node_id.replace("_MASTERY", "").replace("_", " ")
         
         text_preview = seg.text[:25] + "..." if len(seg.text) > 25 else seg.text
         parts.append(f"[{type_abbrev}] \"{text_preview}\"" + (f" → {node_abbrev}" if node_abbrev else ""))
@@ -597,7 +597,7 @@ async def run_live_mode(language: str = "en"):
             continue
         
         if user_input.lower() == 'skip':
-            context = load_context("scenarios/chase_nightmare.json")
+            context = load_context("data/scenarios/chase_nightmare.json")
             if context:
                 nightmare_summary = context.get("nightmare_summary", context.get("nightmare", ""))
                 current_stage = "rewriting"
@@ -805,12 +805,12 @@ def main():
         epilog="""
 Examples:
   %(prog)s --live                        Chat through IRT naturally
-  %(prog)s --context scenarios/chase.json  Test with loaded nightmare
-  %(prog)s --scenario scenarios/chase_tests.json  Run scenario test suite
-  %(prog)s --batch scenarios/batch_tests.json     Legacy batch testing
+  %(prog)s --context data/scenarios/chase.json  Test with loaded nightmare
+  %(prog)s --scenario data/scenarios/chase_tests.json  Run scenario test suite
+  %(prog)s --batch data/scenarios/batch_tests.json     Legacy batch testing
   %(prog)s --scenario FILE -v            Verbose: show constraints
 
-See Documents/Testing_Guide.md for full documentation.
+See docs/testing/Testing_Guide.md for full documentation.
         """
     )
     parser.add_argument("--live", "-l", action="store_true", 

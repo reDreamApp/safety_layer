@@ -7,8 +7,8 @@ runs the Safety Critic against every test case, and generates a detailed CSV rep
 
 Usage:
     python run_benchmark.py                              # Uses default dev_dataset.json
-    python run_benchmark.py --input data/test_dataset.json
-    python run_benchmark.py --input data/dev_dataset.json --output results/benchmark.csv
+    python run_benchmark.py --input data/benchmarks/test_dataset.json
+    python run_benchmark.py --input data/benchmarks/dev_dataset.json --output data/benchmarks/benchmark.csv
 """
 
 import os
@@ -307,23 +307,23 @@ def main():
         epilog="""
 Examples:
     python run_benchmark.py
-    python run_benchmark.py --input data/test_dataset.json
-    python run_benchmark.py --input data/dev_dataset.json --output results/dev_results.csv
+    python run_benchmark.py --input data/benchmarks/test_dataset.json
+    python run_benchmark.py --input data/benchmarks/dev_dataset.json --output data/benchmarks/dev_results.csv
         """
     )
-    
+
     parser.add_argument(
         '--input',
         type=str,
-        default='data/dev_dataset.json',
-        help="Path to input JSON dataset (default: data/dev_dataset.json)"
+        default='data/benchmarks/dev_dataset.json',
+        help="Path to input JSON dataset (default: data/benchmarks/dev_dataset.json)"
     )
-    
+
     parser.add_argument(
         '--output',
         type=str,
-        default='data/benchmark_results.csv',
-        help="Path to output CSV results (default: data/benchmark_results.csv)"
+        default='data/benchmarks/benchmark_results.csv',
+        help="Path to output CSV results (default: data/benchmarks/benchmark_results.csv)"
     )
     
     parser.add_argument(

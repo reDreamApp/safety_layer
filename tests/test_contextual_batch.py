@@ -2,7 +2,7 @@
 Test runner for contextual batch tests.
 
 This script runs all contextual tests (with nightmare context) from
-scenarios/contextual_batch_tests.json and provides detailed results.
+data/scenarios/contextual_batch_tests.json and provides detailed results.
 """
 
 import asyncio
@@ -29,7 +29,7 @@ async def run_contextual_batch_tests():
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     
     # Load test data
-    test_file = os.path.join(project_root, "scenarios", "contextual_batch_tests.json")
+    test_file = os.path.join(project_root, "data", "scenarios", "contextual_batch_tests.json")
     with open(test_file, 'r') as f:
         test_suites = json.load(f)
     
@@ -199,7 +199,7 @@ async def run_contextual_batch_tests():
         print(f"  {status_emoji} {suite_name}: {stats['passed']}/{stats['total']} ({stats['pass_rate']:.1f}%){conf_str}")
     
     # Save detailed results to JSON
-    output_file = os.path.join(project_root, f"test_results_contextual_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json")
+    output_file = os.path.join(project_root, f"data/results/test_results_contextual_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json")
     with open(output_file, 'w') as f:
         json.dump({
             "timestamp": datetime.now().isoformat(),

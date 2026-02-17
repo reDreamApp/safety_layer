@@ -84,9 +84,9 @@ async def test_classifier():
     # NLI classifier should handle these more reliably than LLM
     test_cases = [
         # Maladaptive
-        ("I hide under the bed", "ZDPCS_SAFETY_PRINCIPLE"),
-        ("I wake myself up", "ZDPCS_INTERRUPT"),
-        ("I kill everyone", "ZDPCS_REGRESSIVE_AGGRESSION"),
+        ("I hide under the bed", "AVOIDANCE"),
+        ("I wake myself up", "INTERRUPTION"),
+        ("I kill everyone", "VIOLENT_REVENGE"),
         # Adaptive
         ("I fight back", "BEHAVIORAL_MASTERY"),
         ("I punch the monster", "BEHAVIORAL_MASTERY"),
@@ -95,8 +95,8 @@ async def test_classifier():
         ("I calm myself down", "EMOTIONAL_MASTERY"),
         ("I use my magic powers", "MYTHICAL_MASTERY"),
         # Neutral
-        ("I felt scared", "ZDPCS_AFFECT_EXPRESSION"),
-        ("There was a dark forest", "ZDPCS_NARRATIVE_SETTING"),
+        ("I felt scared", "AFFECT_EXPRESSION"),
+        ("There was a dark forest", "NARRATIVE_SETTING"),
         # CRITICAL: Negation handling (NLI should excel at this)
         ("I decided not to run away", "BEHAVIORAL_MASTERY"),
         ("I chose not to hide", "BEHAVIORAL_MASTERY"),

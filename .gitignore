@@ -31,3 +31,9 @@ Thumbs.db
 .coverage
 htmlcov/
 
+# Large files / non-code
+papers/
+misc/
+*.pdf
+*.gif
+

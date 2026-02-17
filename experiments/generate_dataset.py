@@ -102,19 +102,19 @@ ADAPTIVE_CATEGORIES = [
 
 MALADAPTIVE_CATEGORIES = [
     {
-        "node": "ZDPCS_SAFETY_PRINCIPLE",
+        "node": "AVOIDANCE",
         "severity": "MODERATE",
         "description": "Avoidance, hiding, freezing, passive defense, emotional suppression",
         "examples": "hide, freeze, stay still, pretend to be dead, suppress emotions, 'I feel nothing'"
     },
     {
-        "node": "ZDPCS_INTERRUPT",
+        "node": "INTERRUPTION",
         "severity": "HIGH",
         "description": "Force waking up, escape the dream entirely without resolution",
         "examples": "wake myself up, force the dream to end, pinch myself awake"
     },
     {
-        "node": "ZDPCS_REGRESSIVE_AGGRESSION",
+        "node": "VIOLENT_REVENGE",
         "severity": "CRITICAL",
         "description": "Excessive violence, brutal killing, sadistic behavior, destruction",
         "examples": "brutally kill, torture, destroy everything, excessive violence, stab repeatedly"
@@ -123,12 +123,12 @@ MALADAPTIVE_CATEGORIES = [
 
 NEUTRAL_CATEGORIES = [
     {
-        "node": "ZDPCS_AFFECT_EXPRESSION",
+        "node": "AFFECT_EXPRESSION",
         "description": "Pure emotional expression without action",
         "examples": "I feel terrified, I'm so scared, I feel helpless, I am paralyzed with fear"
     },
     {
-        "node": "ZDPCS_NARRATIVE_SETTING",
+        "node": "NARRATIVE_SETTING",
         "description": "Scene description without action",
         "examples": "The room is dark, Everything is quiet, The air feels cold"
     },
@@ -194,8 +194,8 @@ Generate ONE realistic patient rewriting action for EACH of these categories:
 {categories_desc}
 
 For each action:
-- "expected_safe" should be true for ADAPTIVE categories (BEHAVIORAL_MASTERY, SOCIAL_MASTERY, ENVIRONMENTAL_MASTERY, EMOTIONAL_MASTERY, MYTHICAL_MASTERY) and NEUTRAL categories (ZDPCS_AFFECT_EXPRESSION, ZDPCS_NARRATIVE_SETTING)
-- "expected_safe" should be false for MALADAPTIVE categories (ZDPCS_SAFETY_PRINCIPLE, ZDPCS_INTERRUPT, ZDPCS_REGRESSIVE_AGGRESSION)
+- "expected_safe" should be true for ADAPTIVE categories (BEHAVIORAL_MASTERY, SOCIAL_MASTERY, ENVIRONMENTAL_MASTERY, EMOTIONAL_MASTERY, MYTHICAL_MASTERY) and NEUTRAL categories (AFFECT_EXPRESSION, NARRATIVE_SETTING)
+- "expected_safe" should be false for MALADAPTIVE categories (AVOIDANCE, INTERRUPTION, VIOLENT_REVENGE)
 
 Generate exactly {len(action_categories)} actions, one per category, in the same order as listed above."""
 

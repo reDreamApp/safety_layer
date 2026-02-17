@@ -3,24 +3,29 @@ Block A: The Knowledge Graph
 
 Clinical ontology based on:
 - MMS (Mastery Measurement Scale) - Germain et al., 2004: Adaptive behaviors/goals
-- ZDPCS (Zurich Dream Process Coding System) - Moser et al. / Fischmann et al., 2021: Maladaptive behaviors/risks
+- IRT clinical guidelines - Krakow & Zadra, 2006: Maladaptive behaviors/risks
+- DSM-5 PTSD criteria - APA, 2013: Trauma-related avoidance and hyperarousal
+- Germain et al., 2004 (MMS Subscale VI): Avoidance coding
 
 This module creates a directed graph representing the clinical knowledge base
 for the safety layer, with correction edges from maladaptive to adaptive nodes.
 
 REFERENCES:
 -----------
-1. Germain, A., Krakow, B., Faucher, B., et al. (2004). "Increased Mastery Elements 
-   Associated With Imagery Rehearsal Treatment for Nightmares in Sexual Assault 
+1. Germain, A., Krakow, B., Faucher, B., et al. (2004). "Increased Mastery Elements
+   Associated With Imagery Rehearsal Treatment for Nightmares in Sexual Assault
    Survivors With PTSD." Dreaming, 14(4), 195-206.
-   
-2. Fischmann, T., Leuzinger-Bohleber, M., & Moser, U. (2021). "Dreams and Trauma: 
-   Changes in the Manifest Dreams in Psychoanalytic Treatments." Frontiers in Psychology.
-   
-3. Rousseau, A., & Belleville, G. (2018). "The mechanisms of action underlying the 
+
+2. Krakow, B., & Zadra, A. (2006). "Clinical management of chronic nightmares:
+   Imagery Rehearsal Therapy." Behavioral Sleep Medicine, 4(1), 45-70.
+
+3. American Psychiatric Association. (2013). Diagnostic and Statistical Manual of
+   Mental Disorders (5th ed.). DSM-5 PTSD Criterion C (Avoidance) & E (Hyperarousal).
+
+4. Rousseau, A., & Belleville, G. (2018). "The mechanisms of action underlying the
    efficacy of psychological nightmare treatments." Sleep Medicine Reviews.
 
-4. Nielsen, T., & Levin, R. (2007). "Nightmares: A new neurocognitive model." 
+5. Nielsen, T., & Levin, R. (2007). "Nightmares: A new neurocognitive model."
    Sleep Medicine Reviews. (AMPHAC model - fear extinction requires engagement, not avoidance)
 """
 
@@ -33,7 +38,7 @@ def build_clinical_graph() -> nx.DiGraph:
     Build and return the clinical knowledge graph.
     
     The graph contains:
-    - Maladaptive nodes (risks) from ZDPCS
+    - Maladaptive nodes (risks) from IRT clinical guidelines
     - Adaptive nodes (goals) from MMS (all 5 mastery types)
     - Correction edges from risks to goals with clinical rationale
     
@@ -161,18 +166,18 @@ def build_clinical_graph() -> nx.DiGraph:
         G.add_node(node_id, **attrs)
     
     # =========================================================================
-    # MALADAPTIVE NODES (Risks) - Source: ZDPCS (Fischmann et al., 2021)
-    # Reference: "Dreams and Trauma: Changes in the Manifest Dreams..." Frontiers in Psychology
+    # MALADAPTIVE NODES (Risks) - Sources: IRT clinical guidelines (Krakow & Zadra, 2006),
+    # DSM-5 PTSD criteria (APA, 2013), Germain et al. (2004) MMS Subscale VI
     # =========================================================================
     
     maladaptive_nodes = {
-        "ZDPCS_SAFETY_PRINCIPLE": {
+        "AVOIDANCE": {
             "type": "maladaptive",
             "category": "avoidance",
             "severity": "high",
             "description": "The dreamer avoids interaction to regulate anxiety. This includes passive responses that prevent engagement with the dream scenario.",
-            "zdpcs_concept": "Sicherheitsprinzip (Safety Principle)",
-            "reference": "Fischmann et al. (2021): 'The Safety Principle describes regulatory mechanisms where the dreamer avoids engagement to manage overwhelming affect.'",
+            "clinical_concept": "Avoidance / Safety-seeking behavior",
+            "reference": "Krakow & Zadra (2006): IRT targets avoidance by replacing passive coping with active mastery. DSM-5 Criterion C: persistent avoidance of trauma-related stimuli.",
             "clinical_guideline": "Avoidance prevents therapeutic processing. The patient should be guided toward active engagement with the dream content.",
             "why_maladaptive": "Nielsen & Levin (2007) AMPHAC model: Nightmares persist due to failed fear extinction. Avoidance prevents extinction learning. Rousseau & Belleville (2018): 'Prevention of Avoidance' is a key mechanism of nightmare treatment.",
             "nli_hypothesis": "The dreamer hides, freezes, does nothing, or avoids confrontation with the threat.",
@@ -185,13 +190,13 @@ def build_clinical_graph() -> nx.DiGraph:
                 "Passive observation without action"
             ]
         },
-        "ZDPCS_INTERRUPT": {
+        "INTERRUPTION": {
             "type": "maladaptive",
             "category": "escape",
             "severity": "high",
             "description": "Breaking the dream narrative completely to stop the affect. A forced termination that prevents any resolution.",
-            "zdpcs_concept": "Dream Interruption",
-            "reference": "Fischmann et al. (2021): Dream interruption represents a failure to process the traumatic material within the dream space.",
+            "clinical_concept": "Dream interruption / Premature termination",
+            "reference": "Germain et al. (2004) MMS Subscale VI: 'Awakens from the dream to escape perceived threats' is coded as Avoidance, not Mastery.",
             "clinical_guideline": "Interrupting the dream prevents emotional processing. The patient should be guided to stay within the dream and find resolution.",
             "why_maladaptive": "MMS Manual (Germain et al., 2004) Subscale VI (Avoidance): 'Awakens from the dream to escape perceived threats' is coded as Avoidance, not Mastery. It prevents the cognitive restructuring that IRT aims to achieve.",
             "nli_hypothesis": "The dreamer wakes up from the dream or makes the dream end abruptly.",
@@ -203,15 +208,15 @@ def build_clinical_graph() -> nx.DiGraph:
                 "Refusing to continue the dream scenario"
             ]
         },
-        "ZDPCS_REGRESSIVE_AGGRESSION": {
+        "VIOLENT_REVENGE": {
             "type": "maladaptive",
             "category": "violence",
             "severity": "critical",
-            "description": "Uncontrolled, chaotic violence that destroys the scene rather than resolving it. Reflects low structural level and primitive defense.",
-            "zdpcs_concept": "Regressive Aggression (low structural level)",
-            "reference": "Moser & Hortig (2019) ZDPCS: Regressive aggression indicates primitive defensive operations at a low structural level, where the ego cannot modulate aggressive impulses.",
+            "description": "Uncontrolled, chaotic violence that destroys the scene rather than resolving it. Represents disproportionate aggression rather than adaptive mastery.",
+            "clinical_concept": "Violent revenge fantasy / Disproportionate aggression",
+            "reference": "Krakow & Zadra (2006): IRT explicitly discourages violent revenge fantasies; the goal is mastery, not destruction. DSM-5 Criterion E2: irritable behavior and angry outbursts as hyperarousal symptom.",
             "clinical_guideline": "Extreme violence is a primitive defense that prevents adaptive coping. Guide toward controlled, purposeful action instead of destructive chaos.",
-            "why_maladaptive": "Fischmann et al. (2021): Dreams at low structural levels show 'destruction of the dream space' rather than resolution. This parallels trauma responses where overwhelming affect leads to primitive fight responses rather than adaptive problem-solving. IRT guidelines explicitly discourage violent revenge fantasies.",
+            "why_maladaptive": "IRT guidelines explicitly discourage violent revenge fantasies. Disproportionate violence parallels trauma responses where overwhelming affect leads to primitive fight responses rather than adaptive problem-solving. The goal of IRT is mastery and resolution, not destruction.",
             "nli_hypothesis": "The dreamer kills everyone, murders people, or destroys everything around them.",
             "behavioral_markers": [
                 "Killing everyone in the dream",
@@ -234,7 +239,7 @@ def build_clinical_graph() -> nx.DiGraph:
     # =========================================================================
     
     neutral_nodes = {
-        "ZDPCS_NARRATIVE_SETTING": {
+        "NARRATIVE_SETTING": {
             "type": "neutral",
             "category": "narrative",
             "description": "Description of environment, characters, or setting without active interaction. The dreamer describes the scene without taking action.",
@@ -248,7 +253,7 @@ def build_clinical_graph() -> nx.DiGraph:
                 "A figure appeared in the doorway"
             ]
         },
-        "ZDPCS_AFFECT_EXPRESSION": {
+        "AFFECT_EXPRESSION": {
             "type": "neutral",
             "category": "affect",
             "description": "Explicit statement of emotion without accompanying action. The dreamer expresses feelings without behavioral response.",
@@ -275,12 +280,12 @@ def build_clinical_graph() -> nx.DiGraph:
     
     correction_edges = [
         # =====================================================================
-        # ZDPCS_SAFETY_PRINCIPLE (Avoidance) corrections
+        # AVOIDANCE corrections
         # =====================================================================
-        
+
         # Primary: Avoidance -> Behavioral Mastery (Action)
         (
-            "ZDPCS_SAFETY_PRINCIPLE",
+            "AVOIDANCE",
             "BEHAVIORAL_MASTERY",
             {
                 "relation": "correction_strategy",
@@ -293,7 +298,7 @@ def build_clinical_graph() -> nx.DiGraph:
         
         # Secondary: Avoidance -> Social Mastery (seek help)
         (
-            "ZDPCS_SAFETY_PRINCIPLE",
+            "AVOIDANCE",
             "SOCIAL_MASTERY",
             {
                 "relation": "correction_strategy",
@@ -306,7 +311,7 @@ def build_clinical_graph() -> nx.DiGraph:
         
         # Tertiary: Avoidance -> Mythical Mastery (supernatural empowerment)
         (
-            "ZDPCS_SAFETY_PRINCIPLE",
+            "AVOIDANCE",
             "MYTHICAL_MASTERY",
             {
                 "relation": "correction_strategy",
@@ -318,12 +323,12 @@ def build_clinical_graph() -> nx.DiGraph:
         ),
         
         # =====================================================================
-        # ZDPCS_INTERRUPT (Escape/Wake up) corrections
+        # INTERRUPTION (Escape/Wake up) corrections
         # =====================================================================
-        
+
         # Primary: Interrupt -> Emotional Mastery (stay calm, stay present)
         (
-            "ZDPCS_INTERRUPT",
+            "INTERRUPTION",
             "EMOTIONAL_MASTERY",
             {
                 "relation": "correction_strategy",
@@ -336,7 +341,7 @@ def build_clinical_graph() -> nx.DiGraph:
         
         # Secondary: Interrupt -> Environmental Mastery (find safety within dream)
         (
-            "ZDPCS_INTERRUPT",
+            "INTERRUPTION",
             "ENVIRONMENTAL_MASTERY",
             {
                 "relation": "correction_strategy",
@@ -349,7 +354,7 @@ def build_clinical_graph() -> nx.DiGraph:
         
         # Tertiary: Interrupt -> Mythical Mastery (divine protection)
         (
-            "ZDPCS_INTERRUPT",
+            "INTERRUPTION",
             "MYTHICAL_MASTERY",
             {
                 "relation": "correction_strategy",
@@ -361,12 +366,12 @@ def build_clinical_graph() -> nx.DiGraph:
         ),
         
         # =====================================================================
-        # ZDPCS_REGRESSIVE_AGGRESSION (Violence) corrections
+        # VIOLENT_REVENGE (Violence) corrections
         # =====================================================================
-        
+
         # Primary: Violence -> Behavioral Mastery (controlled, purposeful action)
         (
-            "ZDPCS_REGRESSIVE_AGGRESSION",
+            "VIOLENT_REVENGE",
             "BEHAVIORAL_MASTERY",
             {
                 "relation": "correction_strategy",
@@ -379,7 +384,7 @@ def build_clinical_graph() -> nx.DiGraph:
         
         # Secondary: Violence -> Social Mastery (get help instead of fighting alone)
         (
-            "ZDPCS_REGRESSIVE_AGGRESSION",
+            "VIOLENT_REVENGE",
             "SOCIAL_MASTERY",
             {
                 "relation": "correction_strategy",
@@ -392,7 +397,7 @@ def build_clinical_graph() -> nx.DiGraph:
         
         # Tertiary: Violence -> Emotional Mastery (regulate the rage)
         (
-            "ZDPCS_REGRESSIVE_AGGRESSION",
+            "VIOLENT_REVENGE",
             "EMOTIONAL_MASTERY",
             {
                 "relation": "correction_strategy",
@@ -490,26 +495,31 @@ def print_ontology_with_references():
     1. Germain et al. (2004) - MMS Manual
        "Increased Mastery Elements Associated With IRT..." Dreaming 14(4)
        → Defines the 6 Mastery subscales (our adaptive nodes)
-       
-    2. Fischmann et al. (2021) - ZDPCS Application
-       "Dreams and Trauma: Changes in the Manifest Dreams..." Frontiers in Psychology
-       → Defines Safety Principle, Interruption, and structural levels
-       
-    3. Rousseau & Belleville (2018) - Mechanisms of IRT
+       → Subscale VI (Avoidance) informs maladaptive coding
+
+    2. Krakow & Zadra (2006) - IRT Clinical Guidelines
+       "Clinical management of chronic nightmares: Imagery Rehearsal Therapy"
+       → Defines maladaptive patterns: avoidance, interruption, violent revenge
+
+    3. APA (2013) - DSM-5 PTSD Criteria
+       Criterion C (Avoidance), Criterion E (Hyperarousal)
+       → Clinical grounding for avoidance and aggression categories
+
+    4. Rousseau & Belleville (2018) - Mechanisms of IRT
        "The mechanisms of action underlying nightmare treatments"
        → Identifies "Prevention of Avoidance" as key mechanism
-       
-    4. Nielsen & Levin (2007) - AMPHAC Model
+
+    5. Nielsen & Levin (2007) - AMPHAC Model
        "Nightmares: A new neurocognitive model"
        → Nightmares = failed fear extinction; avoidance prevents extinction
     """)
     
-    print("\n🔴 MALADAPTIVE NODES (from ZDPCS)")
+    print("\n🔴 MALADAPTIVE NODES (from IRT clinical guidelines)")
     print("-" * 80)
-    
+
     for node_id, attrs in get_maladaptive_nodes(G).items():
         print(f"\n  📌 {node_id}")
-        print(f"     ZDPCS Concept: {attrs.get('zdpcs_concept', 'N/A')}")
+        print(f"     Clinical Concept: {attrs.get('clinical_concept', 'N/A')}")
         print(f"     Reference: {attrs.get('reference', 'N/A')}")
         print(f"     Why Maladaptive: {attrs.get('why_maladaptive', 'N/A')[:100]}...")
         

@@ -10,7 +10,7 @@ Date: December 2024
 
 1. Overview
 
-This document provides the scientific rationale for the clinical knowledge graph used in the Neuro-Symbolic Safety Layer. The ontology maps maladaptive dream behaviors (from the Zurich Dream Process Coding System) to adaptive mastery goals (from the Multidimensional Mastery Scale), enabling automatic detection and correction of therapeutically harmful dream interventions.
+This document provides the scientific rationale for the clinical knowledge graph used in the Neuro-Symbolic Safety Layer. The ontology maps maladaptive dream behaviors (grounded in IRT clinical guidelines, DSM-5, and Germain et al.) to adaptive mastery goals (from the Multidimensional Mastery Scale), enabling automatic detection and correction of therapeutically harmful dream interventions.
 
 Primary Sources
 
@@ -22,13 +22,13 @@ Germain et al. (2004)
 
 Defines the 6 Mastery subscales (MMS)
 
-Fischmann et al. (2021)
+Krakow & Zadra (2006)
 
-Applies ZDPCS concepts to trauma dreams
+IRT clinical guidelines for maladaptive patterns
 
-Moser & Hortig (2019)
+APA (2013)
 
-Original ZDPCS methodology
+DSM-5 PTSD criteria (Avoidance, Hyperarousal)
 
 Rousseau & Belleville (2018)
 
@@ -144,17 +144,15 @@ Scoring Criteria (direct quote):
 
 Clinical Significance: Mythical Mastery provides a sense of protection and empowerment through imagined supernatural means, particularly valuable for patients who feel powerless in waking life.
 
-3. Maladaptive Nodes: The Zurich Dream Process Coding System (ZDPCS)
+3. Maladaptive Nodes: IRT Clinical Guidelines, DSM-5, and Germain et al.
 
-The ZDPCS, developed by Moser and colleagues, provides a framework for understanding defensive operations in dreams. Fischmann et al. (2021) applied this framework to trauma dreams.
+The maladaptive categories are grounded in IRT clinical guidelines (Krakow & Zadra, 2006), DSM-5 PTSD criteria (APA, 2013), and the MMS avoidance coding (Germain et al., 2004). These sources identify behaviors that undermine the therapeutic goals of IRT.
 
-3.1 ZDPCS_SAFETY_PRINCIPLE (Avoidance)
+3.1 AVOIDANCE
 
 Definition: The dreamer avoids interaction to regulate anxiety.
 
-"The Safety Principle describes regulatory mechanisms where the dreamer avoids engagement to manage overwhelming affect."
-
-— Fischmann et al. (2021)
+Krakow & Zadra (2006) identify avoidance as a core pattern that IRT targets. DSM-5 Criterion C defines persistent avoidance of trauma-related stimuli as a hallmark of PTSD.
 
 Why Maladaptive:
 
@@ -192,13 +190,11 @@ Becoming invisible
 
 Passive observation without action
 
-3.2 ZDPCS_INTERRUPT (Dream Escape)
+3.2 INTERRUPTION (Dream Escape)
 
 Definition: Breaking the dream narrative to stop the affect.
 
-"Dream interruption represents a failure to process the traumatic material within the dream space."
-
-— Fischmann et al. (2021)
+Dream interruption represents a failure to process material within the dream space. The MMS explicitly classifies this as avoidance behavior.
 
 Why Maladaptive:
 
@@ -218,23 +214,17 @@ The dream suddenly ending without resolution
 
 Refusing to continue the scenario
 
-3.3 ZDPCS_REGRESSIVE_AGGRESSION (Excessive Violence)
+3.3 VIOLENT_REVENGE (Excessive Violence)
 
 Definition: Uncontrolled, chaotic violence that destroys rather than resolves.
 
-"Regressive aggression indicates primitive defensive operations at a low structural level, where the ego cannot modulate aggressive impulses."
-
-— Moser & Hortig (2019), ZDPCS Manual
+Krakow & Zadra (2006) explicitly discourage violent revenge fantasies in IRT. DSM-5 Criterion E2 identifies irritable behavior and angry outbursts as hyperarousal symptoms of PTSD rather than adaptive coping.
 
 Why Maladaptive:
 
-Fischmann et al. (2021) describe how low structural levels in dreams manifest as destruction:
+Disproportionate violence parallels trauma responses where overwhelming affect leads to primitive fight responses rather than adaptive problem-solving.
 
-"Dreams at low structural levels show 'destruction of the dream space' rather than resolution."
-
-— Fischmann et al. (2021)
-
-The key distinction is between regressive (chaotic, destructive, disproportionate) and progressive (controlled, goal-directed, proportionate) aggression. The MMS codes "fights back against a threat" and "wins over a threat" as Behavioral Mastery—but this assumes proportionate, controlled action.
+The key distinction is between destructive (chaotic, disproportionate) and controlled (goal-directed, proportionate) aggression. The MMS codes "fights back against a threat" and "wins over a threat" as Behavioral Mastery—but this assumes proportionate, controlled action.
 
 Clinical Guideline: IRT protocols explicitly discourage violent revenge fantasies. The goal is empowerment through controlled action, not cathartic destruction.
 
@@ -252,7 +242,7 @@ Violence disproportionate to the threat
 
 Each maladaptive node is connected to multiple adaptive nodes via "correction edges." The selection of which mastery types best address each maladaptive behavior is based on clinical logic derived from the literature.
 
-4.1 ZDPCS_SAFETY_PRINCIPLE → Correction Strategies
+4.1 AVOIDANCE → Correction Strategies
 
 Priority
 
@@ -302,7 +292,7 @@ Mythical Mastery is tertiary for patients who feel completely powerless:
 
 This provides agency through imagined empowerment when behavioral options feel impossible.
 
-4.2 ZDPCS_INTERRUPT → Correction Strategies
+4.2 INTERRUPTION → Correction Strategies
 
 Priority
 
@@ -354,7 +344,7 @@ Mythical Mastery is tertiary for patients who feel they cannot stay:
 
 Divine protection provides a sense of safety that enables continued engagement.
 
-4.3 ZDPCS_REGRESSIVE_AGGRESSION → Correction Strategies
+4.3 VIOLENT_REVENGE → Correction Strategies
 
 Priority
 
@@ -408,24 +398,24 @@ Modulating the emotional intensity can prevent violent acting out at the source.
 
 5. Summary: The Complete Ontology
 
-MALADAPTIVE (ZDPCS)                    ADAPTIVE (MMS)
-═══════════════════                    ══════════════
+MALADAPTIVE (IRT/DSM-5)                ADAPTIVE (MMS)
+═══════════════════════                ══════════════
 
 ┌──────────────────────┐         ┌─────────────────────┐
-│ ZDPCS_SAFETY_PRINCIPLE│────────▶│ BEHAVIORAL_MASTERY  │ (Primary)
-│ (Avoidance)          │────────▶│ SOCIAL_MASTERY      │ (Secondary)
+│ AVOIDANCE            │────────▶│ BEHAVIORAL_MASTERY  │ (Primary)
+│                      │────────▶│ SOCIAL_MASTERY      │ (Secondary)
 │                      │────────▶│ MYTHICAL_MASTERY    │ (Tertiary)
 └──────────────────────┘         └─────────────────────┘
 
 ┌──────────────────────┐         ┌─────────────────────┐
-│ ZDPCS_INTERRUPT      │────────▶│ EMOTIONAL_MASTERY   │ (Primary)
+│ INTERRUPTION         │────────▶│ EMOTIONAL_MASTERY   │ (Primary)
 │ (Escape)             │────────▶│ ENVIRONMENTAL_MASTERY│ (Secondary)
 │                      │────────▶│ MYTHICAL_MASTERY    │ (Tertiary)
 └──────────────────────┘         └─────────────────────┘
 
 ┌──────────────────────┐         ┌─────────────────────┐
-│ ZDPCS_REGRESSIVE_    │────────▶│ BEHAVIORAL_MASTERY  │ (Primary)
-│ AGGRESSION (Violence)│────────▶│ SOCIAL_MASTERY      │ (Secondary)
+│ VIOLENT_REVENGE      │────────▶│ BEHAVIORAL_MASTERY  │ (Primary)
+│ (Violence)           │────────▶│ SOCIAL_MASTERY      │ (Secondary)
 │                      │────────▶│ EMOTIONAL_MASTERY   │ (Tertiary)
 └──────────────────────┘         └─────────────────────┘
 

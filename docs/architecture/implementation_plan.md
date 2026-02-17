@@ -1,6 +1,6 @@
 Implementation Plan: Neuro-Symbolic Safety Layer (Thesis MVP)
 
-Objective: Build a standalone Neuro-Symbolic "Critic" pipeline that intercepts user input, maps it to a Clinical Knowledge Graph (MMS/ZDPCS), and enforces safety constraints before generation.
+Objective: Build a standalone Neuro-Symbolic "Critic" pipeline that intercepts user input, maps it to a Clinical Knowledge Graph (MMS/IRT), and enforces safety constraints before generation.
 
 Tech Stack:
 
@@ -54,10 +54,10 @@ Task: Create a function `build_clinical_graph()` that returns a directed graph (
 
 **Implemented Nodes (10 total):**
 
-**Maladaptive Nodes (Risks) - Source: ZDPCS:**
-- `ZDPCS_SAFETY_PRINCIPLE` (Avoidance): Hiding, freezing, doing nothing, passive observation
-- `ZDPCS_INTERRUPT` (Escape): Waking up, dream ending, refusing to continue
-- `ZDPCS_REGRESSIVE_AGGRESSION` (Violence): Killing everyone, excessive violence, destroying environment
+**Maladaptive Nodes (Risks) - Sources: IRT guidelines, DSM-5, Germain et al.:**
+- `AVOIDANCE`: Hiding, freezing, doing nothing, passive observation
+- `INTERRUPTION` (Escape): Waking up, dream ending, refusing to continue
+- `VIOLENT_REVENGE` (Violence): Killing everyone, excessive violence, destroying environment
 
 **Adaptive Nodes (Goals) - Source: MMS:**
 - `BEHAVIORAL_MASTERY` (Action): Fighting back, confronting, taking control
@@ -66,9 +66,9 @@ Task: Create a function `build_clinical_graph()` that returns a directed graph (
 - `EMOTIONAL_MASTERY` (Self-soothing): Calming down, staying present, transforming fear
 - `MYTHICAL_MASTERY` (Supernatural): Using magical powers, divine intervention
 
-**Neutral Nodes (Context) - New:**
-- `ZDPCS_NARRATIVE_SETTING`: Scene description without action
-- `ZDPCS_AFFECT_EXPRESSION`: Feeling statements without action
+**Neutral Nodes (Context):**
+- `NARRATIVE_SETTING`: Scene description without action
+- `AFFECT_EXPRESSION`: Feeling statements without action
 
 **Correction Edges (9 total):**
 - Directed edges from Risk → Goal with relation="correction_strategy"
@@ -83,7 +83,7 @@ Task: Create a class `ClinicalClassifier` that maps user text to Graph Node IDs.
 **Implemented Features:**
 - System Prompt acting as "Clinical Coder" with all 10 categories
 - **Negation Handling**: "I decided not to run" → BEHAVIORAL_MASTERY (not avoidance)
-- **Ambiguity Rules**: "I felt scared" → ZDPCS_AFFECT_EXPRESSION (not action)
+- **Ambiguity Rules**: "I felt scared" → AFFECT_EXPRESSION (not action)
 - Method: `classify_intent(user_text) -> str`
 - Validation ensures returned ID exists in graph
 - Fuzzy matching for robustness
@@ -122,9 +122,9 @@ Example:
 **2.3.4. Triage Algorithm (Severity-Based)**
 
 Priority Ranking:
-1. **CRITICAL**: ZDPCS_REGRESSIVE_AGGRESSION (Violence)
-2. **HIGH**: ZDPCS_INTERRUPT (Waking Up)
-3. **MODERATE**: ZDPCS_SAFETY_PRINCIPLE (Avoidance)
+1. **CRITICAL**: VIOLENT_REVENGE (Violence)
+2. **HIGH**: INTERRUPTION (Waking Up)
+3. **MODERATE**: AVOIDANCE
 
 Tie-Breaker: First chronological occurrence
 
@@ -209,7 +209,7 @@ This ensures you can switch the backend later by changing one line of code.
 ### Files Modified/Created:
 
 1. **safety/graph_definitions.py**
-   - Added 2 Neutral nodes (ZDPCS_NARRATIVE_SETTING, ZDPCS_AFFECT_EXPRESSION)
+   - Added 2 Neutral nodes (NARRATIVE_SETTING, AFFECT_EXPRESSION)
    - Added `get_neutral_nodes()` helper function
    - Updated test output to include neutral nodes
 
@@ -233,7 +233,7 @@ This ensures you can switch the backend later by changing one line of code.
    - Updated test cases for new features
 
 ### Node Count: 10 total
-- 3 Maladaptive (ZDPCS)
+- 3 Maladaptive (IRT/DSM-5)
 - 5 Adaptive (MMS)
 - 2 Neutral (Context)
 

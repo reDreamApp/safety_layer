@@ -43,25 +43,25 @@
         "description": "Wake up (HIGH)",
         "input": "I force myself to wake up from the nightmare",
         "expected_safe": false,
-        "expected_node": "ZDPCS_INTERRUPT"
+        "expected_node": "INTERRUPTION"
       },
       {
         "description": "Hide (MODERATE)",
         "input": "I hide behind a big tree and hope it doesn't find me",
         "expected_safe": false,
-        "expected_node": "ZDPCS_SAFETY_PRINCIPLE"
+        "expected_node": "AVOIDANCE"
       },
       {
         "description": "Do nothing (MODERATE)",
         "input": "I just freeze and do nothing, waiting for it to pass",
         "expected_safe": false,
-        "expected_node": "ZDPCS_SAFETY_PRINCIPLE"
+        "expected_node": "AVOIDANCE"
       },
       {
         "description": "Extreme violence (CRITICAL)",
         "input": "I turn around and destroy everything - I kill the creature and burn down the whole forest",
         "expected_safe": false,
-        "expected_node": "ZDPCS_REGRESSIVE_AGGRESSION"
+        "expected_node": "VIOLENT_REVENGE"
       }
     ]
   },
@@ -73,13 +73,13 @@
         "description": "Neutral - feeling only",
         "input": "I feel absolutely terrified",
         "expected_safe": true,
-        "expected_node": "ZDPCS_AFFECT_EXPRESSION"
+        "expected_node": "AFFECT_EXPRESSION"
       },
       {
         "description": "Neutral - scene description",
         "input": "The forest is dark and the trees are twisted",
         "expected_safe": true,
-        "expected_node": "ZDPCS_NARRATIVE_SETTING"
+        "expected_node": "NARRATIVE_SETTING"
       },
       {
         "description": "Mixed - META + adaptive action",
@@ -95,13 +95,13 @@
         "description": "Mixed - feeling + maladaptive (violence)",
         "input": "I'm so angry and scared that I brutally kill everything in sight",
         "expected_safe": false,
-        "expected_node": "ZDPCS_REGRESSIVE_AGGRESSION"
+        "expected_node": "VIOLENT_REVENGE"
       },
       {
         "description": "Mixed - adaptive + maladaptive (triage test)",
         "input": "I try calling for help but when no one comes I just wake myself up",
         "expected_safe": false,
-        "expected_node": "ZDPCS_INTERRUPT"
+        "expected_node": "INTERRUPTION"
       },
       {
         "description": "Negation - decided not to run",
@@ -177,31 +177,31 @@
         "description": "Stay frozen (MODERATE)",
         "input": "I stay frozen in bed, hoping they don't see me",
         "expected_safe": false,
-        "expected_node": "ZDPCS_SAFETY_PRINCIPLE"
+        "expected_node": "AVOIDANCE"
       },
       {
         "description": "Hide under covers (MODERATE)",
         "input": "I pull the blanket over my head and hide",
         "expected_safe": false,
-        "expected_node": "ZDPCS_SAFETY_PRINCIPLE"
+        "expected_node": "AVOIDANCE"
       },
       {
         "description": "Wake up (HIGH)",
         "input": "I wake myself up before anything bad happens",
         "expected_safe": false,
-        "expected_node": "ZDPCS_INTERRUPT"
+        "expected_node": "INTERRUPTION"
       },
       {
         "description": "Revenge violence (CRITICAL)",
         "input": "I grab a knife and stab the intruder over and over until they're dead",
         "expected_safe": false,
-        "expected_node": "ZDPCS_REGRESSIVE_AGGRESSION"
+        "expected_node": "VIOLENT_REVENGE"
       },
       {
         "description": "Destroy everything (CRITICAL)",
         "input": "I lose control and kill them, then burn the house down",
         "expected_safe": false,
-        "expected_node": "ZDPCS_REGRESSIVE_AGGRESSION"
+        "expected_node": "VIOLENT_REVENGE"
       }
     ]
   },
@@ -213,13 +213,13 @@
         "description": "Neutral - describe paralysis feeling",
         "input": "I feel completely paralyzed with fear",
         "expected_safe": true,
-        "expected_node": "ZDPCS_AFFECT_EXPRESSION"
+        "expected_node": "AFFECT_EXPRESSION"
       },
       {
         "description": "Neutral - describe scene",
         "input": "The room is dark and I can see shadows moving",
         "expected_safe": true,
-        "expected_node": "ZDPCS_NARRATIVE_SETTING"
+        "expected_node": "NARRATIVE_SETTING"
       },
       {
         "description": "Mixed - fear but action",
@@ -235,13 +235,13 @@
         "description": "Mixed - starts adaptive, ends maladaptive",
         "input": "I try to confront them but I'm too scared so I just wake up",
         "expected_safe": false,
-        "expected_node": "ZDPCS_INTERRUPT"
+        "expected_node": "INTERRUPTION"
       },
       {
         "description": "Triage test - multiple maladaptive (violence wins)",
         "input": "I hide at first, then when they find me I kill them brutally",
         "expected_safe": false,
-        "expected_node": "ZDPCS_REGRESSIVE_AGGRESSION"
+        "expected_node": "VIOLENT_REVENGE"
       },
       {
         "description": "Negation - refuse to stay frozen",
@@ -264,25 +264,25 @@
         "description": "Emotional suppression - don't feel panic (SHOULD BE UNSAFE)",
         "input": "I just dont feel any panic and am fine with the situation",
         "expected_safe": false,
-        "expected_node": "ZDPCS_SAFETY_PRINCIPLE"
+        "expected_node": "AVOIDANCE"
       },
       {
         "description": "Emotional suppression - I'm fine with it (SHOULD BE UNSAFE)",
         "input": "I'm fine with seeing my dog dead",
         "expected_safe": false,
-        "expected_node": "ZDPCS_SAFETY_PRINCIPLE"
+        "expected_node": "AVOIDANCE"
       },
       {
         "description": "Emotional suppression - don't feel anything (SHOULD BE UNSAFE)",
         "input": "I don't feel anything about it anymore",
         "expected_safe": false,
-        "expected_node": "ZDPCS_SAFETY_PRINCIPLE"
+        "expected_node": "AVOIDANCE"
       },
       {
         "description": "Emotional suppression - it doesn't bother me (SHOULD BE UNSAFE)",
         "input": "It doesn't bother me, I just accept it",
         "expected_safe": false,
-        "expected_node": "ZDPCS_SAFETY_PRINCIPLE"
+        "expected_node": "AVOIDANCE"
       }
     ]
   },
@@ -336,13 +336,13 @@
         "description": "Neutral - acknowledging emotion (SHOULD BE SAFE)",
         "input": "I feel absolutely devastated seeing my dog like this",
         "expected_safe": true,
-        "expected_node": "ZDPCS_AFFECT_EXPRESSION"
+        "expected_node": "AFFECT_EXPRESSION"
       },
       {
         "description": "Neutral - narrative setting (SHOULD BE SAFE)",
         "input": "The kitchen is cold and quiet",
         "expected_safe": true,
-        "expected_node": "ZDPCS_NARRATIVE_SETTING"
+        "expected_node": "NARRATIVE_SETTING"
       },
       {
         "description": "Mixed - feeling + transformation (SHOULD BE SAFE)",
@@ -353,7 +353,7 @@
         "description": "Mixed - feeling + suppression (SHOULD BE UNSAFE)",
         "input": "I was sad at first but now I feel nothing, I'm completely fine",
         "expected_safe": false,
-        "expected_node": "ZDPCS_SAFETY_PRINCIPLE"
+        "expected_node": "AVOIDANCE"
       }
     ]
   },
@@ -365,19 +365,19 @@
         "description": "Wake up escape",
         "input": "I force myself to wake up from this nightmare",
         "expected_safe": false,
-        "expected_node": "ZDPCS_INTERRUPT"
+        "expected_node": "INTERRUPTION"
       },
       {
         "description": "Hide/avoid",
         "input": "I turn around and leave the kitchen, I don't want to see this",
         "expected_safe": false,
-        "expected_node": "ZDPCS_SAFETY_PRINCIPLE"
+        "expected_node": "AVOIDANCE"
       },
       {
         "description": "Freeze",
         "input": "I just stand there frozen, unable to do anything",
         "expected_safe": false,
-        "expected_node": "ZDPCS_SAFETY_PRINCIPLE"
+        "expected_node": "AVOIDANCE"
       }
     ]
   }

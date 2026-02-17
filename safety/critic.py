@@ -31,9 +31,9 @@ logger = logging.getLogger(__name__)
 
 # Severity levels for triage (lower number = higher priority)
 SEVERITY_PRIORITY = {
-    "ZDPCS_REGRESSIVE_AGGRESSION": 1,  # CRITICAL - Violence
-    "ZDPCS_INTERRUPT": 2,               # HIGH - Waking Up/Escape
-    "ZDPCS_SAFETY_PRINCIPLE": 3,        # MODERATE - Avoidance
+    "VIOLENT_REVENGE": 1,               # CRITICAL - Violence
+    "INTERRUPTION": 2,                  # HIGH - Waking Up/Escape
+    "AVOIDANCE": 3,                     # MODERATE - Avoidance
 }
 
 # Segmenter system prompt
@@ -399,9 +399,9 @@ class SafetyCritic:
         Sort maladaptive segments by severity priority.
         
         Priority order:
-        1. CRITICAL: ZDPCS_REGRESSIVE_AGGRESSION (Violence)
-        2. HIGH: ZDPCS_INTERRUPT (Waking Up)
-        3. MODERATE: ZDPCS_SAFETY_PRINCIPLE (Avoidance)
+        1. CRITICAL: VIOLENT_REVENGE (Violence)
+        2. HIGH: INTERRUPTION (Waking Up)
+        3. MODERATE: AVOIDANCE (Avoidance)
         
         Tie-breaker: First chronological occurrence (original order)
         
@@ -581,15 +581,15 @@ if __name__ == "__main__":
         # Test cases including complex multi-part inputs
         test_cases = [
             # Simple cases
-            "I wake up",                    # Should trigger ZDPCS_INTERRUPT -> Unsafe
+            "I wake up",                    # Should trigger INTERRUPTION -> Unsafe
             "I fight back",                 # Should trigger BEHAVIORAL_MASTERY -> Safe
-            "I hide under the bed",         # Should trigger ZDPCS_SAFETY_PRINCIPLE -> Unsafe
-            "I kill everyone",              # Should trigger ZDPCS_REGRESSIVE_AGGRESSION -> Unsafe (CRITICAL)
+            "I hide under the bed",         # Should trigger AVOIDANCE -> Unsafe
+            "I kill everyone",              # Should trigger VIOLENT_REVENGE -> Unsafe (CRITICAL)
             "I call for help",              # Should trigger SOCIAL_MASTERY -> Safe
-            
+
             # Neutral cases
-            "I felt scared",                # Should trigger ZDPCS_AFFECT_EXPRESSION -> Safe (neutral)
-            "There was a dark forest",      # Should trigger ZDPCS_NARRATIVE_SETTING -> Safe (neutral)
+            "I felt scared",                # Should trigger AFFECT_EXPRESSION -> Safe (neutral)
+            "There was a dark forest",      # Should trigger NARRATIVE_SETTING -> Safe (neutral)
             
             # Negation handling
             "I decided not to run away",    # Should trigger BEHAVIORAL_MASTERY -> Safe

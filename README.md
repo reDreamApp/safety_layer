@@ -1,6 +1,6 @@
 # Neuro-Symbolic Safety Layer for IRT Chatbot
 
-A standalone Neuro-Symbolic "Critic" pipeline that intercepts user input, maps it to a Clinical Knowledge Graph (MMS/ZDPCS), and enforces safety constraints before generation.
+A standalone Neuro-Symbolic "Critic" pipeline that intercepts user input, maps it to a Clinical Knowledge Graph (MMS/IRT), and enforces safety constraints before generation.
 
 ## 🎯 Objective
 
@@ -10,7 +10,7 @@ Build a safety layer that uses a knowledge graph to identify maladaptive behavio
 
 The system follows a 3-block neuro-symbolic architecture with an upgraded "Clinical Reasoning Engine":
 
-1. **Knowledge Graph (Block A)**: Clinical ontology based on ZDPCS (maladaptive behaviors), MMS (adaptive goals), and neutral categories
+1. **Knowledge Graph (Block A)**: Clinical ontology based on IRT clinical guidelines (maladaptive behaviors), MMS (adaptive goals), and neutral categories
 2. **Entity Linker (Block B)**: LLM-based classifier that maps user text to graph nodes with negation handling and ambiguity rules
 3. **Critic Pipeline (Block C)**: "Clinical Reasoning Engine" with intelligent segmentation, batch classification, severity-based triage, and "Validate + Correct" constraint synthesis
 
@@ -47,9 +47,9 @@ User Input → Intelligent Segmenter → Filter META → Batch Classify → Tria
 
 - ✅ **Block A**: Knowledge Graph (`safety/graph_definitions.py`)
   - 10 nodes total:
-    - 3 ZDPCS maladaptive (Safety Principle, Interrupt, Regressive Aggression)
+    - 3 maladaptive (Avoidance, Interruption, Violent Revenge)
     - 5 MMS adaptive (Behavioral, Social, Environmental, Emotional, Mythical Mastery)
-    - 2 Neutral (Narrative Setting, Affect Expression)
+    - 2 neutral (Narrative Setting, Affect Expression)
   - 9 correction edges with clinical rationale and references
   - Full scientific documentation in `Documents/Clinical_Ontology_Scientific_Rationale.md`
 
@@ -180,7 +180,7 @@ python -m AI.chat_client
 ├── Documents/               # Research papers & documentation
 │   ├── Clinical_Ontology_Scientific_Rationale.md  # Scientific justification
 │   ├── Multidimensional Mastery Scale (MMS) Scoring Manual.md
-│   └── [Research papers: Germain, Fischmann, Moser, etc.]
+│   └── [Research papers: Germain, Krakow, etc.]
 ├── experiments/             # Experiment scripts (Phase 4)
 ├── scenarios/               # Test scenarios for critic testing
 │   ├── chase_nightmare.json    # Chase nightmare context
@@ -283,7 +283,7 @@ This creates `clinical_graph.png` and `clinical_graph.pdf` showing the complete 
 - Server tested and working
 
 **Phase 2: ✅ Complete**
-- Knowledge graph implemented (10 nodes: 3 ZDPCS maladaptive + 5 MMS adaptive + 2 Neutral)
+- Knowledge graph implemented (10 nodes: 3 maladaptive + 5 MMS adaptive + 2 neutral)
 - 9 correction edges with clinical rationale
 - Clinical classifier with negation handling, ambiguity rules, and context-aware emotional suppression detection
 - **Upgraded SafetyCritic "Clinical Reasoning Engine"**:
@@ -318,11 +318,11 @@ This creates `clinical_graph.png` and `clinical_graph.pdf` showing the complete 
 1. **Germain, A., Krakow, B., Faucher, B., et al.** (2004). Increased Mastery Elements Associated With Imagery Rehearsal Treatment for Nightmares in Sexual Assault Survivors With PTSD. *Dreaming, 14*(4), 195-206.
    - Defines the Multidimensional Mastery Scale (MMS) - 6 mastery subscales
 
-2. **Fischmann, T., Leuzinger-Bohleber, M., & Moser, U.** (2021). Dreams and Trauma: Changes in the Manifest Dreams in Psychoanalytic Treatments. *Frontiers in Psychology*.
-   - Applies ZDPCS concepts to trauma dreams
+2. **Krakow, B., & Zadra, A.** (2006). Clinical management of chronic nightmares: Imagery Rehearsal Therapy. *Behavioral Sleep Medicine, 4*(1), 45-70.
+   - IRT clinical guidelines defining maladaptive patterns
 
-3. **Moser, U., & Hortig, V.** (2019). *Microanalysis of Dreams: The Zurich Dream Process Coding System (ZDPCS)*. Springer.
-   - Original ZDPCS methodology
+3. **American Psychiatric Association.** (2013). *Diagnostic and Statistical Manual of Mental Disorders* (5th ed.).
+   - DSM-5 PTSD Criterion C (Avoidance) and E (Hyperarousal)
 
 4. **Rousseau, A., & Belleville, G.** (2018). The mechanisms of action underlying the efficacy of psychological nightmare treatments. *Sleep Medicine Reviews, 39*, 122-133.
    - Identifies "Prevention of Avoidance" as key mechanism

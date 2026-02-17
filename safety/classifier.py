@@ -35,18 +35,18 @@ logger = logging.getLogger(__name__)
 # ============================================================================
 CODE_MAP = {
     # Maladaptive (Risk) codes
-    "HIDE": "ZDPCS_SAFETY_PRINCIPLE",          # Avoidance, freezing, hiding
-    "ESCAPE": "ZDPCS_INTERRUPT",               # Waking up, dream ending
-    "DESTROY": "ZDPCS_REGRESSIVE_AGGRESSION",  # Extreme violence, rage
-    # Adaptive (Goal) codes  
+    "HIDE": "AVOIDANCE",                       # Avoidance, freezing, hiding
+    "ESCAPE": "INTERRUPTION",                  # Waking up, dream ending
+    "DESTROY": "VIOLENT_REVENGE",              # Extreme violence, rage
+    # Adaptive (Goal) codes
     "CONFRONT": "BEHAVIORAL_MASTERY",          # Fighting back, active response
     "HELP": "SOCIAL_MASTERY",                  # Seeking/receiving help
     "CHANGE": "ENVIRONMENTAL_MASTERY",         # Using tools, changing setting
     "RELAX": "EMOTIONAL_MASTERY",              # Calming, self-regulation
     "POWER": "MYTHICAL_MASTERY",               # Magic, supernatural abilities
     # Neutral codes
-    "LOOK": "ZDPCS_NARRATIVE_SETTING",         # Scene description
-    "FEEL": "ZDPCS_AFFECT_EXPRESSION",         # Emotion expression
+    "LOOK": "NARRATIVE_SETTING",               # Scene description
+    "FEEL": "AFFECT_EXPRESSION",               # Emotion expression
 }
 
 # Reverse map for debugging
@@ -343,51 +343,51 @@ Classify the rewriting attempt. If user claims to feel nothing about distressing
         # Extended keyword map for fuzzy matching
         keyword_map = {
             # Variations of our codes
-            "AVOID": "ZDPCS_SAFETY_PRINCIPLE",
-            "HIDING": "ZDPCS_SAFETY_PRINCIPLE",
-            "FREEZE": "ZDPCS_SAFETY_PRINCIPLE",
-            "FROZEN": "ZDPCS_SAFETY_PRINCIPLE",
-            "SAFE": "ZDPCS_SAFETY_PRINCIPLE",
-            "NOTHING": "ZDPCS_SAFETY_PRINCIPLE",
-            
-            "WAKE": "ZDPCS_INTERRUPT",
-            "WAKEUP": "ZDPCS_INTERRUPT",
-            "INTERRUPT": "ZDPCS_INTERRUPT",
-            "ESCAPING": "ZDPCS_INTERRUPT",
-            "END": "ZDPCS_INTERRUPT",
-            
-            "KILL": "ZDPCS_REGRESSIVE_AGGRESSION",
-            "VIOLENCE": "ZDPCS_REGRESSIVE_AGGRESSION",
-            "AGGRESSION": "ZDPCS_REGRESSIVE_AGGRESSION",
-            "RAGE": "ZDPCS_REGRESSIVE_AGGRESSION",
-            "DESTROYING": "ZDPCS_REGRESSIVE_AGGRESSION",
-            "BRUTAL": "ZDPCS_REGRESSIVE_AGGRESSION",
-            
+            "AVOID": "AVOIDANCE",
+            "HIDING": "AVOIDANCE",
+            "FREEZE": "AVOIDANCE",
+            "FROZEN": "AVOIDANCE",
+            "SAFE": "AVOIDANCE",
+            "NOTHING": "AVOIDANCE",
+
+            "WAKE": "INTERRUPTION",
+            "WAKEUP": "INTERRUPTION",
+            "INTERRUPT": "INTERRUPTION",
+            "ESCAPING": "INTERRUPTION",
+            "END": "INTERRUPTION",
+
+            "KILL": "VIOLENT_REVENGE",
+            "VIOLENCE": "VIOLENT_REVENGE",
+            "AGGRESSION": "VIOLENT_REVENGE",
+            "RAGE": "VIOLENT_REVENGE",
+            "DESTROYING": "VIOLENT_REVENGE",
+            "BRUTAL": "VIOLENT_REVENGE",
+
             "ACTION": "BEHAVIORAL_MASTERY",
             "FIGHT": "BEHAVIORAL_MASTERY",
             "FIGHTING": "BEHAVIORAL_MASTERY",
             "BEHAV": "BEHAVIORAL_MASTERY",
             "CONFRONTING": "BEHAVIORAL_MASTERY",
             "RUN": "BEHAVIORAL_MASTERY",
-            
+
             "HELPING": "SOCIAL_MASTERY",
             "SOCIAL": "SOCIAL_MASTERY",
             "FRIEND": "SOCIAL_MASTERY",
             "CALL": "SOCIAL_MASTERY",
             "ASK": "SOCIAL_MASTERY",
-            
+
             "TOOL": "ENVIRONMENTAL_MASTERY",
             "ENVIRON": "ENVIRONMENTAL_MASTERY",
             "CHANGING": "ENVIRONMENTAL_MASTERY",
             "USE": "ENVIRONMENTAL_MASTERY",
             "OBJECT": "ENVIRONMENTAL_MASTERY",
-            
+
             "CALM": "EMOTIONAL_MASTERY",
             "EMOTION": "EMOTIONAL_MASTERY",
             "SOOTH": "EMOTIONAL_MASTERY",
             "BREATH": "EMOTIONAL_MASTERY",
             "RELAXING": "EMOTIONAL_MASTERY",
-            
+
             "MYTHIC": "MYTHICAL_MASTERY",
             "MAGIC": "MYTHICAL_MASTERY",
             "SUPER": "MYTHICAL_MASTERY",
@@ -395,19 +395,19 @@ Classify the rewriting attempt. If user claims to feel nothing about distressing
             "ANGEL": "MYTHICAL_MASTERY",
             "POWERFUL": "MYTHICAL_MASTERY",
             "FLY": "MYTHICAL_MASTERY",
-            
+
             # Neutral categories
-            "NARRATIVE": "ZDPCS_NARRATIVE_SETTING",
-            "SETTING": "ZDPCS_NARRATIVE_SETTING",
-            "SCENE": "ZDPCS_NARRATIVE_SETTING",
-            "LOOKING": "ZDPCS_NARRATIVE_SETTING",
-            "DESCRIBE": "ZDPCS_NARRATIVE_SETTING",
-            
-            "AFFECT": "ZDPCS_AFFECT_EXPRESSION",
-            "FEELING": "ZDPCS_AFFECT_EXPRESSION",
-            "FELT": "ZDPCS_AFFECT_EXPRESSION",
-            "SCARED": "ZDPCS_AFFECT_EXPRESSION",
-            "TERRIFIED": "ZDPCS_AFFECT_EXPRESSION",
+            "NARRATIVE": "NARRATIVE_SETTING",
+            "SETTING": "NARRATIVE_SETTING",
+            "SCENE": "NARRATIVE_SETTING",
+            "LOOKING": "NARRATIVE_SETTING",
+            "DESCRIBE": "NARRATIVE_SETTING",
+
+            "AFFECT": "AFFECT_EXPRESSION",
+            "FEELING": "AFFECT_EXPRESSION",
+            "FELT": "AFFECT_EXPRESSION",
+            "SCARED": "AFFECT_EXPRESSION",
+            "TERRIFIED": "AFFECT_EXPRESSION",
         }
         
         for keyword, valid_id in keyword_map.items():
