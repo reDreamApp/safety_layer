@@ -1,15 +1,21 @@
 """
 Block B: The Entity Linker (Clinical Classifier)
 
-Uses an LLM to map user text to clinical graph node IDs.
+Uses an LLM with "Label Engineering" to map user text to clinical graph node IDs.
 The classifier acts as a "Clinical Coder" that identifies whether
 user input represents adaptive or maladaptive dream behaviors.
+
+Uses semantically clear single-token codes for reliable logprobs-based
+confidence scoring via length-normalized joint probability.
+First-token Margin of Victory is retained as a secondary diagnostic metric.
 """
 
 import os
 import sys
+import math
 from typing import Optional, Tuple
 import logging
+from dataclasses import dataclass
 from dotenv import load_dotenv, find_dotenv
 
 # Load environment variables
@@ -24,80 +30,101 @@ from .graph_definitions import build_clinical_graph, get_all_node_ids, get_malad
 logger = logging.getLogger(__name__)
 
 
-# System prompt for the Clinical Coder
-CLINICAL_CODER_PROMPT = """You are a Clinical Coder for Imagery Rehearsal Therapy (IRT). Your task is to classify dream actions/interventions into predefined clinical categories based on the MMS (Mastery Measurement Scale) and ZDPCS (Zurich Dream Process Coding System).
+# ============================================================================
+# LABEL ENGINEERING: Semantic single-token codes for reliable classification
+# ============================================================================
+CODE_MAP = {
+    # Maladaptive (Risk) codes
+    "HIDE": "ZDPCS_SAFETY_PRINCIPLE",          # Avoidance, freezing, hiding
+    "ESCAPE": "ZDPCS_INTERRUPT",               # Waking up, dream ending
+    "DESTROY": "ZDPCS_REGRESSIVE_AGGRESSION",  # Extreme violence, rage
+    # Adaptive (Goal) codes  
+    "CONFRONT": "BEHAVIORAL_MASTERY",          # Fighting back, active response
+    "HELP": "SOCIAL_MASTERY",                  # Seeking/receiving help
+    "CHANGE": "ENVIRONMENTAL_MASTERY",         # Using tools, changing setting
+    "RELAX": "EMOTIONAL_MASTERY",              # Calming, self-regulation
+    "POWER": "MYTHICAL_MASTERY",               # Magic, supernatural abilities
+    # Neutral codes
+    "LOOK": "ZDPCS_NARRATIVE_SETTING",         # Scene description
+    "FEEL": "ZDPCS_AFFECT_EXPRESSION",         # Emotion expression
+}
 
-## Available Categories
+# Reverse map for debugging
+NODE_TO_CODE = {v: k for k, v in CODE_MAP.items()}
 
-### MALADAPTIVE (Risk) Categories - from ZDPCS:
-1. **ZDPCS_SAFETY_PRINCIPLE** - Avoidance behaviors: hiding, freezing (by choice), looking away, passive observation, choosing to do nothing to avoid the threat.
-2. **ZDPCS_INTERRUPT** - Dream escape: forcing oneself awake, waking up, dream ending abruptly, scene dissolving, refusing to continue.
-3. **ZDPCS_REGRESSIVE_AGGRESSION** - Extreme/Chaotic violence: excessive brutal violence (even against threats), torture, mutilation, "killing everyone", destroying the environment, uncontrolled rage.
 
-### ADAPTIVE (Goal) Categories - from MMS:
-4. **BEHAVIORAL_MASTERY** - Active response: fighting back proportionately (controlled defense), running purposefully, confronting threats, taking control.
-5. **SOCIAL_MASTERY** - Social support: calling for help, allies appearing, working with others, receiving protection, verbal confrontation involving others.
-6. **ENVIRONMENTAL_MASTERY** - Environment/Tools: finding weapons/tools, using objects, environment changing favorably, safe place appearing.
-7. **EMOTIONAL_MASTERY** - Self-regulation: calming down, accepting peacefully, transforming fear, staying present, changing emotional reactions.
-8. **MYTHICAL_MASTERY** - Supernatural: using magical powers, divine intervention, supernatural figure helping, gaining superpowers.
+@dataclass
+class ClassificationResult:
+    """Result of classification with length-normalized joint probability confidence."""
+    node_id: str
+    code: str
+    confidence: float  # Length-normalized joint probability: exp(mean_logprob)
+    raw_response: str
+    mean_logprob: Optional[float] = None
+    margin: Optional[float] = None  # Margin of Victory (diagnostic): prob_winner - prob_runner_up
+    prob_winner: Optional[float] = None  # First-token winner probability (diagnostic)
+    prob_runner_up: Optional[float] = None  # First-token runner-up probability (diagnostic)
 
-### NEUTRAL Categories - Context without action:
-9. **ZDPCS_NARRATIVE_SETTING** - Scene description: describing the environment, characters, or setting without active interaction.
-10. **ZDPCS_AFFECT_EXPRESSION** - Feeling statement: explicit expression of emotion (e.g., "I felt scared", "I felt helpless", "I couldn't move") without an active decision to avoid.
 
-## Instructions
-- Analyze the user's proposed dream action/intervention.
-- Classify it into EXACTLY ONE of the 10 categories above.
-- Respond with ONLY the category code.
+# System prompt for the Clinical Coder with Label Engineering
+CLINICAL_CODER_PROMPT = """You are a Clinical Coder for Imagery Rehearsal Therapy (IRT). Classify dream actions into one of 10 codes.
 
-### ⚠️ CRITICAL PRIORITY RULES (Read Carefully) ⚠️
+## CODES (respond with ONE word only)
 
-1. **VIOLENCE THRESHOLD (Defense vs. Rage)**
-   - **Controlled Defense** -> BEHAVIORAL_MASTERY. Example: "I punch the attacker", "I shoot him to stop him", "I push him away".
-   - **Regressive Aggression** -> ZDPCS_REGRESSIVE_AGGRESSION. Example: "I stab him over and over", "I rip him apart in a rage", "I torture him", "I burn the whole forest down".
-   - **Rule:** Any mention of "rage", "fury", "shredding", "mutilating", or "destroying everything" is REGRESSIVE, even if directed at a threat.
+### MALADAPTIVE (Risk):
+- **HIDE** - Avoidance: hiding, freezing by choice, looking away, passive observation, choosing to do nothing
+- **ESCAPE** - Dream interruption: forcing awake, waking up, dream ending abruptly, refusing to continue
+- **DESTROY** - Extreme violence: brutal excessive violence, torture, mutilation, "killing everyone", uncontrolled rage
 
-2. **FEAR vs. AVOIDANCE (Feeling vs. Action)**
-   - **Expression** -> ZDPCS_AFFECT_EXPRESSION. Example: "I feel paralyzed with fear", "I am terrified", "I feel helpless", "I can't move". (This is a symptom/feeling, not a behavioral strategy).
-   - **Avoidance** -> ZDPCS_SAFETY_PRINCIPLE. Example: "I choose to stay still", "I try to make my mind blank", "I hide so I don't see it". (This is an active strategy to disengage).
+### ADAPTIVE (Goal):
+- **CONFRONT** - Active response: fighting back proportionately, running purposefully, taking control, direct action
+- **HELP** - Social support: calling for help, allies appearing, working with others, asking for assistance
+- **CHANGE** - Environment/Tools: finding weapons/tools, using objects, environment changing favorably, manipulating setting
+- **RELAX** - Self-regulation: calming down, deep breathing, accepting peacefully, transforming fear, staying present
+- **POWER** - Supernatural: magical powers, divine intervention, superpowers, impossible abilities
 
-3. **MASTERY GRANULARITY**
-   - If the PRIMARY action is **seeking help** or **communicating** -> SOCIAL_MASTERY.
-   - If the PRIMARY action uses an **object** or **changes the setting** -> ENVIRONMENTAL_MASTERY.
-   - Use BEHAVIORAL_MASTERY if it is a direct physical action (running, fighting) that doesn't fit the above.
+### NEUTRAL:
+- **LOOK** - Scene description: describing environment, characters, or setting without action
+- **FEEL** - Emotion expression: stating feelings ("I felt scared", "I was terrified") without behavioral strategy
 
-4. **NEGATION**
-   - "I decided NOT to run" -> BEHAVIORAL_MASTERY (The active choice to stay).
+## CRITICAL RULES
 
-5. MENTAL ACTIONS ARE VALID
-   - "I imagine a shield", "I picture the fire going out", "I visualize a wall" -> MYTHICAL_MASTERY or ENVIRONMENTAL_MASTERY. (These are active rescripting moves in IRT, not avoidance).
-   - "I focus on my breathing", "I tell myself I am safe" -> EMOTIONAL_MASTERY. (Active self-regulation).
-   - ONLY classify as AVOIDANCE if the goal is to "not feel", "go blank", or "ignore the dream".
+1. **Violence Threshold**
+   - Controlled defense (punch, push, shoot to stop) -> CONFRONT
+   - Excessive/rage violence (stab repeatedly, torture, destroy everything) -> DESTROY
 
-## Few-Shot Examples (Reference)
-- "I hide under the bed" -> ZDPCS_SAFETY_PRINCIPLE
-- "I do nothing" -> ZDPCS_SAFETY_PRINCIPLE
-- "I wake myself up" -> ZDPCS_INTERRUPT
-- "I kill everyone in the room" -> ZDPCS_REGRESSIVE_AGGRESSION
-- "I rip the monster apart" -> ZDPCS_REGRESSIVE_AGGRESSION
-- "I punch the attacker" -> BEHAVIORAL_MASTERY
-- "I call for my friend to help" -> SOCIAL_MASTERY
-- "I find a sword on the ground" -> ENVIRONMENTAL_MASTERY
-- "I take a deep breath and stay calm" -> EMOTIONAL_MASTERY
-- "I use my magical powers to fly away" -> MYTHICAL_MASTERY
-- "There was a dark forest" -> ZDPCS_NARRATIVE_SETTING
-- "I felt terrified" -> ZDPCS_AFFECT_EXPRESSION
-- "I decided not to run away" -> BEHAVIORAL_MASTERY
+2. **Feeling vs. Avoidance**
+   - Expressing emotion ("I feel terrified", "I can't move") -> FEEL
+   - Actively disengaging ("I try to feel nothing", "I make my mind blank") -> HIDE
 
-### CRITICAL: Emotional Suppression vs Expression (Context-Dependent)
-When nightmare context is provided, distinguish between:
-- ACKNOWLEDGING emotion (therapeutic, neutral): "I felt scared", "I was terrified" -> ZDPCS_AFFECT_EXPRESSION
-- SUPPRESSING emotion about distressing content (avoidance, maladaptive): "I don't feel panic", "I'm fine with it" -> ZDPCS_SAFETY_PRINCIPLE
+3. **Mastery Priority**
+   - Seeking help/communication -> HELP
+   - Using objects/changing setting -> CHANGE
+   - Direct physical action -> CONFRONT
 
-If the nightmare contains distressing content (death, violence, threat) and the user claims to feel nothing or be "fine with it" WITHOUT transforming the scenario, classify as ZDPCS_SAFETY_PRINCIPLE.
+4. **Negation**: "I decided NOT to run" -> CONFRONT (active choice to stay)
 
-## Response Format
-Respond with ONLY the category code. No explanations.
+5. **Mental Actions**
+   - "I imagine a shield", "I visualize protection" -> POWER or CHANGE
+   - "I focus on breathing", "I tell myself I'm safe" -> RELAX
+   - "I try to not feel", "I go blank" -> HIDE
+
+## EXAMPLES
+- "I hide under the bed" -> HIDE
+- "I wake myself up" -> ESCAPE
+- "I kill everyone brutally" -> DESTROY
+- "I punch the attacker" -> CONFRONT
+- "I call for help" -> HELP
+- "I find a sword" -> CHANGE
+- "I take a deep breath" -> RELAX
+- "I use magic to fly" -> POWER
+- "There was a dark forest" -> LOOK
+- "I felt terrified" -> FEEL
+
+## RESPONSE FORMAT
+Respond with ONLY ONE CODE from: HIDE, ESCAPE, DESTROY, CONFRONT, HELP, CHANGE, RELAX, POWER, LOOK, FEEL
+
+No explanations. Just the code.
 """
 
 
@@ -138,9 +165,13 @@ class ClinicalClassifier:
         user_text: str, 
         context: Optional[str] = None,
         return_logprobs: bool = False
-    ) -> Tuple[str, Optional[LogprobsResult]]:
+    ) -> Tuple[str, Optional[ClassificationResult]]:
         """
         Classify user dream intervention text into a clinical category.
+
+        Uses Label Engineering with single-token codes and calculates
+        confidence via length-normalized joint probability across all tokens.
+        First-token Margin of Victory is retained as a diagnostic metric.
         
         Args:
             user_text: The user's proposed dream action/intervention
@@ -148,10 +179,10 @@ class ClinicalClassifier:
             return_logprobs: Whether to request and return log probabilities
             
         Returns:
-            Tuple of (node_id, logprobs_result or None)
+            Tuple of (node_id, ClassificationResult or None)
             
         Raises:
-            ValueError: If the LLM returns an invalid node ID
+            ValueError: If the LLM returns an invalid code and fuzzy match fails
         """
         try:
             # Build context-aware message if nightmare context is provided
@@ -162,34 +193,79 @@ class ClinicalClassifier:
 [USER'S REWRITING ATTEMPT]
 {user_text}
 
-Classify the rewriting attempt above. Remember: If the user claims to feel nothing or be "fine" with distressing content WITHOUT transforming the scenario, that is ZDPCS_SAFETY_PRINCIPLE (emotional avoidance)."""
+Classify the rewriting attempt. If user claims to feel nothing about distressing content, use HIDE."""
             else:
                 classification_input = user_text
             
-            # Send classification request with optional logprobs
+            # Always request logprobs for margin calculation
             response, usage, logprobs = await self.agent.generate(
                 classification_input,
-                logprobs=return_logprobs,
-                top_logprobs=5 if return_logprobs else None
+                logprobs=True,
+                top_logprobs=5
             )
             
-            # Clean the response (remove whitespace, convert to uppercase)
-            node_id = response.strip().upper()
+            # Parse the code from response
+            raw_response = response.strip()
+            code = raw_response.upper()
+            # Clean: remove punctuation, take first word only
+            code = ''.join(c for c in code if c.isalnum())
             
-            # Remove any punctuation that might have been added
-            node_id = ''.join(c for c in node_id if c.isalnum() or c == '_')
+            # Primary confidence: length-normalized joint probability from LogprobsResult
+            confidence = 0.0
+            mean_logprob_value = None
+            # Diagnostic: first-token Margin of Victory
+            margin = None
+            prob_winner = None
+            prob_runner_up = None
+
+            if logprobs and logprobs.tokens:
+                # Primary: use LogprobsResult.confidence (exp of mean logprob across all tokens)
+                confidence = logprobs.confidence
+                mean_logprob_value = logprobs.mean_logprob
+
+                # Diagnostic: calculate first-token Margin of Victory
+                first_token = logprobs.tokens[0]
+                if first_token.top_logprobs and len(first_token.top_logprobs) >= 1:
+                    prob_winner = math.exp(first_token.top_logprobs[0]["logprob"])
+                    if len(first_token.top_logprobs) >= 2:
+                        prob_runner_up = math.exp(first_token.top_logprobs[1]["logprob"])
+                    else:
+                        prob_runner_up = 0.0
+                    margin = prob_winner - prob_runner_up
             
-            logger.info(f"Classification result: '{user_text[:50]}...' -> {node_id}")
-            logger.debug(f"Token usage: {usage}")
-            if logprobs:
-                logger.debug(f"Logprobs confidence: {logprobs.confidence:.4f}")
+            # Map code to node ID
+            node_id = CODE_MAP.get(code)
             
-            # Validate the node ID exists in the graph
-            if node_id not in self.valid_node_ids:
-                logger.warning(f"Invalid node ID returned: {node_id}. Attempting fuzzy match...")
-                node_id = self._fuzzy_match_node_id(node_id)
+            if node_id is None:
+                # Code not in map - try fuzzy matching
+                logger.warning(f"Unknown code '{code}' from response '{raw_response}'. Attempting fuzzy match...")
+                try:
+                    node_id = self._fuzzy_match_node_id(code)
+                    # Fuzzy match succeeded but confidence is 0
+                    confidence = 0.0
+                    code = NODE_TO_CODE.get(node_id, code)
+                except ValueError:
+                    # Complete failure - default to behavioral mastery with 0 confidence
+                    logger.error(f"Fuzzy match failed for '{code}'. Defaulting to BEHAVIORAL_MASTERY.")
+                    node_id = "BEHAVIORAL_MASTERY"
+                    code = "CONFRONT"
+                    confidence = 0.0
             
-            return node_id, logprobs
+            logger.info(f"Classification: '{user_text[:50]}...' -> {code} ({node_id}) [confidence: {confidence:.3f}, margin: {margin}]")
+
+            # Build result with all fields
+            result = ClassificationResult(
+                node_id=node_id,
+                code=code,
+                confidence=confidence,
+                raw_response=raw_response,
+                mean_logprob=mean_logprob_value,
+                margin=margin,
+                prob_winner=prob_winner,
+                prob_runner_up=prob_runner_up,
+            ) if return_logprobs else None
+            
+            return node_id, result
             
         except Exception as e:
             logger.error(f"Error classifying intent: {str(e)}")
@@ -212,7 +288,7 @@ Classify the rewriting attempt above. Remember: If the user claims to feel nothi
         Returns:
             Tuple of (node_id, metadata_dict with confidence info)
         """
-        node_id, logprobs = await self.classify_intent(
+        node_id, result = await self.classify_intent(
             user_text, 
             context=context,
             return_logprobs=include_logprobs
@@ -230,20 +306,23 @@ Classify the rewriting attempt above. Remember: If the user claims to feel nothi
             "input_text": user_text
         }
         
-        # Add confidence metrics from logprobs if available
-        if logprobs:
-            metadata["confidence"] = logprobs.confidence
-            metadata["mean_logprob"] = logprobs.mean_logprob
-            metadata["total_logprob"] = logprobs.total_logprob
+        # Add confidence metrics from classification result if available
+        if result:
+            metadata["code"] = result.code
+            metadata["confidence"] = result.confidence  # Length-normalized joint probability
+            metadata["mean_logprob"] = result.mean_logprob
+            metadata["margin"] = result.margin  # First-token Margin of Victory (diagnostic)
+            metadata["prob_winner"] = result.prob_winner
+            metadata["prob_runner_up"] = result.prob_runner_up
         
         return node_id, metadata
     
-    def _fuzzy_match_node_id(self, invalid_id: str) -> str:
+    def _fuzzy_match_node_id(self, invalid_code: str) -> str:
         """
-        Attempt to match an invalid node ID to a valid one.
+        Attempt to match an invalid code to a valid node ID.
         
         Args:
-            invalid_id: The invalid node ID returned by the LLM
+            invalid_code: The invalid code returned by the LLM
             
         Returns:
             The best matching valid node ID
@@ -251,60 +330,95 @@ Classify the rewriting attempt above. Remember: If the user claims to feel nothi
         Raises:
             ValueError: If no match can be found
         """
-        # Try simple substring matching
+        # First check if it's already a valid node ID
+        if invalid_code in self.valid_node_ids:
+            return invalid_code
+        
+        # Try simple substring matching against node IDs
         for valid_id in self.valid_node_ids:
-            if invalid_id in valid_id or valid_id in invalid_id:
-                logger.info(f"Fuzzy matched '{invalid_id}' to '{valid_id}'")
+            if invalid_code in valid_id or valid_id in invalid_code:
+                logger.info(f"Fuzzy matched '{invalid_code}' to '{valid_id}'")
                 return valid_id
         
-        # Try matching keywords
+        # Extended keyword map for fuzzy matching
         keyword_map = {
+            # Variations of our codes
             "AVOID": "ZDPCS_SAFETY_PRINCIPLE",
-            "HIDE": "ZDPCS_SAFETY_PRINCIPLE",
+            "HIDING": "ZDPCS_SAFETY_PRINCIPLE",
             "FREEZE": "ZDPCS_SAFETY_PRINCIPLE",
+            "FROZEN": "ZDPCS_SAFETY_PRINCIPLE",
             "SAFE": "ZDPCS_SAFETY_PRINCIPLE",
+            "NOTHING": "ZDPCS_SAFETY_PRINCIPLE",
+            
             "WAKE": "ZDPCS_INTERRUPT",
+            "WAKEUP": "ZDPCS_INTERRUPT",
             "INTERRUPT": "ZDPCS_INTERRUPT",
-            "ESCAPE": "ZDPCS_INTERRUPT",
+            "ESCAPING": "ZDPCS_INTERRUPT",
+            "END": "ZDPCS_INTERRUPT",
+            
             "KILL": "ZDPCS_REGRESSIVE_AGGRESSION",
             "VIOLENCE": "ZDPCS_REGRESSIVE_AGGRESSION",
             "AGGRESSION": "ZDPCS_REGRESSIVE_AGGRESSION",
-            "DESTROY": "ZDPCS_REGRESSIVE_AGGRESSION",
+            "RAGE": "ZDPCS_REGRESSIVE_AGGRESSION",
+            "DESTROYING": "ZDPCS_REGRESSIVE_AGGRESSION",
+            "BRUTAL": "ZDPCS_REGRESSIVE_AGGRESSION",
+            
             "ACTION": "BEHAVIORAL_MASTERY",
             "FIGHT": "BEHAVIORAL_MASTERY",
+            "FIGHTING": "BEHAVIORAL_MASTERY",
             "BEHAV": "BEHAVIORAL_MASTERY",
-            "HELP": "SOCIAL_MASTERY",
+            "CONFRONTING": "BEHAVIORAL_MASTERY",
+            "RUN": "BEHAVIORAL_MASTERY",
+            
+            "HELPING": "SOCIAL_MASTERY",
             "SOCIAL": "SOCIAL_MASTERY",
             "FRIEND": "SOCIAL_MASTERY",
+            "CALL": "SOCIAL_MASTERY",
+            "ASK": "SOCIAL_MASTERY",
+            
             "TOOL": "ENVIRONMENTAL_MASTERY",
             "ENVIRON": "ENVIRONMENTAL_MASTERY",
+            "CHANGING": "ENVIRONMENTAL_MASTERY",
+            "USE": "ENVIRONMENTAL_MASTERY",
+            "OBJECT": "ENVIRONMENTAL_MASTERY",
+            
             "CALM": "EMOTIONAL_MASTERY",
             "EMOTION": "EMOTIONAL_MASTERY",
             "SOOTH": "EMOTIONAL_MASTERY",
+            "BREATH": "EMOTIONAL_MASTERY",
+            "RELAXING": "EMOTIONAL_MASTERY",
+            
             "MYTHIC": "MYTHICAL_MASTERY",
             "MAGIC": "MYTHICAL_MASTERY",
             "SUPER": "MYTHICAL_MASTERY",
             "DIVINE": "MYTHICAL_MASTERY",
             "ANGEL": "MYTHICAL_MASTERY",
-            "POWER": "MYTHICAL_MASTERY",
+            "POWERFUL": "MYTHICAL_MASTERY",
+            "FLY": "MYTHICAL_MASTERY",
+            
             # Neutral categories
             "NARRATIVE": "ZDPCS_NARRATIVE_SETTING",
             "SETTING": "ZDPCS_NARRATIVE_SETTING",
             "SCENE": "ZDPCS_NARRATIVE_SETTING",
+            "LOOKING": "ZDPCS_NARRATIVE_SETTING",
+            "DESCRIBE": "ZDPCS_NARRATIVE_SETTING",
+            
             "AFFECT": "ZDPCS_AFFECT_EXPRESSION",
             "FEELING": "ZDPCS_AFFECT_EXPRESSION",
             "FELT": "ZDPCS_AFFECT_EXPRESSION",
+            "SCARED": "ZDPCS_AFFECT_EXPRESSION",
+            "TERRIFIED": "ZDPCS_AFFECT_EXPRESSION",
         }
         
         for keyword, valid_id in keyword_map.items():
-            if keyword in invalid_id:
-                logger.info(f"Keyword matched '{invalid_id}' to '{valid_id}'")
+            if keyword in invalid_code:
+                logger.info(f"Keyword matched '{invalid_code}' to '{valid_id}'")
                 return valid_id
         
         # If no match found, raise an error
         raise ValueError(
-            f"Could not match '{invalid_id}' to any valid node ID. "
-            f"Valid IDs are: {self.valid_node_ids}"
+            f"Could not match '{invalid_code}' to any valid node ID. "
+            f"Valid codes are: {list(CODE_MAP.keys())}"
         )
     
     def get_node_info(self, node_id: str) -> dict:
@@ -334,7 +448,7 @@ if __name__ == "__main__":
             # Maladaptive
             "I hide under the bed",
             "I wake myself up to escape the nightmare",
-            "I kill everyone in the room",
+            "I kill everyone in the room brutally",
             "I do nothing and just watch",
             # Adaptive
             "I punch the attacker in the face",
@@ -353,24 +467,32 @@ if __name__ == "__main__":
             "I chose to stay instead of hiding",
         ]
         
-        print("=" * 60)
-        print("Clinical Classifier Test")
-        print("=" * 60)
+        print("=" * 70)
+        print("Clinical Classifier Test - Label Engineering with Joint Probability Confidence")
+        print("=" * 70)
         
         for test in test_cases:
             try:
                 node_id, metadata = await classifier.classify_with_confidence(test)
                 node_type = metadata.get("node_type", "unknown")
+                code = metadata.get("code", "?")
+                confidence = metadata.get("confidence", 0)
+                margin = metadata.get("margin")
+                mean_lp = metadata.get("mean_logprob")
+
                 if node_type == "maladaptive":
                     status = "⚠️ MALADAPTIVE"
                 elif node_type == "adaptive":
                     status = "✅ ADAPTIVE"
                 else:
                     status = "🟡 NEUTRAL"
-                print(f"\n{status}")
+
+                print(f"\n{status} [{code}]")
                 print(f"  Input: '{test}'")
-                print(f"  Classification: {node_id}")
-                print(f"  Category: {metadata['category']}")
+                print(f"  Node: {node_id}")
+                print(f"  Confidence: {confidence:.3f} (mean_logprob={mean_lp})")
+                if margin is not None:
+                    print(f"  Margin (diagnostic): {margin:.3f}")
             except Exception as e:
                 print(f"\n❌ ERROR for '{test}': {e}")
     
