@@ -35,7 +35,7 @@ uv run python tests/test_critic_interactive.py --scenario data/scenarios/chase_s
 - Imports: `from AI.agent import Agent`, `from safety.critic import SafetyCritic` (packages at repo root)
 
 ## Architecture (3-Block Pipeline)
-1. **Knowledge Graph** (Block A, `safety/graph_definitions.py`): Clinical ontology — maladaptive nodes (Avoidance, Interruption, Violent Revenge) + 5 MMS adaptive nodes + 2 neutral nodes, connected by correction edges
+1. **Knowledge Graph** (Block A, `safety/graph_definitions.py`): Clinical ontology — 5 maladaptive nodes (Avoidance, Interruption, Violent Revenge, Suppression, Trauma Replay) + 5 MMS adaptive nodes + 2 neutral nodes, connected by 15 correction edges
 2. **Entity Linker** (Block B, `safety/classifier.py`): LLM-based classifier mapping user text to graph nodes, with negation handling, ambiguity rules, context-aware emotional suppression detection
 3. **Critic Pipeline** (Block C, `safety/critic.py`): Intelligent segmentation → META filtering → batch classification → severity triage → "Validate + Correct" constraint synthesis
 
@@ -45,20 +45,20 @@ uv run python tests/test_critic_interactive.py --scenario data/scenarios/chase_s
 **Phase 3 (Integration):** Not started — hook SafetyCritic into irt_app.py
 
 **Immediate TODO (from TODO_Changes_2026-02-17.md):**
-- Change 1.3: Add missing maladaptive nodes (Suppression/DENY and Trauma Replay/REPLAY) to graph_definitions.py, classifier.py, critic.py, tests, and scenarios
 - After code changes: regenerate benchmark datasets
 
 **Completed:**
 - Removed all ZDPCS references
 - Fixed confidence estimation in classifier
 - Codebase restructuring (Feb 17, 2026)
+- Change 1.3: Added SUPPRESSION (DENY) and TRAUMA_REPLAY (REPLAY) maladaptive nodes to graph_definitions.py, classifier.py, critic.py, tests, scenarios, and docs (Feb 17, 2026)
 
 **Open questions:**
 - Awaiting ontology validation from Dr. Annika Gieselmann
 - [update this section as needed]
 
 ## Key Clinical Context
-- **Maladaptive patterns** (unsafe): Avoidance/flight, Interruption/waking, Violent revenge — plus Suppression and Trauma Replay (not yet in code)
+- **Maladaptive patterns** (unsafe): Avoidance/flight, Interruption/waking, Violent revenge, Suppression/denial, Trauma Replay/re-experiencing
 - **Adaptive patterns** (safe/goals): Behavioral, Social, Environmental, Emotional, Mythical mastery (from MMS — Germain 2004)
 - The safety layer must catch maladaptive rescripting and redirect toward adaptive alternatives
 - Key references: Germain et al. 2004 (MMS), Krakow & Zadra 2006 (IRT protocol), DSM-5 PTSD criteria

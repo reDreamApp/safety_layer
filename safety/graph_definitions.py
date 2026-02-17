@@ -225,6 +225,42 @@ def build_clinical_graph() -> nx.DiGraph:
                 "Uncontrolled rage responses",
                 "Violence disproportionate to the threat"
             ]
+        },
+        "SUPPRESSION": {
+            "type": "maladaptive",
+            "category": "suppression",
+            "severity": "high",
+            "description": "Emotional denial or numbing in the face of distressing dream content. The dreamer claims to feel nothing or denies emotional impact when the nightmare context clearly warrants distress. Context-dependent: requires distressing content to distinguish from genuine emotional mastery.",
+            "clinical_concept": "Emotional suppression / Denial of affect",
+            "reference": "DSM-5 Criterion C: persistent avoidance includes emotional numbing and detachment. Nielsen & Levin (2007): AMPHAC model - fear extinction requires emotional engagement, not suppression.",
+            "clinical_guideline": "Emotional suppression prevents therapeutic processing. The patient should be guided toward acknowledging and working through emotions, not denying them.",
+            "why_maladaptive": "DSM-5 Criterion C identifies emotional numbing as a form of avoidance. Nielsen & Levin (2007) AMPHAC model: fear extinction requires active emotional engagement. Suppressing emotions in response to distressing nightmare content prevents the affective processing that IRT requires for therapeutic change.",
+            "nli_hypothesis": "The dreamer claims to feel nothing, denies being affected, or suppresses emotional responses to distressing content.",
+            "behavioral_markers": [
+                "Claiming to feel nothing about distressing content",
+                "Denying emotional impact ('I'm fine with it')",
+                "Emotional numbing ('It doesn't bother me')",
+                "Detachment from clearly distressing scenarios",
+                "Suppressing natural emotional responses"
+            ]
+        },
+        "TRAUMA_REPLAY": {
+            "type": "maladaptive",
+            "category": "replay",
+            "severity": "critical",
+            "description": "Re-experiencing the traumatic nightmare content exactly as it happened without any transformation or change. The dreamer replays the trauma identically rather than rescripting it, which can reinforce traumatic associations.",
+            "clinical_concept": "Trauma replay / Replicative nightmare rehearsal",
+            "reference": "Krakow et al. (2001) JAMA RCT: rescripting replicative nightmares without change can worsen PTSD. Krakow & Zadra (2006): IRT explicitly contraindicates trauma replay rescripting. Germain (2013): 40-60% of PTSD patients have exact trauma replays. DSM-5 Criterion B2: recurrent distressing dreams with content related to the traumatic event.",
+            "clinical_guideline": "Trauma replay without transformation reinforces traumatic associations. The patient must be guided to change something in the narrative - any modification breaks the replicative cycle.",
+            "why_maladaptive": "Krakow et al. (2001) demonstrated that rehearsing nightmares without change can strengthen trauma memories. IRT's core mechanism is transformation: the patient must alter the nightmare to gain mastery. Replaying trauma identically bypasses this mechanism entirely and risks re-traumatization.",
+            "nli_hypothesis": "The dreamer replays the traumatic event exactly as it happened, refuses to change anything, or re-experiences the nightmare without transformation.",
+            "behavioral_markers": [
+                "Replaying trauma exactly as it happened",
+                "Refusing to change the nightmare narrative",
+                "Re-experiencing without any transformation",
+                "Rehearsing the nightmare identically",
+                "Reliving the same events without alteration"
+            ]
         }
     }
     
@@ -405,6 +441,92 @@ def build_clinical_graph() -> nx.DiGraph:
                 "rationale": "Address the underlying affect driving the violent impulse through emotional regulation.",
                 "clinical_reference": "Regressive aggression stems from overwhelming affect. Germain et al. (2004) Emotional Mastery: 'Changes the overall dream affect' - modulating the emotional intensity can prevent violent acting out.",
                 "therapeutic_direction": "What feeling is driving the urge to destroy? How could you manage that feeling differently?"
+            }
+        ),
+
+        # =====================================================================
+        # SUPPRESSION (Emotional Denial) corrections
+        # =====================================================================
+
+        # Primary: Suppression -> Emotional Mastery (acknowledge emotions)
+        (
+            "SUPPRESSION",
+            "EMOTIONAL_MASTERY",
+            {
+                "relation": "correction_strategy",
+                "priority": "primary",
+                "rationale": "Counter emotional denial with genuine emotional engagement. The patient needs to acknowledge and process feelings rather than suppress them.",
+                "clinical_reference": "Nielsen & Levin (2007) AMPHAC model: fear extinction requires emotional engagement. Germain et al. (2004) Emotional Mastery: 'Changes their emotional reactions' - this requires acknowledging emotions first, not denying them.",
+                "therapeutic_direction": "It's natural to feel upset about this. What emotions come up when you think about this scene? Can you let yourself feel them?"
+            }
+        ),
+
+        # Secondary: Suppression -> Social Mastery (share feelings)
+        (
+            "SUPPRESSION",
+            "SOCIAL_MASTERY",
+            {
+                "relation": "correction_strategy",
+                "priority": "secondary",
+                "rationale": "Counter emotional isolation by sharing feelings with others. Expressing emotions to another person counteracts suppression.",
+                "clinical_reference": "Germain et al. (2004): Social Mastery includes interpersonal engagement. Sharing emotions with others is a direct counter to emotional numbing and denial.",
+                "therapeutic_direction": "Is there someone in the dream you could share your feelings with? What would it feel like to tell someone how you really feel?"
+            }
+        ),
+
+        # Tertiary: Suppression -> Behavioral Mastery (channel into action)
+        (
+            "SUPPRESSION",
+            "BEHAVIORAL_MASTERY",
+            {
+                "relation": "correction_strategy",
+                "priority": "tertiary",
+                "rationale": "Transform emotional shutdown into active engagement. Taking action requires emotional investment, countering numbing.",
+                "clinical_reference": "Germain et al. (2004): 'The dreamer actively performs an action to change the dream course' - active engagement inherently counters emotional detachment.",
+                "therapeutic_direction": "Instead of shutting down, what action could you take right now? What would you do if you let yourself care about this?"
+            }
+        ),
+
+        # =====================================================================
+        # TRAUMA_REPLAY (Re-experiencing) corrections
+        # =====================================================================
+
+        # Primary: Trauma Replay -> Behavioral Mastery (intervene actively)
+        (
+            "TRAUMA_REPLAY",
+            "BEHAVIORAL_MASTERY",
+            {
+                "relation": "correction_strategy",
+                "priority": "primary",
+                "rationale": "Break the replay cycle by taking different action. Any behavioral change disrupts the replicative pattern and introduces mastery.",
+                "clinical_reference": "Krakow & Zadra (2006): IRT's core mechanism is changing the nightmare. Germain et al. (2004): 'The dreamer actively performs an action to change the dream course' - even small changes break the replay loop.",
+                "therapeutic_direction": "What if you did something different this time? Even a small change can break the pattern. What action would you like to take?"
+            }
+        ),
+
+        # Secondary: Trauma Replay -> Environmental Mastery (change setting)
+        (
+            "TRAUMA_REPLAY",
+            "ENVIRONMENTAL_MASTERY",
+            {
+                "relation": "correction_strategy",
+                "priority": "secondary",
+                "rationale": "Change the environment to disrupt the replay. Altering the setting breaks the exact replication of the trauma.",
+                "clinical_reference": "Germain et al. (2004): 'Changes the physical environment to a non-threatening setting' - environmental changes are often the easiest way to begin rescripting a replicative nightmare.",
+                "therapeutic_direction": "What if the setting was different? Can you change something about where this happens? What would make this place feel different?"
+            }
+        ),
+
+        # Tertiary: Trauma Replay -> Mythical Mastery (supernatural transformation)
+        (
+            "TRAUMA_REPLAY",
+            "MYTHICAL_MASTERY",
+            {
+                "relation": "correction_strategy",
+                "priority": "tertiary",
+                "rationale": "Use supernatural elements to transform the replayed scenario. Impossible changes can be easier to imagine when the trauma feels unchangeable.",
+                "clinical_reference": "Germain et al. (2004): 'A supernatural event intervenes to terminate the threat' - for replicative nightmares that feel impossible to change, supernatural elements provide a path to transformation.",
+                "therapeutic_direction": "What if something magical or impossible happened to change this? What supernatural power could transform this situation?"
             }
         ),
     ]

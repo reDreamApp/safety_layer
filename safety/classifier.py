@@ -38,6 +38,8 @@ CODE_MAP = {
     "HIDE": "AVOIDANCE",                       # Avoidance, freezing, hiding
     "ESCAPE": "INTERRUPTION",                  # Waking up, dream ending
     "DESTROY": "VIOLENT_REVENGE",              # Extreme violence, rage
+    "DENY": "SUPPRESSION",                     # Emotional denial, numbing
+    "REPLAY": "TRAUMA_REPLAY",                 # Re-experiencing without change
     # Adaptive (Goal) codes
     "CONFRONT": "BEHAVIORAL_MASTERY",          # Fighting back, active response
     "HELP": "SOCIAL_MASTERY",                  # Seeking/receiving help
@@ -67,7 +69,7 @@ class ClassificationResult:
 
 
 # System prompt for the Clinical Coder with Label Engineering
-CLINICAL_CODER_PROMPT = """You are a Clinical Coder for Imagery Rehearsal Therapy (IRT). Classify dream actions into one of 10 codes.
+CLINICAL_CODER_PROMPT = """You are a Clinical Coder for Imagery Rehearsal Therapy (IRT). Classify dream actions into one of 12 codes.
 
 ## CODES (respond with ONE word only)
 
@@ -75,6 +77,8 @@ CLINICAL_CODER_PROMPT = """You are a Clinical Coder for Imagery Rehearsal Therap
 - **HIDE** - Avoidance: hiding, freezing by choice, looking away, passive observation, choosing to do nothing
 - **ESCAPE** - Dream interruption: forcing awake, waking up, dream ending abruptly, refusing to continue
 - **DESTROY** - Extreme violence: brutal excessive violence, torture, mutilation, "killing everyone", uncontrolled rage
+- **DENY** - Emotional suppression: claiming to feel nothing, denying distress in a distressing context, emotional numbing, "I'm fine with it" when clearly not
+- **REPLAY** - Trauma replay: re-experiencing trauma without change, rehearsing the nightmare identically, refusing to alter the narrative, reliving events exactly as they happened
 
 ### ADAPTIVE (Goal):
 - **CONFRONT** - Active response: fighting back proportionately, running purposefully, taking control, direct action
@@ -107,12 +111,24 @@ CLINICAL_CODER_PROMPT = """You are a Clinical Coder for Imagery Rehearsal Therap
 5. **Mental Actions**
    - "I imagine a shield", "I visualize protection" -> POWER or CHANGE
    - "I focus on breathing", "I tell myself I'm safe" -> RELAX
-   - "I try to not feel", "I go blank" -> HIDE
+   - "I try to not feel", "I go blank" -> DENY
+
+6. **Emotional Regulation vs Suppression**
+   - Actively managing emotions while engaged: "I stay calm and face it" -> RELAX
+   - Denying emotions in distressing context: "I feel nothing about my dead dog" -> DENY
+   - Key: RELAX involves engagement; DENY involves emotional shutdown
+
+7. **Trauma Replay vs Scene Description**
+   - Describing the setting: "There was a dark forest" -> LOOK
+   - Reliving trauma without change: "It all happens exactly the same" -> REPLAY
+   - Key: REPLAY means re-experiencing the trauma identically; LOOK is passive observation
 
 ## EXAMPLES
 - "I hide under the bed" -> HIDE
 - "I wake myself up" -> ESCAPE
 - "I kill everyone brutally" -> DESTROY
+- "I don't feel anything about it" -> DENY
+- "It all happens exactly the same way again" -> REPLAY
 - "I punch the attacker" -> CONFRONT
 - "I call for help" -> HELP
 - "I find a sword" -> CHANGE
@@ -122,7 +138,7 @@ CLINICAL_CODER_PROMPT = """You are a Clinical Coder for Imagery Rehearsal Therap
 - "I felt terrified" -> FEEL
 
 ## RESPONSE FORMAT
-Respond with ONLY ONE CODE from: HIDE, ESCAPE, DESTROY, CONFRONT, HELP, CHANGE, RELAX, POWER, LOOK, FEEL
+Respond with ONLY ONE CODE from: HIDE, ESCAPE, DESTROY, DENY, REPLAY, CONFRONT, HELP, CHANGE, RELAX, POWER, LOOK, FEEL
 
 No explanations. Just the code.
 """
@@ -193,7 +209,7 @@ class ClinicalClassifier:
 [USER'S REWRITING ATTEMPT]
 {user_text}
 
-Classify the rewriting attempt. If user claims to feel nothing about distressing content, use HIDE."""
+Classify the rewriting attempt. If user claims to feel nothing about distressing content, use DENY. If user replays the trauma without any change, use REPLAY."""
             else:
                 classification_input = user_text
             
@@ -395,6 +411,20 @@ Classify the rewriting attempt. If user claims to feel nothing about distressing
             "ANGEL": "MYTHICAL_MASTERY",
             "POWERFUL": "MYTHICAL_MASTERY",
             "FLY": "MYTHICAL_MASTERY",
+
+            # Suppression
+            "SUPPRESS": "SUPPRESSION",
+            "DENIAL": "SUPPRESSION",
+            "NUMB": "SUPPRESSION",
+            "FINE": "SUPPRESSION",
+            "DENYING": "SUPPRESSION",
+
+            # Trauma replay
+            "REPLAY": "TRAUMA_REPLAY",
+            "RELIVE": "TRAUMA_REPLAY",
+            "REEXPERIENCE": "TRAUMA_REPLAY",
+            "REPEAT": "TRAUMA_REPLAY",
+            "REPLAYING": "TRAUMA_REPLAY",
 
             # Neutral categories
             "NARRATIVE": "NARRATIVE_SETTING",

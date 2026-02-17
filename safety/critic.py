@@ -32,8 +32,10 @@ logger = logging.getLogger(__name__)
 # Severity levels for triage (lower number = higher priority)
 SEVERITY_PRIORITY = {
     "VIOLENT_REVENGE": 1,               # CRITICAL - Violence
+    "TRAUMA_REPLAY": 1,                 # CRITICAL - Trauma re-experiencing
     "INTERRUPTION": 2,                  # HIGH - Waking Up/Escape
-    "AVOIDANCE": 3,                     # MODERATE - Avoidance
+    "SUPPRESSION": 3,                   # HIGH - Emotional denial
+    "AVOIDANCE": 4,                     # MODERATE - Avoidance
 }
 
 # Segmenter system prompt
@@ -424,9 +426,9 @@ class SafetyCritic:
         priority = SEVERITY_PRIORITY.get(node_id, 99)
         if priority == 1:
             return "CRITICAL"
-        elif priority == 2:
+        elif priority <= 3:
             return "HIGH"
-        elif priority == 3:
+        elif priority == 4:
             return "MODERATE"
         return "UNKNOWN"
     

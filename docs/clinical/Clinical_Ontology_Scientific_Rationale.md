@@ -238,6 +238,78 @@ Destroying the entire dream environment
 
 Violence disproportionate to the threat
 
+3.4 SUPPRESSION (Emotional Denial)
+
+Definition: Emotional denial or numbing in the face of distressing dream content.
+
+DSM-5 Criterion C defines persistent avoidance of trauma-related stimuli, which includes emotional numbing and detachment. Suppression in the context of IRT occurs when a patient claims to feel nothing about clearly distressing content.
+
+Why Maladaptive:
+
+Nielsen & Levin (2007) AMPHAC model establishes that fear extinction requires active emotional engagement:
+
+"Nightmares persist due to failed fear extinction. Avoidance prevents the extinction learning that would normally occur during REM sleep processing."
+
+— Nielsen & Levin (2007), AMPHAC Model
+
+Emotional suppression is a form of avoidance that prevents the affective processing required for IRT to work. When a patient claims "I feel nothing" about finding their dead dog, this is not emotional mastery (which requires engagement) but emotional shutdown.
+
+Context-Dependent Detection: SUPPRESSION is context-dependent. "I feel calm" in isolation could be emotional mastery. But "I feel nothing about my dead dog" in the context of a distressing nightmare indicates suppression. The classifier must consider nightmare context to make this distinction.
+
+Severity: HIGH — Suppression prevents therapeutic processing but does not actively reinforce trauma (unlike replay) or model destructive behavior (unlike violence).
+
+Behavioral Markers:
+
+Claiming to feel nothing about distressing content
+
+Denying emotional impact ("I'm fine with it")
+
+Emotional numbing ("It doesn't bother me")
+
+Detachment from clearly distressing scenarios
+
+3.5 TRAUMA_REPLAY (Replicative Re-experiencing)
+
+Definition: Re-experiencing the traumatic nightmare content exactly as it happened without any transformation or change.
+
+This is the most clinically dangerous pattern in IRT, because rehearsing a nightmare without change can strengthen rather than weaken traumatic associations.
+
+Why Maladaptive:
+
+Krakow et al. (2001) demonstrated in a JAMA RCT that IRT's efficacy depends on changing the nightmare:
+
+"The core mechanism of IRT is the transformation of nightmare content. Rehearsing the nightmare without change can strengthen trauma memories rather than weaken them."
+
+— Krakow, B., et al. (2001). "Imagery rehearsal therapy for chronic nightmares." JAMA, 286(5), 537-545.
+
+Krakow & Zadra (2006) explicitly contraindicate trauma replay in IRT protocols:
+
+"IRT explicitly contraindicates rehearsal of the original nightmare without modification."
+
+— Krakow & Zadra (2006)
+
+Germain (2013) reports that 40-60% of PTSD patients experience exact trauma replays, making this pattern clinically common:
+
+"Replicative nightmares — those that replay the traumatic event exactly — are reported in 40-60% of PTSD patients."
+
+— Germain, A. (2013). "Sleep disturbances as the hallmark of PTSD." Current Psychiatry Reports.
+
+DSM-5 Criterion B2 defines recurrent distressing dreams with content related to the traumatic event as a core PTSD symptom.
+
+Severity: CRITICAL — Trauma replay directly reinforces traumatic associations and risks re-traumatization. Any system allowing rehearsal of unchanged trauma content would be clinically harmful.
+
+Behavioral Markers:
+
+Replaying trauma exactly as it happened
+
+Refusing to change the nightmare narrative
+
+Re-experiencing without any transformation
+
+Rehearsing the nightmare identically
+
+Reliving the same events without alteration
+
 4. Correction Logic: Scientific Rationale
 
 Each maladaptive node is connected to multiple adaptive nodes via "correction edges." The selection of which mastery types best address each maladaptive behavior is based on clinical logic derived from the literature.
@@ -396,6 +468,98 @@ Emotional Mastery is tertiary because regressive aggression stems from overwhelm
 
 Modulating the emotional intensity can prevent violent acting out at the source.
 
+4.4 SUPPRESSION → Correction Strategies
+
+Priority
+
+Target
+
+Rationale
+
+Primary
+
+EMOTIONAL_MASTERY
+
+Acknowledge and engage with emotions
+
+Secondary
+
+SOCIAL_MASTERY
+
+Share feelings with others
+
+Tertiary
+
+BEHAVIORAL_MASTERY
+
+Channel emotional shutdown into action
+
+Scientific Rationale:
+
+Emotional suppression is countered by genuine emotional engagement. Emotional Mastery is the primary correction:
+
+"Changes their emotional reactions to specific dream events."
+
+— Germain et al. (2004)
+
+The key distinction is that Emotional Mastery involves actively engaging with and transforming emotions, not denying them. The patient needs to acknowledge feelings before they can regulate them.
+
+Social Mastery is secondary because sharing emotions with others directly counteracts the isolation of emotional numbing. Expressing feelings to another person requires the emotional engagement that suppression prevents.
+
+Behavioral Mastery is tertiary because taking action inherently requires emotional investment. Active engagement with the dream scenario counteracts emotional shutdown by re-engaging the patient with the narrative.
+
+4.5 TRAUMA_REPLAY → Correction Strategies
+
+Priority
+
+Target
+
+Rationale
+
+Primary
+
+BEHAVIORAL_MASTERY
+
+Take different action to break replay
+
+Secondary
+
+ENVIRONMENTAL_MASTERY
+
+Change setting to disrupt replication
+
+Tertiary
+
+MYTHICAL_MASTERY
+
+Supernatural transformation of unchangeable trauma
+
+Scientific Rationale:
+
+The core principle is that any change breaks the replicative cycle. Behavioral Mastery is the primary correction:
+
+"The dreamer actively performs an action to change the dream course to their advantage."
+
+— Germain et al. (2004)
+
+Even a small behavioral change (swerving, ducking, speaking) disrupts the exact replication that characterizes trauma replay. This is the most direct intervention.
+
+Environmental Mastery is secondary because changing the setting is often the easiest modification for patients who feel the trauma is unchangeable:
+
+"Changes the physical environment to a non-threatening setting."
+
+— Germain et al. (2004)
+
+For replicative nightmares, environmental changes (different location, altered objects) are less emotionally threatening than behavioral changes and can serve as an entry point to rescripting.
+
+Mythical Mastery is tertiary for trauma replays that feel completely unchangeable:
+
+"A supernatural event intervenes to terminate the threat."
+
+— Germain et al. (2004)
+
+When patients feel the trauma cannot be changed, supernatural elements provide a way to introduce transformation that bypasses the sense of inevitability.
+
 5. Summary: The Complete Ontology
 
 MALADAPTIVE (IRT/DSM-5)                ADAPTIVE (MMS)
@@ -403,20 +567,32 @@ MALADAPTIVE (IRT/DSM-5)                ADAPTIVE (MMS)
 
 ┌──────────────────────┐         ┌─────────────────────┐
 │ AVOIDANCE            │────────▶│ BEHAVIORAL_MASTERY  │ (Primary)
-│                      │────────▶│ SOCIAL_MASTERY      │ (Secondary)
+│ [MODERATE]           │────────▶│ SOCIAL_MASTERY      │ (Secondary)
 │                      │────────▶│ MYTHICAL_MASTERY    │ (Tertiary)
 └──────────────────────┘         └─────────────────────┘
 
 ┌──────────────────────┐         ┌─────────────────────┐
 │ INTERRUPTION         │────────▶│ EMOTIONAL_MASTERY   │ (Primary)
-│ (Escape)             │────────▶│ ENVIRONMENTAL_MASTERY│ (Secondary)
+│ [HIGH]               │────────▶│ ENVIRONMENTAL_MASTERY│ (Secondary)
 │                      │────────▶│ MYTHICAL_MASTERY    │ (Tertiary)
 └──────────────────────┘         └─────────────────────┘
 
 ┌──────────────────────┐         ┌─────────────────────┐
 │ VIOLENT_REVENGE      │────────▶│ BEHAVIORAL_MASTERY  │ (Primary)
-│ (Violence)           │────────▶│ SOCIAL_MASTERY      │ (Secondary)
+│ [CRITICAL]           │────────▶│ SOCIAL_MASTERY      │ (Secondary)
 │                      │────────▶│ EMOTIONAL_MASTERY   │ (Tertiary)
+└──────────────────────┘         └─────────────────────┘
+
+┌──────────────────────┐         ┌─────────────────────┐
+│ SUPPRESSION          │────────▶│ EMOTIONAL_MASTERY   │ (Primary)
+│ [HIGH]               │────────▶│ SOCIAL_MASTERY      │ (Secondary)
+│                      │────────▶│ BEHAVIORAL_MASTERY  │ (Tertiary)
+└──────────────────────┘         └─────────────────────┘
+
+┌──────────────────────┐         ┌─────────────────────┐
+│ TRAUMA_REPLAY        │────────▶│ BEHAVIORAL_MASTERY  │ (Primary)
+│ [CRITICAL]           │────────▶│ ENVIRONMENTAL_MASTERY│ (Secondary)
+│                      │────────▶│ MYTHICAL_MASTERY    │ (Tertiary)
 └──────────────────────┘         └─────────────────────┘
 
 
@@ -424,6 +600,10 @@ MALADAPTIVE (IRT/DSM-5)                ADAPTIVE (MMS)
 6. References
 
 Germain, A., Krakow, B., Faucher, B., Zadra, A., Nielsen, T., Hollifield, M., ... & Koss, M. (2004). Increased Mastery Elements Associated With Imagery Rehearsal Treatment for Nightmares in Sexual Assault Survivors With PTSD. Dreaming, 14(4), 195-206.
+
+Germain, A. (2013). Sleep disturbances as the hallmark of PTSD: Where are we now? American Journal of Psychiatry, 170(4), 372-382.
+
+Krakow, B., Hollifield, M., Johnston, L., Koss, M., Schrader, R., Warner, T. D., ... & Prince, H. (2001). Imagery rehearsal therapy for chronic nightmares in sexual assault survivors with posttraumatic stress disorder: A randomized controlled trial. JAMA, 286(5), 537-545.
 
 Fischmann, T., Leuzinger-Bohleber, M., & Moser, U. (2021). Dreams and Trauma: Changes in the Manifest Dreams in Psychoanalytic Treatments – A Psychoanalytic Outcome Study. Frontiers in Psychology.
 

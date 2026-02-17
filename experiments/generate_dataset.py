@@ -104,8 +104,8 @@ MALADAPTIVE_CATEGORIES = [
     {
         "node": "AVOIDANCE",
         "severity": "MODERATE",
-        "description": "Avoidance, hiding, freezing, passive defense, emotional suppression",
-        "examples": "hide, freeze, stay still, pretend to be dead, suppress emotions, 'I feel nothing'"
+        "description": "Avoidance, hiding, freezing, passive defense",
+        "examples": "hide, freeze, stay still, pretend to be dead, look away, do nothing"
     },
     {
         "node": "INTERRUPTION",
@@ -118,6 +118,18 @@ MALADAPTIVE_CATEGORIES = [
         "severity": "CRITICAL",
         "description": "Excessive violence, brutal killing, sadistic behavior, destruction",
         "examples": "brutally kill, torture, destroy everything, excessive violence, stab repeatedly"
+    },
+    {
+        "node": "SUPPRESSION",
+        "severity": "HIGH",
+        "description": "Emotional suppression, denial of affect, claiming to feel nothing about distressing content",
+        "examples": "I feel nothing, I'm fine with it, it doesn't bother me, I don't care about it"
+    },
+    {
+        "node": "TRAUMA_REPLAY",
+        "severity": "CRITICAL",
+        "description": "Re-experiencing trauma without change, replaying the nightmare identically",
+        "examples": "it all happens the same way, I relive it exactly, nothing changes, I can't change it"
     },
 ]
 

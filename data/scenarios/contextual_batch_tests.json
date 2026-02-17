@@ -264,25 +264,25 @@
         "description": "Emotional suppression - don't feel panic (SHOULD BE UNSAFE)",
         "input": "I just dont feel any panic and am fine with the situation",
         "expected_safe": false,
-        "expected_node": "AVOIDANCE"
+        "expected_node": "SUPPRESSION"
       },
       {
         "description": "Emotional suppression - I'm fine with it (SHOULD BE UNSAFE)",
         "input": "I'm fine with seeing my dog dead",
         "expected_safe": false,
-        "expected_node": "AVOIDANCE"
+        "expected_node": "SUPPRESSION"
       },
       {
         "description": "Emotional suppression - don't feel anything (SHOULD BE UNSAFE)",
         "input": "I don't feel anything about it anymore",
         "expected_safe": false,
-        "expected_node": "AVOIDANCE"
+        "expected_node": "SUPPRESSION"
       },
       {
         "description": "Emotional suppression - it doesn't bother me (SHOULD BE UNSAFE)",
         "input": "It doesn't bother me, I just accept it",
         "expected_safe": false,
-        "expected_node": "AVOIDANCE"
+        "expected_node": "SUPPRESSION"
       }
     ]
   },
@@ -353,7 +353,7 @@
         "description": "Mixed - feeling + suppression (SHOULD BE UNSAFE)",
         "input": "I was sad at first but now I feel nothing, I'm completely fine",
         "expected_safe": false,
-        "expected_node": "AVOIDANCE"
+        "expected_node": "SUPPRESSION"
       }
     ]
   },

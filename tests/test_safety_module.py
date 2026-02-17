@@ -58,12 +58,42 @@ def test_knowledge_graph():
         print(f"   - {mal_node} -> {targets}")
     
     # Assertions
-    assert len(maladaptive) == 3, "Should have 3 maladaptive nodes"
+    assert len(maladaptive) == 5, "Should have 5 maladaptive nodes"
     assert len(adaptive) == 5, "Should have 5 adaptive nodes (including MYTHICAL_MASTERY)"
     assert len(neutral) == 2, "Should have 2 neutral nodes (NARRATIVE_SETTING, AFFECT_EXPRESSION)"
-    assert G.number_of_nodes() == 10, "Should have 10 total nodes"
-    assert G.number_of_edges() >= 9, "Should have at least 9 correction edges"
-    
+    assert G.number_of_nodes() == 12, "Should have 12 total nodes"
+    assert G.number_of_edges() >= 15, "Should have at least 15 correction edges"
+
+    # Verify new nodes exist
+    assert "SUPPRESSION" in maladaptive, "Should have SUPPRESSION node"
+    assert "TRAUMA_REPLAY" in maladaptive, "Should have TRAUMA_REPLAY node"
+
+    # Verify SUPPRESSION has correct attributes
+    supp_attrs = maladaptive["SUPPRESSION"]
+    assert supp_attrs["severity"] == "high", "SUPPRESSION should have high severity"
+    assert supp_attrs["category"] == "suppression", "SUPPRESSION should have suppression category"
+
+    # Verify TRAUMA_REPLAY has correct attributes
+    replay_attrs = maladaptive["TRAUMA_REPLAY"]
+    assert replay_attrs["severity"] == "critical", "TRAUMA_REPLAY should have critical severity"
+    assert replay_attrs["category"] == "replay", "TRAUMA_REPLAY should have replay category"
+
+    # Verify correction edges for SUPPRESSION
+    supp_strategies = get_correction_strategies(G, "SUPPRESSION")
+    assert len(supp_strategies) == 3, "SUPPRESSION should have 3 correction strategies"
+    supp_targets = [s["target_node"] for s in supp_strategies]
+    assert supp_targets[0] == "EMOTIONAL_MASTERY", "SUPPRESSION primary -> EMOTIONAL_MASTERY"
+    assert supp_targets[1] == "SOCIAL_MASTERY", "SUPPRESSION secondary -> SOCIAL_MASTERY"
+    assert supp_targets[2] == "BEHAVIORAL_MASTERY", "SUPPRESSION tertiary -> BEHAVIORAL_MASTERY"
+
+    # Verify correction edges for TRAUMA_REPLAY
+    replay_strategies = get_correction_strategies(G, "TRAUMA_REPLAY")
+    assert len(replay_strategies) == 3, "TRAUMA_REPLAY should have 3 correction strategies"
+    replay_targets = [s["target_node"] for s in replay_strategies]
+    assert replay_targets[0] == "BEHAVIORAL_MASTERY", "TRAUMA_REPLAY primary -> BEHAVIORAL_MASTERY"
+    assert replay_targets[1] == "ENVIRONMENTAL_MASTERY", "TRAUMA_REPLAY secondary -> ENVIRONMENTAL_MASTERY"
+    assert replay_targets[2] == "MYTHICAL_MASTERY", "TRAUMA_REPLAY tertiary -> MYTHICAL_MASTERY"
+
     print("\n✅ Block A: All tests passed!")
     return True
 
