@@ -38,9 +38,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 # Import safety module
 from safety.critic import SafetyCritic, SafetyResult
 
-# Import IRT app for live mode
+# AI.irt_app is imported lazily in run_live_mode() to avoid triggering
+# Langfuse initialization when only testing the critic (scenario/batch modes).
 from AI.models import Conversation, ChatInput, Stage
-from AI.irt_app import process_chat_message
 
 
 # ANSI color codes for pretty output
@@ -542,6 +542,9 @@ async def run_live_mode(language: str = "en"):
     Run through actual IRT chatbot flow until reaching rewriting stage,
     then test critic on user inputs.
     """
+    # Lazy import to avoid triggering Langfuse initialization in non-live modes
+    from AI.irt_app import process_chat_message
+
     print_header("LIVE IRT SESSION + CRITIC TESTING")
     print(f"{Colors.DIM}Chat through the IRT session naturally.{Colors.RESET}")
     print(f"{Colors.DIM}When you reach REWRITING stage, critic testing begins.{Colors.RESET}")

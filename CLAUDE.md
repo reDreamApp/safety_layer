@@ -46,6 +46,7 @@ uv run python tests/test_critic_interactive.py --scenario data/scenarios/chase_s
 
 **Immediate TODO (from TODO_Changes_2026-02-17.md):**
 - After code changes: regenerate benchmark datasets
+- Research how to handle irrelevant/trolling user inputs (e.g., off-topic, nonsense, adversarial prompts in rewriting stage)
 
 **Completed:**
 - Removed all ZDPCS references

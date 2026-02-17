@@ -23,10 +23,12 @@ if not os.getenv('SCALEWAY_API_KEY') and not os.getenv('GROQ_API_KEY'):
 logger = logging.getLogger(__name__)
 
 # Configure Langfuse after load_dotenv()
+# Set LANGFUSE_ENABLED=false in .env or environment to disable tracing
 langfuse_context.configure(
     public_key=os.getenv("LANGFUSE_PUBLIC_KEY"),
     secret_key=os.getenv("LANGFUSE_SECRET_KEY"),
-    host=os.getenv("LANGFUSE_HOST")
+    host=os.getenv("LANGFUSE_HOST"),
+    enabled=os.getenv("LANGFUSE_ENABLED", "true").lower() != "false"
 )
 
 language = "de"
