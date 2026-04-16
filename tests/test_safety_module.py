@@ -61,8 +61,14 @@ def test_knowledge_graph():
     assert len(maladaptive) == 5, "Should have 5 maladaptive nodes"
     assert len(adaptive) == 5, "Should have 5 adaptive nodes (including MYTHICAL_MASTERY)"
     assert len(neutral) == 2, "Should have 2 neutral nodes (NARRATIVE_SETTING, AFFECT_EXPRESSION)"
-    assert G.number_of_nodes() == 12, "Should have 12 total nodes"
+    assert G.number_of_nodes() == 13, "Should have 13 total nodes (5 mal + 5 adapt + 2 neutral + 1 unclassified)"
     assert G.number_of_edges() >= 15, "Should have at least 15 correction edges"
+
+    # Verify UNCLASSIFIED node exists
+    assert "UNCLASSIFIED" in G.nodes(), "Should have UNCLASSIFIED node"
+    unclassified_attrs = dict(G.nodes["UNCLASSIFIED"])
+    assert unclassified_attrs["type"] == "unclassified", "UNCLASSIFIED should have type 'unclassified'"
+    assert unclassified_attrs["system_action"] == "seek_clarification", "UNCLASSIFIED should trigger clarification"
 
     # Verify new nodes exist
     assert "SUPPRESSION" in maladaptive, "Should have SUPPRESSION node"

@@ -274,6 +274,27 @@ def build_clinical_graph() -> nx.DiGraph:
     # without taking action - they should be validated but not corrected
     # =========================================================================
     
+    # =========================================================================
+    # UNCLASSIFIED NODE - For inputs that could not be reliably classified
+    # This node acts as a fail-safe: when confidence is below the threshold,
+    # the critic routes the segment here instead of silently assigning a
+    # potentially wrong label. The threshold starts at 0 (catching only
+    # total classification failures) and can be raised based on experiments.
+    # =========================================================================
+
+    unclassified_node = {
+        "UNCLASSIFIED": {
+            "type": "unclassified",
+            "category": "unknown",
+            "description": "Input could not be reliably classified. The classifier's confidence was below the threshold, indicating the text did not clearly match any clinical category.",
+            "system_action": "seek_clarification",
+            "clinical_guideline": "When the system cannot reliably classify user input, seek clarification rather than making assumptions. Ask the user to elaborate on their intended dream action.",
+        }
+    }
+
+    for node_id, attrs in unclassified_node.items():
+        G.add_node(node_id, **attrs)
+
     neutral_nodes = {
         "NARRATIVE_SETTING": {
             "type": "neutral",

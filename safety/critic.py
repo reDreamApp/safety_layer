@@ -38,6 +38,12 @@ SEVERITY_PRIORITY = {
     "AVOIDANCE": 4,                     # MODERATE - Avoidance
 }
 
+# Confidence threshold for classification reliability.
+# Segments with confidence <= this value are routed to UNCLASSIFIED.
+# Starting at 0.0 to only catch total classification failures (fuzzy match
+# fallbacks and LLM garbage). Raise based on benchmark experiments later.
+CONFIDENCE_THRESHOLD = 0.0
+
 # Segmenter system prompt
 SEGMENTER_PROMPT = """You are a text segmenter for dream therapy responses. Your task is to parse user input into discrete segments, label each by type, AND extract the context/threat being responded to.
 
@@ -188,9 +194,9 @@ class SafetyCritic:
         # Initialize or use provided classifier
         self.classifier = classifier or ClinicalClassifier()
         
-        # Initialize segmenter agent (small Mistral model for speed)
+        # Initialize segmenter agent (Mistral Nemo via OpenRouter for speed)
         self.segmenter = Agent(
-            model_config=MODELS["MISTRAL_NEMO"],
+            model_config=MODELS["OR_MISTRAL_NEMO"],
             system_prompt=SEGMENTER_PROMPT,
             temperature=0.1
         )
@@ -287,8 +293,62 @@ class SafetyCritic:
             # Step 2: Filter out META segments
             dream_segments = [s for s in segments if s.segment_type != "META"]
             
-            # If no dream segments remain, return safe/pass-through
+            # If no dream segments remain, check for hidden maladaptive content
             if not dream_segments:
+                # If we have nightmare context (i.e., we're in rescripting), the patient
+                # might be describing maladaptive dream content in meta-framing, e.g.,
+                # "I mean the version in my head is just the same thing happening again."
+                # Run a sanity check on the full input before passing through.
+                if nightmare_context:
+                    logger.info("All segments META with nightmare context — running maladaptive sanity check.")
+                    sanity_node_id, sanity_logprobs = await self.classifier.classify_intent(
+                        user_input,
+                        context=nightmare_context,
+                        return_logprobs=True
+                    )
+
+                    if sanity_node_id in self.graph and self.graph.nodes[sanity_node_id].get("type") == "maladaptive":
+                        node_attrs = dict(self.graph.nodes[sanity_node_id])
+                        severity = self._get_severity_label(sanity_node_id)
+                        strategies = get_correction_strategies(self.graph, sanity_node_id)
+
+                        logger.warning(
+                            f"META sanity check caught potential {sanity_node_id} ({severity}) "
+                            f"in meta-framed input"
+                        )
+
+                        constraint = f"""[SAFETY SYSTEM - POSSIBLE MALADAPTIVE CONTENT IN META-FRAMING]
+
+The user's input appeared conversational, but may contain {severity}-risk content ({sanity_node_id}).
+The user may be describing a maladaptive rescripting attempt using reflective language.
+
+INSTRUCTION: Gently seek clarification about what the user means. Ask them to describe
+their changed dream more concretely before proceeding. If they confirm the maladaptive
+pattern, redirect using these therapeutic directions:
+{chr(10).join(f'- {s["target_node"]}: {s.get("therapeutic_direction", "")}' for s in strategies[:2])}
+
+IMPORTANT:
+- Do NOT assume the input is definitely maladaptive — it may be genuine meta-commentary
+- Use curious, supportive language to clarify intent
+- Validate any positive elements before redirecting"""
+
+                        return SafetyResult(
+                            is_safe=False,
+                            node_id=sanity_node_id,
+                            node_type="maladaptive",
+                            category=node_attrs.get("category", "unknown"),
+                            constraint=constraint,
+                            correction_strategies=strategies,
+                            input_text=user_input,
+                            clinical_guideline=node_attrs.get("clinical_guideline", ""),
+                            segments=segments,
+                            severity=severity,
+                            confidence=sanity_logprobs.confidence if sanity_logprobs else None,
+                            mean_logprob=sanity_logprobs.mean_logprob if sanity_logprobs else None
+                        )
+                    else:
+                        logger.info(f"META sanity check passed (classifier returned {sanity_node_id}). Passing through.")
+
                 logger.info("No dream content found (all META). Passing through.")
                 return SafetyResult(
                     is_safe=True,
@@ -304,42 +364,64 @@ class SafetyCritic:
             maladaptive_segments = []
             adaptive_segments = []
             neutral_segments = []
-            
+            unclassified_segments = []
+
             for segment in dream_segments:
                 # Use segment-level context if available, otherwise fall back to nightmare context
                 segment_context = segment.context or nightmare_context
                 node_id, logprobs = await self.classifier.classify_intent(
-                    segment.text, 
+                    segment.text,
                     context=segment_context,
                     return_logprobs=True  # Always request logprobs for confidence
                 )
-                
+
                 if node_id not in self.graph:
                     logger.warning(f"Node '{node_id}' not found in graph")
                     continue
-                
+
                 node_attrs = dict(self.graph.nodes[node_id])
                 segment.node_id = node_id
                 segment.node_type = node_attrs.get("type", "unknown")
                 segment.category = node_attrs.get("category", "unknown")
-                
+
                 # Store confidence metrics from logprobs
                 if logprobs:
                     segment.confidence = logprobs.confidence
                     segment.mean_logprob = logprobs.mean_logprob
-                
-                if segment.node_type == "maladaptive":
+
+                # Route low-confidence segments to UNCLASSIFIED
+                # At threshold=0.0 this catches only total failures (confidence exactly 0.0)
+                # Raise the threshold based on benchmark experiments later
+                if segment.confidence is not None and segment.confidence <= CONFIDENCE_THRESHOLD:
+                    logger.warning(
+                        f"Low confidence ({segment.confidence:.3f}) for segment "
+                        f"'{segment.text[:30]}...' — rerouting to UNCLASSIFIED"
+                    )
+                    segment.node_id = "UNCLASSIFIED"
+                    segment.node_type = "unclassified"
+                    segment.category = "unknown"
+                    unclassified_segments.append(segment)
+                elif segment.node_type == "maladaptive":
                     maladaptive_segments.append(segment)
                 elif segment.node_type == "adaptive":
                     adaptive_segments.append(segment)
+                elif segment.node_type == "unclassified":
+                    # Came back as UNCLASSIFIED directly from classifier
+                    unclassified_segments.append(segment)
                 else:  # neutral
                     neutral_segments.append(segment)
-            
-            # Step 4: Triage - if no maladaptive, return safe
-            if not maladaptive_segments:
+
+            # Step 4: Triage with three-bucket logic
+            # Priority: maladaptive > unclassified > adaptive/neutral
+
+            # Case 1: Maladaptive present — correct as usual, note any unclassified
+            # Case 2: No maladaptive but unclassified present — seek clarification
+            # Case 3: All adaptive/neutral — safe
+
+            if not maladaptive_segments and not unclassified_segments:
                 # All safe - validate adaptive parts
                 primary_segment = adaptive_segments[0] if adaptive_segments else (neutral_segments[0] if neutral_segments else dream_segments[0])
-                
+
                 result = SafetyResult(
                     is_safe=True,
                     node_id=primary_segment.node_id or "UNKNOWN",
@@ -354,21 +436,50 @@ class SafetyCritic:
                 )
                 logger.info(f"SAFE: All segments are adaptive/neutral")
                 return result
+
+            if not maladaptive_segments and unclassified_segments:
+                # No clear risk detected, but some segments couldn't be classified
+                # Fail closed: treat as unsafe and seek clarification
+                primary_segment = unclassified_segments[0]
+
+                constraint = self._build_clarification_message(
+                    unclassified_segments=unclassified_segments,
+                    adaptive_segments=adaptive_segments + neutral_segments
+                )
+
+                result = SafetyResult(
+                    is_safe=False,
+                    node_id="UNCLASSIFIED",
+                    node_type="unclassified",
+                    category="unknown",
+                    constraint=constraint,
+                    correction_strategies=None,
+                    input_text=user_input,
+                    clinical_guideline="When input cannot be reliably classified, seek clarification rather than making assumptions.",
+                    segments=segments,
+                    adaptive_segments=adaptive_segments + neutral_segments,
+                    severity="UNCERTAIN",
+                    confidence=primary_segment.confidence,
+                    mean_logprob=primary_segment.mean_logprob
+                )
+                logger.warning(f"UNCERTAIN: {len(unclassified_segments)} segment(s) could not be classified")
+                return result
             
             # Step 5: Sort maladaptive by severity and select top priority
             sorted_maladaptive = self._sort_by_severity(maladaptive_segments)
             primary_risk = sorted_maladaptive[0]
-            
+
             # Get correction strategies
             strategies = get_correction_strategies(self.graph, primary_risk.node_id)
             node_attrs = dict(self.graph.nodes[primary_risk.node_id])
-            
+
             # Build constraint with validate + correct structure
             constraint = self._build_constraint_message(
                 primary_risk=primary_risk,
                 node_attrs=node_attrs,
                 strategies=strategies,
-                adaptive_segments=adaptive_segments + neutral_segments
+                adaptive_segments=adaptive_segments + neutral_segments,
+                unclassified_segments=unclassified_segments
             )
             
             severity = self._get_severity_label(primary_risk.node_id)
@@ -447,41 +558,43 @@ class SafetyCritic:
         return "User input is adaptive/neutral. Proceed with the dream narrative."
     
     def _build_constraint_message(
-        self, 
+        self,
         primary_risk: SegmentResult,
-        node_attrs: Dict[str, Any], 
+        node_attrs: Dict[str, Any],
         strategies: List[Dict[str, Any]],
-        adaptive_segments: List[SegmentResult]
+        adaptive_segments: List[SegmentResult],
+        unclassified_segments: Optional[List[SegmentResult]] = None
     ) -> str:
         """
         Build a constraint message for the generator with Validate + Correct structure.
-        
+
         Args:
             primary_risk: The highest-priority maladaptive segment
             node_attrs: The node's attributes
             strategies: List of correction strategies
             adaptive_segments: Any adaptive/neutral segments to validate
-            
+            unclassified_segments: Any segments that could not be reliably classified
+
         Returns:
             A constraint message string to inject into the prompt
         """
         severity = self._get_severity_label(primary_risk.node_id)
         risk_description = node_attrs.get("description", primary_risk.node_id)
         clinical_guideline = node_attrs.get("clinical_guideline", "")
-        
+
         # Build VALIDATE section
         validate_section = ""
         if adaptive_segments:
             validations = []
             for seg in adaptive_segments:
                 validations.append(f"'{seg.text}'")
-            validate_section = f"""VALIDATE: The user showed positive elements: {', '.join(validations)}. 
+            validate_section = f"""VALIDATE: The user showed positive elements: {', '.join(validations)}.
 Acknowledge these first (e.g., "Good job noticing..." or "I appreciate that you...")."""
-        
+
         # Build CORRECT section
         primary_strategy = strategies[0] if strategies else None
         correction_direction = primary_strategy.get("therapeutic_direction", "Guide toward adaptive coping.") if primary_strategy else "Guide toward adaptive coping."
-        
+
         # Build suggestions
         suggestions = []
         for strategy in strategies[:2]:  # Limit to top 2 suggestions
@@ -489,7 +602,15 @@ Acknowledge these first (e.g., "Good job noticing..." or "I appreciate that you.
             direction = strategy.get("therapeutic_direction", "")
             suggestions.append(f"- {target}: {direction}")
         suggestions_text = "\n".join(suggestions) if suggestions else "Guide toward adaptive coping."
-        
+
+        # Build CLARIFY section for unclassified segments (if any)
+        clarify_section = ""
+        if unclassified_segments:
+            unclear_texts = [f"'{seg.text}'" for seg in unclassified_segments]
+            clarify_section = f"""
+CLARIFY: Part of the user's input was unclear: {', '.join(unclear_texts)}.
+After addressing the main correction, gently ask what they meant by this part."""
+
         # Construct the full constraint message
         constraint = f"""[SAFETY SYSTEM - INTERVENTION REQUIRED]
 
@@ -504,8 +625,8 @@ INSTRUCTION: Gently redirect using this approach:
 
 Alternative therapeutic directions:
 {suggestions_text}
-
-IMPORTANT: 
+{clarify_section}
+IMPORTANT:
 - Do NOT validate or encourage the maladaptive response ("{primary_risk.text}")
 - Focus correction on THIS specific issue only - do not list other potential problems
 - Use empathetic, supportive language while redirecting
@@ -513,6 +634,52 @@ IMPORTANT:
 
         return constraint
     
+    def _build_clarification_message(
+        self,
+        unclassified_segments: List[SegmentResult],
+        adaptive_segments: Optional[List[SegmentResult]] = None
+    ) -> str:
+        """
+        Build a clarification-seeking constraint for unclassified segments.
+
+        Used when no maladaptive content was detected but some segments
+        could not be reliably classified. The chatbot should validate any
+        adaptive parts and then ask the user to elaborate on the unclear parts.
+
+        Args:
+            unclassified_segments: Segments that could not be classified
+            adaptive_segments: Any adaptive/neutral segments to validate
+
+        Returns:
+            A constraint message string to inject into the prompt
+        """
+        # Build VALIDATE section
+        validate_section = ""
+        if adaptive_segments:
+            validations = [f"'{seg.text}'" for seg in adaptive_segments]
+            validate_section = f"""VALIDATE: The user showed positive elements: {', '.join(validations)}.
+Acknowledge these first (e.g., "Good job noticing..." or "I appreciate that you...")."""
+
+        # Build CLARIFY section
+        unclear_texts = [f"'{seg.text}'" for seg in unclassified_segments]
+
+        constraint = f"""[SAFETY SYSTEM - CLARIFICATION NEEDED]
+
+{validate_section}
+
+CLARIFY: The following part(s) of the user's input could not be reliably understood: {', '.join(unclear_texts)}.
+
+INSTRUCTION: After validating any positive elements, gently ask the user to elaborate on what they meant.
+Use supportive, curious language (e.g., "Could you tell me more about what you mean by...?" or
+"I want to make sure I understand — when you say '...', what do you picture happening in the dream?").
+
+IMPORTANT:
+- Do NOT assume the unclear input is maladaptive — it may be perfectly fine
+- Do NOT ignore it either — seek clarification before proceeding
+- Keep the tone warm and collaborative"""
+
+        return constraint
+
     async def evaluate_batch(self, inputs: List[str], nightmare_context: Optional[str] = None) -> List[SafetyResult]:
         """
         Evaluate multiple interventions.

@@ -13,6 +13,7 @@ First-token Margin of Victory is retained as a secondary diagnostic metric.
 import os
 import sys
 import math
+import time
 from typing import Optional, Tuple
 import logging
 from dataclasses import dataclass
@@ -66,6 +67,11 @@ class ClassificationResult:
     margin: Optional[float] = None  # Margin of Victory (diagnostic): prob_winner - prob_runner_up
     prob_winner: Optional[float] = None  # First-token winner probability (diagnostic)
     prob_runner_up: Optional[float] = None  # First-token runner-up probability (diagnostic)
+    # Computational cost metrics
+    input_tokens: Optional[int] = None
+    output_tokens: Optional[int] = None
+    total_tokens: Optional[int] = None
+    latency_ms: Optional[float] = None  # Wall-clock time for the API call in milliseconds
 
 
 # System prompt for the Clinical Coder with Label Engineering
@@ -143,6 +149,29 @@ Respond with ONLY ONE CODE from: HIDE, ESCAPE, DESTROY, DENY, REPLAY, CONFRONT, 
 No explanations. Just the code.
 """
 
+# ============================================================================
+# CONTEXT-AWARE EXAMPLES: Appended when use_context_examples=True
+# Teaches the model that nightmare context changes classification.
+# Clinically grounded — not derived from any benchmark data.
+# ============================================================================
+CONTEXT_AWARE_EXAMPLES = """
+
+## CONTEXT-AWARE EXAMPLES
+When nightmare context is provided, use it to disambiguate. The same surface action can classify differently depending on context.
+
+- [NIGHTMARE CONTEXT] A shadowy figure was chasing me through endless hallways
+  [USER'S REWRITING ATTEMPT] I just keep running and running
+  -> HIDE (fleeing without agency or destination is avoidance, not purposeful action)
+
+- [NIGHTMARE CONTEXT] A shadowy figure was chasing me through endless hallways
+  [USER'S REWRITING ATTEMPT] I sprint toward the exit at the end of the hall
+  -> CONFRONT (running with purpose and direction is active behavioral mastery)
+
+- [NIGHTMARE CONTEXT] I watched my childhood home burn down with my family inside
+  [USER'S REWRITING ATTEMPT] I'm fine, it doesn't bother me at all
+  -> DENY (claiming no distress about deeply distressing content is emotional suppression)
+"""
+
 
 class ClinicalClassifier:
     """
@@ -152,20 +181,29 @@ class ClinicalClassifier:
     that returned codes exist in the clinical knowledge graph.
     """
     
-    def __init__(self, model_config: Optional[ModelConfig] = None):
+    def __init__(self, model_config: Optional[ModelConfig] = None, use_context_examples: bool = False):
         """
         Initialize the Clinical Classifier.
-        
+
         Args:
             model_config: Optional model configuration. Defaults to MISTRAL_NEMO for speed.
+            use_context_examples: If True, append context-aware few-shot examples to the prompt.
+                                  Default False preserves the original prompt for backward compatibility.
         """
-        # Use small Mistral model for classification
+        # Use Scaleway Mistral Small for classification (logprobs required, not supported on OpenRouter)
         self.model_config = model_config or MODELS["MISTRAL_SMALL"]
-        
+        self.use_context_examples = use_context_examples
+
+        # Build prompt: base + optional context-aware examples
+        prompt = CLINICAL_CODER_PROMPT
+        if use_context_examples:
+            prompt = CLINICAL_CODER_PROMPT + CONTEXT_AWARE_EXAMPLES
+            logger.info("Using context-aware examples (enhanced prompt)")
+
         # Initialize the agent with clinical coder prompt
         self.agent = Agent(
             model_config=self.model_config,
-            system_prompt=CLINICAL_CODER_PROMPT,
+            system_prompt=prompt,
             temperature=0.1  # Low temperature for consistent classification
         )
         
@@ -214,11 +252,13 @@ Classify the rewriting attempt. If user claims to feel nothing about distressing
                 classification_input = user_text
             
             # Always request logprobs for margin calculation
+            t0 = time.perf_counter()
             response, usage, logprobs = await self.agent.generate(
                 classification_input,
                 logprobs=True,
                 top_logprobs=5
             )
+            latency_ms = (time.perf_counter() - t0) * 1000
             
             # Parse the code from response
             raw_response = response.strip()
@@ -261,10 +301,12 @@ Classify the rewriting attempt. If user claims to feel nothing about distressing
                     confidence = 0.0
                     code = NODE_TO_CODE.get(node_id, code)
                 except ValueError:
-                    # Complete failure - default to behavioral mastery with 0 confidence
-                    logger.error(f"Fuzzy match failed for '{code}'. Defaulting to BEHAVIORAL_MASTERY.")
-                    node_id = "BEHAVIORAL_MASTERY"
-                    code = "CONFRONT"
+                    # Complete failure - route to UNCLASSIFIED with 0 confidence
+                    # This lets the critic handle it safely (seek clarification)
+                    # instead of silently labeling it as adaptive
+                    logger.error(f"Fuzzy match failed for '{code}'. Routing to UNCLASSIFIED.")
+                    node_id = "UNCLASSIFIED"
+                    code = "UNCLASSIFIED"
                     confidence = 0.0
             
             logger.info(f"Classification: '{user_text[:50]}...' -> {code} ({node_id}) [confidence: {confidence:.3f}, margin: {margin}]")
@@ -279,6 +321,10 @@ Classify the rewriting attempt. If user claims to feel nothing about distressing
                 margin=margin,
                 prob_winner=prob_winner,
                 prob_runner_up=prob_runner_up,
+                input_tokens=usage.get("input"),
+                output_tokens=usage.get("output"),
+                total_tokens=usage.get("total"),
+                latency_ms=latency_ms,
             ) if return_logprobs else None
             
             return node_id, result
