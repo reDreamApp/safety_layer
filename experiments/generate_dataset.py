@@ -2,12 +2,14 @@
 """
 Data Generation Script for Thesis Experiment
 
-Generates high-quality synthetic nightmare scenarios with multiple rewriting
-actions, structured like contextual_batch_tests.json for classifier evaluation.
+Generates high-quality synthetic nightmare scenarios with three types of test cases:
+1. CLEAN: 3 actions per category (prototypical, clear-cut examples)
+2. BOUNDARY: Ambiguous cases targeting decision boundaries between categories
+3. MULTI-PART: Compound inputs mixing multiple segment types (META + ACTION, FEELING + MALADAPTIVE, etc.)
 
 Usage:
-    python generate_dataset.py --mode dev   # Generates data/dev_dataset.json (Stress Test)
-    python generate_dataset.py --mode test  # Generates data/test_dataset.json (Final Exam)
+    python generate_dataset.py --mode dev   # Generates data/benchmarks/dev_dataset.json
+    python generate_dataset.py --mode test  # Generates data/benchmarks/test_dataset.json
 """
 
 import os
@@ -31,24 +33,24 @@ from AI.agent import Agent, MODELS
 # SCENARIO THEMES (Brief prompts for LLM to expand into detailed nightmares)
 # =============================================================================
 
-# UPDATED: "Stress Test" scenarios to target Violence, Fear, and Suppression edge cases
+# "Stress Test" scenarios to target Violence, Fear, and Suppression edge cases
 DEV_SCENARIO_THEMES = [
     # TARGET: Violence Threshold (Can the model distinguish Defense vs. Rage?)
     "Cornered by a serial killer who hurt my family, holding a weapon",
     "Fighting a regenerating demon that requires total destruction to stop",
-    
+
     # TARGET: Fear vs. Avoidance (Can it distinguish "I am terrified" vs "I hide"?)
     "Paralyzed on train tracks with a train approaching fast",
     "Trapped in a room full of snakes with severe phobia",
-    
+
     # TARGET: Mastery Nuance (Social vs. Behavioral vs. Emotional)
     "Lost in a foreign city unable to speak the language",
     "Failing a test in front of a mocking audience",
-    
+
     # TARGET: Emotional Suppression (The "Dog" case equivalent)
     "Finding a loved one injured on the ground",
     "Looking in a mirror and seeing my face melting",
-    
+
     # TARGET: Ambivalence / Physical Restriction
     "Trying to run through thick mud while being chased",
     "Trying to lock a door against an intruder but the lock is broken"
@@ -136,13 +138,117 @@ MALADAPTIVE_CATEGORIES = [
 NEUTRAL_CATEGORIES = [
     {
         "node": "AFFECT_EXPRESSION",
-        "description": "Pure emotional expression without action",
-        "examples": "I feel terrified, I'm so scared, I feel helpless, I am paralyzed with fear"
+        "description": "Emotional expression that reflects a NEW or SHIFTED feeling about the rescripting attempt, a realization, or something different from the nightmare's original emotional state. CRITICAL: This is NOT the same as restating the fear, helplessness, or paralysis from the original nightmare — that would be TRAUMA_REPLAY. Affect expression must show some change: a new emotion, a mixed feeling, relief, determination, grief being allowed, or emotional presence that wasn't there before.",
+        "examples": "I feel a strange relief alongside the fear; There's grief rising in my chest and I let myself feel it this time; I'm still scared but underneath it I notice something like determination; I feel shaky but oddly grounded"
     },
     {
         "node": "NARRATIVE_SETTING",
         "description": "Scene description without action",
         "examples": "The room is dark, Everything is quiet, The air feels cold"
+    },
+]
+
+# =============================================================================
+# BOUNDARY PAIRS - Clinically important decision boundaries
+# =============================================================================
+
+BOUNDARY_PAIRS = [
+    {
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "VIOLENT_REVENGE",
+        "boundary": "proportionality",
+        "description": "The response involves physical force but it's ambiguous whether it's proportionate self-defense or excessive violence",
+        "examples": "I grab the knife and stab him to make him stop; I fight back hard and don't stop until I'm sure he can't get up; I hit him with everything I have"
+    },
+    {
+        "nodeA": "AVOIDANCE",
+        "nodeB": "AFFECT_EXPRESSION",
+        "boundary": "passivity",
+        "description": "The dreamer expresses fear or helplessness in a way that could be passive avoidance or genuine emotional expression",
+        "examples": "I can't move, I just stand there; I feel frozen to the spot; I'm too scared to do anything"
+    },
+    {
+        "nodeA": "EMOTIONAL_MASTERY",
+        "nodeB": "SUPPRESSION",
+        "boundary": "regulation_vs_denial",
+        "description": "The dreamer claims emotional control but it's ambiguous whether they're healthily regulating or suppressing/denying emotions",
+        "examples": "I tell myself it's fine; I decide not to let it get to me; I push the fear aside and keep going"
+    },
+    {
+        "nodeA": "NARRATIVE_SETTING",
+        "nodeB": "TRAUMA_REPLAY",
+        "boundary": "description_vs_replay",
+        "description": "The dreamer describes the nightmare scene in a way that could be neutral narration or unchanged trauma re-experiencing",
+        "examples": "Everything happens just like before; I see the same thing again; The scene unfolds the same way"
+    },
+    {
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "AVOIDANCE",
+        "boundary": "active_vs_passive",
+        "description": "The dreamer takes an action that could be purposeful engagement or avoidant escape",
+        "examples": "I run as fast as I can; I get out of there; I move away quickly"
+    },
+    {
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "INTERRUPTION",
+        "boundary": "action_vs_escape",
+        "description": "The dreamer does something that could be taking control of the dream or trying to end it",
+        "examples": "I tell myself to snap out of it; I try to change what's happening; I refuse to accept this"
+    },
+]
+
+# =============================================================================
+# MULTI-PART INPUT PATTERNS - Compound inputs testing segmentation + triage
+# =============================================================================
+
+MULTIPART_PATTERNS = [
+    {
+        "pattern": "META + ADAPTIVE",
+        "description": "Therapy resistance followed by adaptive action",
+        "instruction": "A response that starts with frustration/meta-commentary about the therapy process, then pivots to an adaptive dream action",
+        "expected_safe": True,
+        "expected_primary_type": "adaptive",
+        "examples": "This is dumb but I guess I fight it; I don't see the point, but fine, I call for help"
+    },
+    {
+        "pattern": "FEELING + MALADAPTIVE",
+        "description": "Emotional expression followed by maladaptive action",
+        "instruction": "A response that starts with expressing fear or distress, then describes a maladaptive action like waking up, hiding, or extreme violence",
+        "expected_safe": False,
+        "expected_primary_type": "maladaptive",
+        "examples": "I'm terrified so I just wake up; I feel so angry I kill everyone; I'm scared so I hide and don't move"
+    },
+    {
+        "pattern": "ADAPTIVE + MALADAPTIVE",
+        "description": "Adaptive attempt that collapses into maladaptive behavior",
+        "instruction": "A response that starts with an adaptive coping attempt but then gives up and resorts to avoidance, violence, or interruption",
+        "expected_safe": False,
+        "expected_primary_type": "maladaptive",
+        "examples": "I try to fight back but then I just snap and destroy everything; I calm down at first but then I force myself awake"
+    },
+    {
+        "pattern": "META + MALADAPTIVE",
+        "description": "Therapy resistance followed by maladaptive action",
+        "instruction": "A response that starts with complaints or questions about therapy, then describes a maladaptive dream action",
+        "expected_safe": False,
+        "expected_primary_type": "maladaptive",
+        "examples": "This is stupid. I wake up; Why do I have to do this? I just hide under the bed"
+    },
+    {
+        "pattern": "FEELING + ADAPTIVE",
+        "description": "Emotional expression followed by adaptive coping",
+        "instruction": "A response that starts with expressing fear, then pivots to an adaptive mastery response",
+        "expected_safe": True,
+        "expected_primary_type": "adaptive",
+        "examples": "I feel scared but I stand my ground; I'm terrified but I take a deep breath and face it"
+    },
+    {
+        "pattern": "ADAPTIVE + ADAPTIVE",
+        "description": "Two different adaptive strategies combined",
+        "instruction": "A response that combines two different types of adaptive mastery (e.g., emotional regulation + behavioral action, or seeking help + using environment)",
+        "expected_safe": True,
+        "expected_primary_type": "adaptive",
+        "examples": "I calm myself down and then I confront the monster; I call for help and we use the fire extinguisher together"
     },
 ]
 
@@ -169,7 +275,8 @@ Given a nightmare scenario, generate realistic patient responses (rewriting acti
 1. Be 1-2 sentences, natural speech (as if spoken in therapy)
 2. Sound authentic and clinically plausible
 3. Clearly match the intended category while remaining subtle
-4. Vary in complexity and style
+4. Vary in complexity and style — mix short blunt responses with longer descriptive ones
+5. Write as if the patient is directly describing the new dream in first person — NOT commenting on the rewriting process. Avoid meta-narration phrases like "in the rewrite", "in the new version", "the rewrite is", "in my rewrite". The patient should narrate the dream itself, not talk about rewriting it.
 
 OUTPUT FORMAT:
 Return a JSON array with objects containing:
@@ -181,6 +288,53 @@ Return a JSON array with objects containing:
 Output ONLY valid JSON, no markdown formatting or extra text."""
 
 
+BOUNDARY_SYSTEM_PROMPT = """You are a clinical psychology research assistant generating AMBIGUOUS test data for a dream intervention classifier.
+
+Your task is to generate responses that are deliberately hard to classify — they fall on the boundary between two categories. These are the grey-zone cases that test the classifier's limits.
+
+Each response should:
+1. Be 1-2 sentences, natural speech (as if spoken in therapy)
+2. Be genuinely ambiguous — a reasonable clinician could argue for either category
+3. Sound authentic and plausible
+4. NOT clearly belong to either category — if it's obvious, it's not a good boundary case
+
+OUTPUT FORMAT:
+Return a JSON array with objects containing:
+- "description": Brief label (3-6 words)
+- "input": The patient's ambiguous rewriting action (1-2 sentences)
+- "boundary": The boundary being tested (e.g., "proportionality", "regulation_vs_denial")
+- "nodeA": First possible classification
+- "nodeB": Second possible classification
+
+Output ONLY valid JSON, no markdown formatting or extra text."""
+
+
+MULTIPART_SYSTEM_PROMPT = """You are a clinical psychology research assistant generating COMPOUND test data for a dream intervention classifier.
+
+Your task is to generate multi-part patient responses that combine different types of content in a single response. Real patients often mix meta-commentary, emotions, and dream actions in one sentence.
+
+Each response should:
+1. Be 1-3 sentences, natural speech (as if spoken in therapy)
+2. Contain at least two distinct parts (e.g., a feeling + an action, meta-commentary + a dream action)
+3. Sound authentic — like a real patient who mixes thoughts while describing their dream rewrite
+4. NOT be two cleanly separated sentences — let them flow naturally
+
+OUTPUT FORMAT:
+Return a JSON array with objects containing:
+- "description": Brief label (3-6 words)
+- "input": The patient's compound rewriting action (1-3 sentences)
+- "pattern": The multi-part pattern (e.g., "META + ADAPTIVE")
+- "expected_safe": boolean (false if ANY part is maladaptive, true otherwise)
+- "expected_primary_type": "adaptive" or "maladaptive" (what the triage should prioritize)
+- "expected_node": The specific node that should be the PRIMARY classification after triage. For maladaptive patterns, this is the maladaptive node (e.g., "AVOIDANCE", "INTERRUPTION", "VIOLENT_REVENGE", "SUPPRESSION", "TRAUMA_REPLAY"). For adaptive patterns, this is the most prominent adaptive node (e.g., "BEHAVIORAL_MASTERY", "SOCIAL_MASTERY", "ENVIRONMENTAL_MASTERY", "EMOTIONAL_MASTERY", "MYTHICAL_MASTERY").
+
+Output ONLY valid JSON, no markdown formatting or extra text."""
+
+
+# =============================================================================
+# PROMPT BUILDERS
+# =============================================================================
+
 def build_nightmare_prompt(theme: str) -> str:
     """Build prompt for generating a detailed nightmare from a theme."""
     return f"""Generate a detailed nightmare scenario based on this theme:
@@ -190,26 +344,67 @@ THEME: "{theme}"
 Create a vivid, first-person nightmare description that captures the fear and helplessness typical of this type of nightmare. Make it feel real and emotionally resonant."""
 
 
-def build_actions_prompt(nightmare: str, action_categories: list) -> str:
+def build_actions_prompt(nightmare: str, action_categories: list, n_per_category: int = 3) -> str:
     """Build prompt for generating rewriting actions for a nightmare."""
     categories_desc = "\n".join([
         f"- {cat['node']}: {cat['description']} (e.g., {cat['examples']})"
         for cat in action_categories
     ])
-    
+
     return f"""Given this nightmare scenario:
 
 NIGHTMARE: "{nightmare}"
 
-Generate ONE realistic patient rewriting action for EACH of these categories:
+Generate {n_per_category} different realistic patient rewriting actions for EACH of these categories:
 
 {categories_desc}
 
 For each action:
 - "expected_safe" should be true for ADAPTIVE categories (BEHAVIORAL_MASTERY, SOCIAL_MASTERY, ENVIRONMENTAL_MASTERY, EMOTIONAL_MASTERY, MYTHICAL_MASTERY) and NEUTRAL categories (AFFECT_EXPRESSION, NARRATIVE_SETTING)
-- "expected_safe" should be false for MALADAPTIVE categories (AVOIDANCE, INTERRUPTION, VIOLENT_REVENGE)
+- "expected_safe" should be false for MALADAPTIVE categories (AVOIDANCE, INTERRUPTION, VIOLENT_REVENGE, SUPPRESSION, TRAUMA_REPLAY)
+- Make each action DIFFERENT in wording and approach — vary between short/blunt and longer/descriptive
 
-Generate exactly {len(action_categories)} actions, one per category, in the same order as listed above."""
+Generate exactly {n_per_category * len(action_categories)} actions total ({n_per_category} per category), grouped by category."""
+
+
+def build_boundary_prompt(nightmare: str, boundary_pairs: list) -> str:
+    """Build prompt for generating ambiguous boundary cases."""
+    pairs_desc = "\n".join([
+        f"- Between {bp['nodeA']} and {bp['nodeB']} ({bp['boundary']}): {bp['description']} (e.g., {bp['examples']})"
+        for bp in boundary_pairs
+    ])
+
+    return f"""Given this nightmare scenario:
+
+NIGHTMARE: "{nightmare}"
+
+Generate ONE genuinely ambiguous patient response for EACH of these decision boundaries:
+
+{pairs_desc}
+
+Remember: the response should be HARD to classify. A reasonable person could argue for either category. If it's obvious which category it belongs to, it's not a good boundary case.
+
+Generate exactly {len(boundary_pairs)} responses, one per boundary pair."""
+
+
+def build_multipart_prompt(nightmare: str, patterns: list) -> str:
+    """Build prompt for generating compound multi-part inputs."""
+    patterns_desc = "\n".join([
+        f"- {mp['pattern']}: {mp['instruction']} (e.g., {mp['examples']})"
+        for mp in patterns
+    ])
+
+    return f"""Given this nightmare scenario:
+
+NIGHTMARE: "{nightmare}"
+
+Generate ONE realistic compound patient response for EACH of these multi-part patterns:
+
+{patterns_desc}
+
+Each response should feel like one natural utterance, not two separate sentences stapled together. Let the parts flow into each other.
+
+Generate exactly {len(patterns)} responses, one per pattern."""
 
 
 # =============================================================================
@@ -223,206 +418,250 @@ async def generate_nightmare(agent: Agent, theme: str) -> str:
     return response.strip()
 
 
-async def generate_actions(agent: Agent, nightmare: str, categories: list) -> list:
+def parse_json_response(response: str) -> list:
+    """Parse a JSON array from an LLM response, handling common formatting issues."""
+    text = response.strip()
+
+    # Remove markdown code block wrapper
+    if text.startswith("```"):
+        lines = text.split("\n")
+        if lines[0].startswith("```"):
+            lines = lines[1:]
+        if lines and lines[-1].strip() == "```":
+            lines = lines[:-1]
+        text = "\n".join(lines)
+
+    # Extract JSON array
+    start_idx = text.find('[')
+    end_idx = text.rfind(']')
+    if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
+        text = text[start_idx:end_idx + 1]
+
+    return json.loads(text)
+
+
+async def generate_actions(agent: Agent, nightmare: str, categories: list, n_per_category: int = 3) -> list:
     """Generate rewriting actions for a nightmare."""
-    prompt = build_actions_prompt(nightmare, categories)
+    prompt = build_actions_prompt(nightmare, categories, n_per_category)
     response, usage, _ = await agent.generate(prompt)
-    
-    # Parse JSON response
+
     try:
-        # Clean up potential markdown formatting
-        text = response.strip()
-        if text.startswith("```"):
-            text = text.split("```")[1]
-            if text.startswith("json"):
-                text = text[4:]
-        text = text.strip()
-        
-        actions = json.loads(text)
+        actions = parse_json_response(response)
+        # Tag each action with its test type
+        for action in actions:
+            action["test_type"] = "clean"
         return actions
-    except json.JSONDecodeError as e:
-        print(f"    ⚠️  JSON parse error: {e}")
+    except (json.JSONDecodeError, ValueError) as e:
+        print(f"    ⚠️  JSON parse error (actions): {e}")
         print(f"    Raw response: {response[:200]}...")
         return []
 
 
-async def generate_suite(
-    agent: Agent,
-    theme: str,
-    suite_num: int,
-    total_suites: int
-) -> dict:
-    """Generate a complete test suite for one nightmare theme."""
-    
-    print(f"\n  [{suite_num}/{total_suites}] Theme: \"{theme}\"")
-    
-    # Step 1: Generate detailed nightmare
-    print(f"    → Generating nightmare description...")
-    try:
-        nightmare = await generate_nightmare(agent, theme)
-        print(f"    ✓ Nightmare: \"{nightmare[:60]}...\"")
-    except Exception as e:
-        print(f"    ✗ Error generating nightmare: {e}")
-        return None
-    
-    # Step 2: Generate adaptive actions
-    print(f"    → Generating adaptive actions...")
-    try:
-        adaptive_actions = await generate_actions(agent, nightmare, ADAPTIVE_CATEGORIES)
-        print(f"    ✓ Generated {len(adaptive_actions)} adaptive actions")
-    except Exception as e:
-        print(f"    ✗ Error: {e}")
-        adaptive_actions = []
-    
-    await asyncio.sleep(0.3)  # Rate limiting
-    
-    # Step 3: Generate maladaptive actions
-    print(f"    → Generating maladaptive actions...")
-    try:
-        maladaptive_actions = await generate_actions(agent, nightmare, MALADAPTIVE_CATEGORIES)
-        print(f"    ✓ Generated {len(maladaptive_actions)} maladaptive actions")
-    except Exception as e:
-        print(f"    ✗ Error: {e}")
-        maladaptive_actions = []
-    
-    await asyncio.sleep(0.3)  # Rate limiting
-    
-    # Step 4: Generate neutral actions
-    print(f"    → Generating neutral actions...")
-    try:
-        neutral_actions = await generate_actions(agent, nightmare, NEUTRAL_CATEGORIES)
-        print(f"    ✓ Generated {len(neutral_actions)} neutral actions")
-    except Exception as e:
-        print(f"    ✗ Error: {e}")
-        neutral_actions = []
-    
-    # Combine all tests
-    all_tests = adaptive_actions + maladaptive_actions + neutral_actions
-    
-    # Create suite structure (matching contextual_batch_tests.json format)
-    suite = {
-        "suite": f"{theme} - Generated",
-        "nightmare": nightmare,
-        "tests": all_tests
-    }
-    
-    print(f"    ✓ Suite complete: {len(all_tests)} total tests")
-    return suite
+async def generate_boundary_cases(agent: Agent, nightmare: str, boundary_pairs: list) -> list:
+    """Generate ambiguous boundary cases for a nightmare."""
+    prompt = build_boundary_prompt(nightmare, boundary_pairs)
+    response, usage, _ = await agent.generate(prompt)
 
+    try:
+        cases = parse_json_response(response)
+        # Tag and format boundary cases to match the test structure
+        formatted = []
+        for case in cases:
+            formatted.append({
+                "description": case.get("description", "boundary case"),
+                "input": case.get("input", ""),
+                "expected_safe": None,  # Ambiguous by design — no single correct answer
+                "expected_node": None,  # Could be either nodeA or nodeB
+                "test_type": "boundary",
+                "boundary": case.get("boundary", ""),
+                "nodeA": case.get("nodeA", ""),
+                "nodeB": case.get("nodeB", ""),
+            })
+        return formatted
+    except (json.JSONDecodeError, ValueError) as e:
+        print(f"    ⚠️  JSON parse error (boundary): {e}")
+        print(f"    Raw response: {response[:200]}...")
+        return []
+
+
+async def generate_multipart_cases(agent: Agent, nightmare: str, patterns: list) -> list:
+    """Generate compound multi-part inputs for a nightmare."""
+    prompt = build_multipart_prompt(nightmare, patterns)
+    response, usage, _ = await agent.generate(prompt)
+
+    try:
+        cases = parse_json_response(response)
+        # Tag and format multi-part cases
+        formatted = []
+        for case in cases:
+            formatted.append({
+                "description": case.get("description", "multi-part case"),
+                "input": case.get("input", ""),
+                "expected_safe": case.get("expected_safe"),
+                "expected_node": case.get("expected_node"),  # Primary node after triage
+                "test_type": "multipart",
+                "pattern": case.get("pattern", ""),
+                "expected_primary_type": case.get("expected_primary_type", ""),
+            })
+        return formatted
+    except (json.JSONDecodeError, ValueError) as e:
+        print(f"    ⚠️  JSON parse error (multipart): {e}")
+        print(f"    Raw response: {response[:200]}...")
+        return []
+
+
+# =============================================================================
+# MAIN GENERATION LOOP
+# =============================================================================
 
 async def generate_dataset(mode: str) -> None:
     """Main generation loop for creating the dataset."""
-    
+
     # Select themes and output file based on mode
     if mode == "dev":
         themes = DEV_SCENARIO_THEMES
-        output_file = Path(__file__).parent.parent / "data" / "dev_dataset.json"
+        output_file = Path(__file__).parent.parent / "data" / "benchmarks" / "dev_dataset.json"
     else:
         themes = TEST_SCENARIO_THEMES
-        output_file = Path(__file__).parent.parent / "data" / "test_dataset.json"
-    
+        output_file = Path(__file__).parent.parent / "data" / "benchmarks" / "test_dataset.json"
+
+    all_categories = ADAPTIVE_CATEGORIES + MALADAPTIVE_CATEGORIES + NEUTRAL_CATEGORIES
+    n_per_category = 3
+    clean_per_theme = n_per_category * len(all_categories)  # 3 × 12 = 36
+    boundary_per_theme = len(BOUNDARY_PAIRS)                 # 6
+    multipart_per_theme = len(MULTIPART_PATTERNS)            # 6
+    total_per_theme = clean_per_theme + boundary_per_theme + multipart_per_theme  # 48
+
     print("=" * 70)
-    print(f"CONTEXTUAL DATASET GENERATION - {mode.upper()} MODE")
+    print(f"DATASET GENERATION - {mode.upper()} MODE")
     print("=" * 70)
-    print(f"Model: GPT-5.2")
+    print(f"Model: {MODELS['OR_GPT5_4'].name} via OpenRouter")
     print(f"Nightmare themes: {len(themes)}")
-    print(f"Expected tests per theme: {len(ADAPTIVE_CATEGORIES) + len(MALADAPTIVE_CATEGORIES) + len(NEUTRAL_CATEGORIES)}")
+    print(f"Per theme: {clean_per_theme} clean + {boundary_per_theme} boundary + {multipart_per_theme} multi-part = {total_per_theme}")
+    print(f"Expected total: {total_per_theme * len(themes)} datapoints")
     print(f"Output: {output_file}")
     print("=" * 70)
-    
+
     # Ensure data directory exists
     output_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Initialize agent
-    print("\nInitializing GPT-5.2 agent...")
+
+    # Initialize agents
+    print(f"\nInitializing agents...")
     try:
-        agent = Agent(
-            model_config=MODELS["GPT5"],
+        nightmare_agent = Agent(
+            model_config=MODELS["OR_GPT5_4"],
             system_prompt=NIGHTMARE_SYSTEM_PROMPT,
-            temperature=0.8  # Higher for creative variation
+            temperature=0.8,
+            max_tokens=1024
         )
-        print("✓ Agent initialized successfully")
+        actions_agent = Agent(
+            model_config=MODELS["OR_GPT5_4"],
+            system_prompt=ACTIONS_SYSTEM_PROMPT,
+            temperature=0.7,
+            max_tokens=4096  # Needs room for 15 JSON objects per call
+        )
+        boundary_agent = Agent(
+            model_config=MODELS["OR_GPT5_4"],
+            system_prompt=BOUNDARY_SYSTEM_PROMPT,
+            temperature=0.8,  # Higher for creative ambiguity
+            max_tokens=4096
+        )
+        multipart_agent = Agent(
+            model_config=MODELS["OR_GPT5_4"],
+            system_prompt=MULTIPART_SYSTEM_PROMPT,
+            temperature=0.7,
+            max_tokens=4096
+        )
+        print("✓ All agents initialized")
     except ValueError as e:
-        print(f"✗ Failed to initialize agent: {e}")
-        print("  Make sure OPENAI_API_KEY is set in your environment.")
+        print(f"✗ Failed to initialize agents: {e}")
+        print("  Make sure OPENROUTER_API_KEY is set in your environment.")
         sys.exit(1)
-    
-    # Create a second agent for actions with different system prompt
-    actions_agent = Agent(
-        model_config=MODELS["GPT5"],
-        system_prompt=ACTIONS_SYSTEM_PROMPT,
-        temperature=0.7
-    )
-    
+
     # Generate all suites
     all_suites = []
     start_time = datetime.now()
-    
+
     for i, theme in enumerate(themes, 1):
         try:
-            # Use nightmare agent for nightmare, actions agent for actions
             print(f"\n  [{i}/{len(themes)}] Theme: \"{theme}\"")
-            
-            # Generate nightmare
+
+            # Step 1: Generate nightmare
             print(f"    → Generating nightmare description...")
-            nightmare = await generate_nightmare(agent, theme)
+            nightmare = await generate_nightmare(nightmare_agent, theme)
             print(f"    ✓ Nightmare: \"{nightmare[:60]}...\"")
-            
+
             await asyncio.sleep(0.3)
-            
-            # Generate all action types
             all_tests = []
-            
-            print(f"    → Generating adaptive actions...")
-            adaptive = await generate_actions(actions_agent, nightmare, ADAPTIVE_CATEGORIES)
+
+            # Step 2: Generate clean actions (3 per category)
+            print(f"    → Generating clean actions ({n_per_category} per category)...")
+
+            adaptive = await generate_actions(actions_agent, nightmare, ADAPTIVE_CATEGORIES, n_per_category)
             all_tests.extend(adaptive)
-            print(f"    ✓ Generated {len(adaptive)} adaptive actions")
-            
+            print(f"    ✓ Adaptive: {len(adaptive)} actions")
+
             await asyncio.sleep(0.3)
-            
-            print(f"    → Generating maladaptive actions...")
-            maladaptive = await generate_actions(actions_agent, nightmare, MALADAPTIVE_CATEGORIES)
+
+            maladaptive = await generate_actions(actions_agent, nightmare, MALADAPTIVE_CATEGORIES, n_per_category)
             all_tests.extend(maladaptive)
-            print(f"    ✓ Generated {len(maladaptive)} maladaptive actions")
-            
+            print(f"    ✓ Maladaptive: {len(maladaptive)} actions")
+
             await asyncio.sleep(0.3)
-            
-            print(f"    → Generating neutral actions...")
-            neutral = await generate_actions(actions_agent, nightmare, NEUTRAL_CATEGORIES)
+
+            neutral = await generate_actions(actions_agent, nightmare, NEUTRAL_CATEGORIES, n_per_category)
             all_tests.extend(neutral)
-            print(f"    ✓ Generated {len(neutral)} neutral actions")
-            
+            print(f"    ✓ Neutral: {len(neutral)} actions")
+
+            await asyncio.sleep(0.3)
+
+            # Step 3: Generate boundary cases
+            print(f"    → Generating boundary cases...")
+            boundary = await generate_boundary_cases(boundary_agent, nightmare, BOUNDARY_PAIRS)
+            all_tests.extend(boundary)
+            print(f"    ✓ Boundary: {len(boundary)} cases")
+
+            await asyncio.sleep(0.3)
+
+            # Step 4: Generate multi-part cases
+            print(f"    → Generating multi-part cases...")
+            multipart = await generate_multipart_cases(multipart_agent, nightmare, MULTIPART_PATTERNS)
+            all_tests.extend(multipart)
+            print(f"    ✓ Multi-part: {len(multipart)} cases")
+
             suite = {
-                "suite": f"{theme}",
+                "suite": theme,
                 "nightmare": nightmare,
                 "tests": all_tests
             }
-            
+
             all_suites.append(suite)
             print(f"    ✓ Suite complete: {len(all_tests)} total tests")
-            
+
         except Exception as e:
             print(f"    ✗ Error generating suite for '{theme}': {e}")
+            import traceback
+            traceback.print_exc()
             continue
-        
+
         await asyncio.sleep(0.5)  # Rate limiting between suites
-    
+
     # Write to JSON file
     print()
     print("-" * 70)
     print("Writing JSON file...")
-    
+
     try:
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(all_suites, f, indent=2, ensure_ascii=False)
-        
+
         total_tests = sum(len(s["tests"]) for s in all_suites)
         print(f"✓ Successfully wrote {len(all_suites)} suites ({total_tests} total tests)")
-        
+
     except Exception as e:
         print(f"✗ Error writing JSON: {e}")
         sys.exit(1)
-    
+
     # Summary
     elapsed = datetime.now() - start_time
     print()
@@ -430,21 +669,56 @@ async def generate_dataset(mode: str) -> None:
     print("GENERATION COMPLETE")
     print("=" * 70)
     print(f"Suites generated: {len(all_suites)}/{len(themes)}")
+    total_tests = sum(len(s["tests"]) for s in all_suites)
     print(f"Total tests: {total_tests}")
     print(f"Time elapsed: {elapsed}")
     print(f"Output file: {output_file}")
-    
-    # Category breakdown
+
+    # Breakdown by test type
     print()
-    print("Tests by expected node:")
+    type_counts = {"clean": 0, "boundary": 0, "multipart": 0}
     node_counts = {}
     for suite in all_suites:
         for test in suite["tests"]:
-            node = test.get("expected_node", "UNKNOWN")
-            node_counts[node] = node_counts.get(node, 0) + 1
-    
+            test_type = test.get("test_type", "unknown")
+            type_counts[test_type] = type_counts.get(test_type, 0) + 1
+
+            node = test.get("expected_node")
+            if node:
+                node_counts[node] = node_counts.get(node, 0) + 1
+
+    print("Tests by type:")
+    for ttype, count in type_counts.items():
+        print(f"  {ttype}: {count}")
+
+    print()
+    print("Clean tests by expected node:")
     for node, count in sorted(node_counts.items()):
         print(f"  {node}: {count}")
+
+    # Boundary pair breakdown
+    print()
+    print("Boundary tests by pair:")
+    boundary_counts = {}
+    for suite in all_suites:
+        for test in suite["tests"]:
+            if test.get("test_type") == "boundary":
+                pair = f"{test.get('nodeA', '?')} ↔ {test.get('nodeB', '?')}"
+                boundary_counts[pair] = boundary_counts.get(pair, 0) + 1
+    for pair, count in sorted(boundary_counts.items()):
+        print(f"  {pair}: {count}")
+
+    # Multi-part pattern breakdown
+    print()
+    print("Multi-part tests by pattern:")
+    pattern_counts = {}
+    for suite in all_suites:
+        for test in suite["tests"]:
+            if test.get("test_type") == "multipart":
+                pattern = test.get("pattern", "?")
+                pattern_counts[pattern] = pattern_counts.get(pattern, 0) + 1
+    for pattern, count in sorted(pattern_counts.items()):
+        print(f"  {pattern}: {count}")
 
 
 # =============================================================================
@@ -461,9 +735,10 @@ Examples:
     python generate_dataset.py --mode test   # Generate test dataset
 
 Output format matches scenarios/contextual_batch_tests.json structure.
+Per theme: 36 clean (3×12 categories) + 6 boundary + 6 multi-part = 48 tests.
         """
     )
-    
+
     parser.add_argument(
         '--mode',
         type=str,
@@ -471,9 +746,9 @@ Output format matches scenarios/contextual_batch_tests.json structure.
         choices=['dev', 'test'],
         help="Dataset mode: 'dev' for development themes, 'test' for test themes"
     )
-    
+
     args = parser.parse_args()
-    
+
     # Run the async generation
     asyncio.run(generate_dataset(args.mode))
 

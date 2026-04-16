@@ -29,6 +29,8 @@ load_dotenv()
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from safety.critic import SafetyCritic
+from safety.classifier import ClinicalClassifier
+from safety.classifier_cot import ClinicalClassifierCoT
 
 
 def format_segments(segments) -> str:
@@ -71,7 +73,7 @@ def extract_contexts(segments) -> str:
     return " | ".join(unique) if unique else "(no context extracted)"
 
 
-async def run_benchmark(input_file: Path, output_file: Path, limit_suites: Optional[int] = None) -> pd.DataFrame:
+async def run_benchmark(input_file: Path, output_file: Path, limit_suites: Optional[int] = None, classifier_mode: str = "s1", use_context_examples: bool = False) -> pd.DataFrame:
     """
     Run the benchmark evaluation on a dataset.
     
@@ -104,9 +106,18 @@ async def run_benchmark(input_file: Path, output_file: Path, limit_suites: Optio
     print(f"✓ Loaded {len(suites)} suites with {total_tests} total tests")
     print()
     
-    # Initialize SafetyCritic
-    print("Initializing SafetyCritic...")
-    critic = SafetyCritic()
+    # Initialize SafetyCritic with selected classifier
+    ctx_label = " + context examples" if use_context_examples else ""
+    print(f"Initializing SafetyCritic (classifier: {classifier_mode}{ctx_label})...")
+    if classifier_mode == "s2":
+        classifier = ClinicalClassifierCoT(use_context_examples=use_context_examples)
+        print(f"  Using System 2 (CoT) classifier: {classifier.model_config.name}")
+    else:
+        classifier = ClinicalClassifier(use_context_examples=use_context_examples)
+        print(f"  Using System 1 (Direct) classifier: {classifier.model_config.name}")
+    if use_context_examples:
+        print(f"  Context-aware examples: ENABLED")
+    critic = SafetyCritic(classifier=classifier)
     print("✓ SafetyCritic initialized")
     print()
     
@@ -332,7 +343,22 @@ Examples:
         default=None,
         help="Limit to first N suites (for quick testing)"
     )
-    
+
+    parser.add_argument(
+        '--classifier',
+        type=str,
+        choices=["s1", "s2"],
+        default="s1",
+        help="Classifier mode: s1 (System 1 / Direct) or s2 (System 2 / CoT)"
+    )
+
+    parser.add_argument(
+        '--context-examples',
+        action='store_true',
+        default=False,
+        help="Enable context-aware few-shot examples in the classifier prompt"
+    )
+
     args = parser.parse_args()
     
     # Resolve paths relative to project root
@@ -351,7 +377,7 @@ Examples:
         sys.exit(1)
     
     # Run benchmark
-    asyncio.run(run_benchmark(input_file, output_file, limit_suites=args.limit))
+    asyncio.run(run_benchmark(input_file, output_file, limit_suites=args.limit, classifier_mode=args.classifier, use_context_examples=args.context_examples))
 
 
 if __name__ == "__main__":
