@@ -21,7 +21,7 @@ def log_prompt(system_prompt: str, user_prompt: str, model: str):
         "=================="
     )
 
-ProviderType = Literal["groq", "openai", "scaleway"]
+ProviderType = Literal["groq", "openai", "scaleway", "openrouter"]
 
 @dataclass
 class ModelConfig:
@@ -60,14 +60,17 @@ class LogprobsResult:
         return math.exp(self.mean_logprob) if self.tokens else 0.0
 
 # Models that use max_completion_tokens instead of max_tokens
-NEW_API_MODELS = ("gpt-5", "o1", "o3")
+# Includes both direct API names (gpt-5) and OpenRouter-style names (openai/gpt-5)
+NEW_API_MODELS = ("gpt-5", "o1", "o3", "openai/gpt-5", "openai/o1", "openai/o3")
 
 
 class Agent:
-    def __init__(self, model_config: ModelConfig, system_prompt: str, temperature: float = 0.5):
+    def __init__(self, model_config: ModelConfig, system_prompt: str, temperature: float = 0.5, max_tokens: int = 1024):
         self.model = model_config.name
+        self.provider = model_config.provider
         self.system_prompt = system_prompt
         self.temperature = temperature
+        self.max_tokens = max_tokens
         # Check if this model uses the new API parameter names
         self._uses_new_api = any(self.model.startswith(prefix) for prefix in NEW_API_MODELS)
         
@@ -84,6 +87,14 @@ class Agent:
             self.client = AsyncOpenAI(
                 api_key=api_key,
                 base_url="https://api.scaleway.ai/v1"
+            )
+        elif model_config.provider == "openrouter":
+            api_key = os.getenv('OPENROUTER_API_KEY')
+            if not api_key:
+                raise ValueError("OPENROUTER_API_KEY not found in environment")
+            self.client = AsyncOpenAI(
+                api_key=api_key,
+                base_url="https://openrouter.ai/api/v1"
             )
         else:
             api_key = os.getenv('OPENAI_API_KEY')
@@ -122,15 +133,20 @@ class Agent:
             
             # Use appropriate token limit parameter based on model
             if self._uses_new_api:
-                request_kwargs["max_completion_tokens"] = 1024
+                request_kwargs["max_completion_tokens"] = self.max_tokens
             else:
-                request_kwargs["max_tokens"] = 1024
-            
+                request_kwargs["max_tokens"] = self.max_tokens
+
             if logprobs:
                 request_kwargs["logprobs"] = True
                 if top_logprobs is not None:
                     request_kwargs["top_logprobs"] = top_logprobs
-            
+                # OpenRouter: ensure the request is routed to a provider that supports logprobs
+                if self.provider == "openrouter":
+                    request_kwargs["extra_body"] = {
+                        "provider": {"require_parameters": True}
+                    }
+
             response = await self.client.chat.completions.create(**request_kwargs)
             
             usage = {
@@ -189,9 +205,9 @@ class Agent:
             
             # Use appropriate token limit parameter based on model
             if self._uses_new_api:
-                stream_kwargs["max_completion_tokens"] = 1024
+                stream_kwargs["max_completion_tokens"] = self.max_tokens
             else:
-                stream_kwargs["max_tokens"] = 1024
+                stream_kwargs["max_tokens"] = self.max_tokens
             
             stream = await self.client.chat.completions.create(**stream_kwargs)
             
@@ -222,6 +238,11 @@ MODELS = {
     # Scaleway Mistral models
     "MISTRAL_SMALL": ModelConfig(name="mistral-small-3.2-24b-instruct-2506", provider="scaleway"),
     "MISTRAL_NEMO": ModelConfig(name="mistral-nemo-instruct-2407", provider="scaleway"),
+    # OpenRouter models (same models as Scaleway, routed through OpenRouter)
+    "OR_MISTRAL_SMALL": ModelConfig(name="mistralai/mistral-small-3.2-24b-instruct", provider="openrouter"),
+    "OR_MISTRAL_NEMO": ModelConfig(name="mistralai/mistral-nemo", provider="openrouter"),
+    "OR_GPT5": ModelConfig(name="openai/gpt-5.2", provider="openrouter"),
+    "OR_GPT5_4": ModelConfig(name="openai/gpt-5.4", provider="openrouter"),
 }
 
 # Create agent instances (will fail if API keys are not set)
