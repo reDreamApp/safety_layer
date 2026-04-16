@@ -1,0 +1,207 @@
+#!/usr/bin/env python3
+"""
+Generate Figure 9 v3: Worked End-to-End Pipeline Example.
+
+v1 visual design (colored stage labels, table rows) with condensed content.
+All boxes rectangular for consistency.
+"""
+
+import subprocess
+import os
+
+DOT_SOURCE = r'''
+digraph worked_example_v3 {
+    graph [
+        rankdir=TB
+        fontname="Helvetica,sans-Serif"
+        fontsize=12
+        bgcolor="white"
+        pad=0.3
+        nodesep=0.3
+        ranksep=0.4
+        label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0">
+            <TR><TD><B><FONT POINT-SIZE="15" COLOR="#1a1a1a">End-to-End Pipeline Example</FONT></B></TD></TR>
+            <TR><TD><FONT POINT-SIZE="10" COLOR="#666666">A multi-part patient response traced through all five stages</FONT></TD></TR>
+        </TABLE>>
+        labelloc=t
+    ]
+    node [fontname="Helvetica,sans-Serif" fontsize=9]
+    edge [fontname="Helvetica,sans-Serif" fontsize=8 color="#455A64" penwidth=1.2]
+
+    // ── Input ──
+    input [
+        shape=none margin=0
+        label=<
+        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6"
+               BGCOLOR="#E3F2FD" COLOR="#1565C0">
+            <TR><TD ALIGN="CENTER" WIDTH="420"><B><FONT COLOR="#1565C0" POINT-SIZE="10">Patient Input</FONT></B>
+            <FONT POINT-SIZE="8" COLOR="#666666">  (Context: Being chased through a dark forest)</FONT></TD></TR>
+            <TR><TD ALIGN="LEFT">
+                <FONT POINT-SIZE="9.5">
+                "This exercise is weird, but okay. I find a heavy branch and pick it up.<BR/>
+                Then I just hide behind a tree and hope it goes away."
+                </FONT>
+            </TD></TR>
+        </TABLE>>
+    ]
+
+    // ── Stage 1 ──
+    stage1_label [
+        shape=none margin=0
+        label=<
+        <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="3">
+            <TR><TD BGCOLOR="#5C6BC0" WIDTH="130"><FONT COLOR="white" POINT-SIZE="9"><B>  Stage 1: Split  </B></FONT></TD>
+                <TD><FONT COLOR="#666666" POINT-SIZE="8">  Parse into discrete parts</FONT></TD></TR>
+        </TABLE>>
+    ]
+
+    segments [
+        shape=none margin=0
+        label=<
+        <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5"
+               COLOR="#9FA8DA" BGCOLOR="white">
+            <TR>
+                <TD BGCOLOR="#FFF9C4" ALIGN="LEFT" WIDTH="340"><FONT POINT-SIZE="9">"This exercise is weird, but okay"</FONT></TD>
+                <TD BGCOLOR="#FFF9C4" ALIGN="CENTER" WIDTH="80"><FONT POINT-SIZE="8" COLOR="#F57F17">commentary</FONT></TD>
+            </TR>
+            <TR>
+                <TD ALIGN="LEFT"><FONT POINT-SIZE="9">"I find a heavy branch and pick it up"</FONT></TD>
+                <TD ALIGN="CENTER"><FONT POINT-SIZE="8" COLOR="#455A64">dream action</FONT></TD>
+            </TR>
+            <TR>
+                <TD ALIGN="LEFT"><FONT POINT-SIZE="9">"I hide behind a tree and hope it goes away"</FONT></TD>
+                <TD ALIGN="CENTER"><FONT POINT-SIZE="8" COLOR="#455A64">dream action</FONT></TD>
+            </TR>
+        </TABLE>>
+    ]
+
+    // ── Stage 2 ──
+    stage2_label [
+        shape=none margin=0
+        label=<
+        <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="3">
+            <TR><TD BGCOLOR="#7E57C2" WIDTH="130"><FONT COLOR="white" POINT-SIZE="9"><B>  Stage 2: Filter  </B></FONT></TD>
+                <TD><FONT COLOR="#666666" POINT-SIZE="8">  Remove non-dream content</FONT></TD></TR>
+        </TABLE>>
+    ]
+
+    filtered [
+        shape=none margin=0
+        label=<
+        <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5"
+               COLOR="#CE93D8" BGCOLOR="white">
+            <TR>
+                <TD BGCOLOR="#F5F5F5" ALIGN="LEFT" WIDTH="340"><FONT POINT-SIZE="9" COLOR="#999999"><S>"This exercise is weird, but okay"</S></FONT></TD>
+                <TD BGCOLOR="#F5F5F5" ALIGN="CENTER" WIDTH="80"><FONT POINT-SIZE="8" COLOR="#999999">removed</FONT></TD>
+            </TR>
+            <TR>
+                <TD ALIGN="LEFT"><FONT POINT-SIZE="9">"I find a heavy branch and pick it up"</FONT></TD>
+                <TD ALIGN="CENTER"><FONT POINT-SIZE="8" COLOR="#2E7D32">→ classify</FONT></TD>
+            </TR>
+            <TR>
+                <TD ALIGN="LEFT"><FONT POINT-SIZE="9">"I hide behind a tree and hope it goes away"</FONT></TD>
+                <TD ALIGN="CENTER"><FONT POINT-SIZE="8" COLOR="#2E7D32">→ classify</FONT></TD>
+            </TR>
+        </TABLE>>
+    ]
+
+    // ── Stage 3 ──
+    stage3_label [
+        shape=none margin=0
+        label=<
+        <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="3">
+            <TR><TD BGCOLOR="#0097A7" WIDTH="130"><FONT COLOR="white" POINT-SIZE="9"><B>  Stage 3: Classify  </B></FONT></TD>
+                <TD><FONT COLOR="#666666" POINT-SIZE="8">  Map to clinical categories</FONT></TD></TR>
+        </TABLE>>
+    ]
+
+    classified [
+        shape=none margin=0
+        label=<
+        <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5"
+               COLOR="#80CBC4" BGCOLOR="white">
+            <TR>
+                <TD ALIGN="LEFT" WIDTH="280"><FONT POINT-SIZE="9">"I find a heavy branch and pick it up"</FONT></TD>
+                <TD BGCOLOR="#E8F5E9" ALIGN="CENTER" WIDTH="140"><FONT POINT-SIZE="9" COLOR="#2E7D32">✓ Using tools (adaptive)</FONT></TD>
+            </TR>
+            <TR>
+                <TD ALIGN="LEFT"><FONT POINT-SIZE="9">"I hide behind a tree and hope it goes away"</FONT></TD>
+                <TD BGCOLOR="#FFEBEE" ALIGN="CENTER"><FONT POINT-SIZE="9" COLOR="#C62828">✗ Avoidance (maladaptive)</FONT></TD>
+            </TR>
+        </TABLE>>
+    ]
+
+    // ── Stage 4 ──
+    stage4_label [
+        shape=none margin=0
+        label=<
+        <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="3">
+            <TR><TD BGCOLOR="#EF6C00" WIDTH="130"><FONT COLOR="white" POINT-SIZE="9"><B>  Stage 4: Triage  </B></FONT></TD>
+                <TD><FONT COLOR="#666666" POINT-SIZE="8">  Select most critical risk</FONT></TD></TR>
+        </TABLE>>
+    ]
+
+    triage [
+        shape=none margin=0
+        label=<
+        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5"
+               BGCOLOR="#FFF3E0" COLOR="#E65100">
+            <TR><TD ALIGN="CENTER" WIDTH="420"><FONT POINT-SIZE="9" COLOR="#E65100"><B>Avoidance detected:</B> patient reverted to hiding despite finding a tool</FONT></TD></TR>
+        </TABLE>>
+    ]
+
+    // ── Stage 5 ──
+    stage5_label [
+        shape=none margin=0
+        label=<
+        <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="3">
+            <TR><TD BGCOLOR="#C62828" WIDTH="130"><FONT COLOR="white" POINT-SIZE="9"><B>  Stage 5: Correct  </B></FONT></TD>
+                <TD><FONT COLOR="#666666" POINT-SIZE="8">  Generate guidance for chatbot</FONT></TD></TR>
+        </TABLE>>
+    ]
+
+    constraint [
+        shape=none margin=0
+        label=<
+        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6"
+               BGCOLOR="#FBE9E7" COLOR="#C62828">
+            <TR><TD ALIGN="LEFT" WIDTH="420"><FONT POINT-SIZE="9"><B>Acknowledge</B> picking up the branch (adaptive).
+            <B>Redirect</B> away from hiding. Encourage using the branch actively to confront the threat.</FONT></TD></TR>
+        </TABLE>>
+    ]
+
+    // ── Edges ──
+    input -> stage1_label [arrowhead=none]
+    stage1_label -> segments
+    segments -> stage2_label [arrowhead=none]
+    stage2_label -> filtered
+    filtered -> stage3_label [arrowhead=none]
+    stage3_label -> classified
+    classified -> stage4_label [arrowhead=none]
+    stage4_label -> triage
+    triage -> stage5_label [arrowhead=none]
+    stage5_label -> constraint
+}
+'''
+
+def generate_figure():
+    output_dir = os.path.dirname(os.path.abspath(__file__))
+    dot_path = os.path.join(output_dir, "worked_example_v3.dot")
+
+    with open(dot_path, 'w') as f:
+        f.write(DOT_SOURCE)
+
+    for fmt in ['png', 'svg', 'pdf']:
+        output_path = os.path.join(output_dir, f"worked_example_v3.{fmt}")
+        dpi_flag = ['-Gdpi=200'] if fmt == 'png' else []
+        result = subprocess.run(
+            ['dot', '-T' + fmt] + dpi_flag + [dot_path, '-o', output_path],
+            capture_output=True, text=True
+        )
+        if result.returncode == 0:
+            print(f"✅ {output_path}")
+        else:
+            print(f"❌ {fmt}: {result.stderr}")
+
+if __name__ == "__main__":
+    generate_figure()

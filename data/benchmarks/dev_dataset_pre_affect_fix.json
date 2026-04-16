@@ -1,0 +1,3722 @@
+[
+  {
+    "suite": "Cornered by a serial killer who hurt my family, holding a weapon",
+    "nightmare": "I’m backed into the corner of my childhood kitchen, the yellow light buzzing overhead, and he’s standing in the doorway with that same knife glinting in his hand, his boots leaving dark wet prints across the tile. I can smell metal and bleach and something rotten, and somewhere behind me I hear my mother crying and my little brother making these broken choking sounds, like they’re close but I can’t get to them. He keeps smiling at me like he already knows I can’t move, and every time I try to scream my throat locks up while the blade scrapes slowly along the wall beside my face. He takes one step closer, then another, raising the knife as I feel the cold cabinets digging into my back, and I know he’s about to do to me what he already did to them.",
+    "tests": [
+      {
+        "description": "Shove him off me",
+        "input": "I lunge out of the corner before he can get closer, slam both hands into his chest, and knock the knife out of his grip. I pin him to the floor and get past the doorway.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Grab and disarm",
+        "input": "When he raises the blade, I catch his wrist with both hands and twist hard until he drops it. I don't freeze this time—I drive him back and take control of the room.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Stand and strike first",
+        "input": "I push myself up straight, stop shrinking into the cabinets, and hit him before he reaches me. He looks surprised, and I keep moving until he's the one backing away.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Call for neighbors",
+        "input": "I finally get my voice back and scream for help as loud as I can, banging on the wall and yelling the neighbors' names. People start pounding on the front door and he hesitates.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Reach my mother",
+        "input": "Instead of staying trapped, I call out to my mother and hear her answer me clearly from the next room. We move toward each other, and once we're together I don't feel alone with him anymore.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Brother comes beside me",
+        "input": "My little brother appears beside me, breathing normally, and takes my hand while I shout for someone to call the police. The kitchen fills with people coming to help us.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Use the frying pan",
+        "input": "I reach onto the counter, grab a heavy cast-iron pan, and hold it between us like a shield. When he steps in, I swing it and make enough space to get to the door.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Escape through back door",
+        "input": "I realize the back door is right beside the sink, and I slip past the table and throw it open. Cold air rushes in, and I get out of the kitchen before he can touch me.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Kitchen turns bright safe",
+        "input": "The yellow buzzing light suddenly becomes clear daylight, and the whole kitchen looks clean and ordinary instead of rotten. The knife in his hand is just a dull butter knife, and he can't scare me anymore.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Slow breath and unfreeze",
+        "input": "I feel my throat loosening when I take one slow breath and then another. My body settles down enough for me to think, and the panic stops running everything.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Know I am stronger",
+        "input": "I look at him and realize he's feeding off my fear, so I let the fear drop instead of fighting it. Once I feel steady inside, he doesn't seem bigger than me anymore.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Voice returns with calm",
+        "input": "I stop trying to force a scream and just ground myself, feeling my feet on the tile and my back against the cabinets. Then my voice comes back naturally, clear and strong.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Freeze the knife midair",
+        "input": "When he lifts the knife, I hold up my hand and it freezes in the air like time stopped around it. He can't move another inch while I walk past him.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Turn him into smoke",
+        "input": "I say one word and his whole body unravels into black smoke that gets pulled into the vent. The kitchen goes quiet, and the danger is just gone.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Grow protective light",
+        "input": "A bright gold light comes out of my chest and fills the whole kitchen, and nothing violent can cross it. He tries to step toward me, but the light throws him back and shields my family too.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Curl up and hide",
+        "input": "I slide down into the corner and pull my knees up tight, trying to make myself as small and quiet as I can. I keep my eyes on the floor and wait for him to pass me by.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Freeze in place",
+        "input": "I don't move at all when he comes closer, not even when the knife lifts. My whole body just locks and I stand there like if I stay still enough, maybe he won't notice me.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Hide behind cabinets",
+        "input": "I drop to the floor and crawl behind the table and cabinets, covering my head with my arms. I can still hear my mother crying, but I stay hidden and don't go toward them.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Jolt myself awake",
+        "input": "Right when he raises the knife, I force my eyes open and drag myself out of the dream. I wake up hard and fast before anything else can happen.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "End the dream abruptly",
+        "input": "I tell myself this has to stop and the whole thing just cuts off. Suddenly I'm awake in bed, breathing hard, and none of it gets resolved.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Escape by waking",
+        "input": "As soon as I hear my brother choking, I pinch myself and yank myself out of it. I leave the kitchen completely by waking up before he reaches me.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Stab him repeatedly",
+        "input": "I grab the knife out of his hand and drive it into him over and over, way past what's needed. I don't stop until he's on the floor and the whole kitchen is covered in blood.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Brutal attack back",
+        "input": "I rush him and smash his face into the cabinets, then keep beating him until I feel his bones give. I want him to suffer the whole time and know exactly why it's happening.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Destroy him completely",
+        "input": "I take the knife and slice him apart piece by piece, and then I start tearing up the kitchen too. Nothing is left standing by the time I'm done with him.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Feel nothing inside",
+        "input": "He's standing there with the knife and I just feel blank. My mother is crying and my brother is choking, but none of it touches me.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Act completely fine",
+        "input": "I look at him and realize I'm not scared at all, just flat and calm like it doesn't matter. Even with everything in the kitchen, I tell myself I'm fine and it means nothing.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Dismiss the horror",
+        "input": "I hear the sounds behind me and smell the blood and bleach, but I shrug it off like it's no big deal. I don't care what happened to them or what he's about to do to me.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Everything happens the same",
+        "input": "It all plays out exactly the way it always does. I'm still trapped in the kitchen, he still comes closer with the knife, and I still can't get to my family.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "No change at all",
+        "input": "Nothing changes in the dream. The light buzzes, the smell hits me, my throat locks up, and he raises the knife while I stand there helpless.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Relive the same scene",
+        "input": "I relive the whole thing exactly as it happened before, down to his wet footprints on the tile and my mother's crying behind me. He smiles, takes those same steps toward me, and I'm stuck waiting for it.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Frozen in terror",
+        "input": "I’m terrified and completely frozen, like the fear is filling up my whole body and I can’t even breathe right. My chest is tight and I feel helpless.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Overwhelmed and sick",
+        "input": "I feel this horrible dread in my stomach, like I already know something unbearable is coming. I’m panicked, sick, and so small.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Numb with fear",
+        "input": "I’m scared to the point of going numb. There’s this heavy helpless feeling in me, like my voice and my body have both shut down.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Harsh kitchen light",
+        "input": "The kitchen is washed in that dull yellow light, and it makes everything look dirty and wrong. The air feels sharp and chemical, like bleach and metal are stuck in the room.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "Cold cramped corner",
+        "input": "It’s a cramped old kitchen with cold tile and hard cabinets pressed behind me. The whole place feels close and airless, and the buzzing overhead never stops.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "Wet prints on tile",
+        "input": "The floor has dark wet footprints across it, and the room smells rotten underneath the bleach. Everything is too quiet except for the faint crying and that low electrical hum.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "Fighting until safe",
+        "input": "I wrench the knife away and go at him hard enough that he finally drops, and I keep hitting until I'm sure he can't come after me or my family again.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "proportionality",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "VIOLENT_REVENGE"
+      },
+      {
+        "description": "Frozen with terror",
+        "input": "I just stand there shaking and feeling the panic flood my whole body, like all I can do is notice how scared and trapped I am.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "passivity",
+        "nodeA": "AVOIDANCE",
+        "nodeB": "AFFECT_EXPRESSION"
+      },
+      {
+        "description": "Pushing fear down",
+        "input": "I tell myself to stay calm and not let the fear in, so I kind of shut it off and keep my face blank while he comes closer.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "regulation_vs_denial",
+        "nodeA": "EMOTIONAL_MASTERY",
+        "nodeB": "SUPPRESSION"
+      },
+      {
+        "description": "Same scene again",
+        "input": "It all unfolds the same way in that kitchen, with the light buzzing and the knife catching the yellow glare, like I'm just watching the exact scene happen again.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "description_vs_replay",
+        "nodeA": "NARRATIVE_SETTING",
+        "nodeB": "TRAUMA_REPLAY"
+      },
+      {
+        "description": "Getting out fast",
+        "input": "I slip past him and get out of the kitchen as fast as I can, not really to fight him but at least to stop standing there pinned in that corner.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "active_vs_passive",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "AVOIDANCE"
+      },
+      {
+        "description": "Refusing the scene",
+        "input": "I tell myself this doesn't get to keep happening and try to break whatever is going on, like either I change it or force myself out of it somehow.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "action_vs_escape",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "INTERRUPTION"
+      },
+      {
+        "description": "resistant but calls out",
+        "input": "I mean, this still feels kind of fake to me, but fine, instead of freezing I yell for my mom and brother, grab the heavy chair by the table, and wedge it between me and the knife so I can get us out the back door.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "META + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      },
+      {
+        "description": "fear shuts him down",
+        "input": "I’m so panicked I can barely think, and instead of doing anything I just slide down behind the kitchen table and stay hidden there until I wake myself up.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "multipart",
+        "pattern": "FEELING + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "tries breathing then wakes",
+        "input": "I try to slow my breathing and tell myself he can’t control me, but the second he steps closer with the knife I give up and force myself awake before anything else happens.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "multipart",
+        "pattern": "ADAPTIVE + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "complains then hides",
+        "input": "I honestly don’t get how rewriting this is supposed to help, because all I want to do is crawl under the sink cabinet and make myself disappear until he’s gone.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "multipart",
+        "pattern": "META + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "scared but takes charge",
+        "input": "I’m terrified, but I make myself take one full breath, plant my feet, and shout for my brother to come to me while I grab the bleach bottle and use it to distract him so we can run.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "FEELING + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      },
+      {
+        "description": "calms self and recruits",
+        "input": "I steady myself first so my voice works again, then I call to my mom and brother, pull open the back door, and we move together out of the kitchen while I keep the chair between us and him.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "ADAPTIVE + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      }
+    ]
+  },
+  {
+    "suite": "Fighting a regenerating demon that requires total destruction to stop",
+    "nightmare": "I’m in a burned-out church with black smoke hanging in the air, and this thing is crawling toward me on too many limbs, its skin splitting open to show wet red muscle that knits itself back together every time I hack at it. The sound is the worst part—bones cracking back into place, meat slithering and sealing, and this deep, choking laugh coming from its throat while my hands slip on the handle of the axe because they’re slick with blood and sweat. I can smell sulfur and rot, and every time I tear off a piece of it, another hand or jaw pushes out of the wound, reaching for me, faster now, like it’s learning how afraid I am. I back into the altar and realize there are still pieces of it twitching all around me, pulling themselves together from the floor, and when all of its faces turn toward me at once and start rushing me, I can’t lift my arms anymore.",
+    "tests": [
+      {
+        "description": "Stand and strike back",
+        "input": "I stop backing up and plant my feet at the altar, then I grip the axe with both hands and drive it straight into its chest until it finally drops. When the other pieces start pulling together, I keep moving toward them instead of freezing.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Take control physically",
+        "input": "I shove the creature away hard enough to make space, and I go after its legs so it can't keep crawling at me. Once it falls, I pin it down and hold my ground.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Advance instead of retreat",
+        "input": "When all the faces turn toward me, I rush it first. I swing cleanly and keep attacking with purpose, like my body finally works and I know exactly what to do.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Call for people",
+        "input": "I yell for help and my voice actually carries through the church. A group of people comes through the side doors and stands beside me so I'm not alone with it anymore.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Reach for a protector",
+        "input": "I call out for my brother, and he appears near the front pews and grabs my arm. He helps me get steady and tells me we're getting out of this together.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Ask others for help",
+        "input": "Instead of trying to handle it by myself, I shout to the people in the church to help me. They start pulling me back from the altar and one of them takes the axe while another opens a way out.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Use fire suppression system",
+        "input": "I reach up and pull a chain above the altar, and the whole sprinkler system comes on. The water and bright light wash the smoke out, and the thing starts shrinking until it's weak enough to deal with.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Find safe exit route",
+        "input": "I notice a side door behind the choir stalls and head for it instead of staying trapped at the altar. Once I push it open, clean air comes in and the creature can't follow me outside.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Turn church against threat",
+        "input": "I grab one of the heavy candlesticks and slam it into the floor, and the church starts changing around me. The black smoke clears, sunlight comes through the windows, and the thing looks smaller and less powerful in the open light.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Breathe and steady self",
+        "input": "I make myself take one slow breath and then another, and my hands stop slipping. Once I calm down, I can think clearly enough to move instead of panic.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Realize I am safe",
+        "input": "I look at it and feel the fear come up, but I tell myself I'm not helpless and it doesn't control me. That thought takes some of its power away, and my body loosens enough for me to act.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Confidence replaces panic",
+        "input": "The choking laugh starts again, and instead of spiraling I get really calm. I know I can handle what's in front of me, and the dream stops feeling like it's swallowing me.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Use healing light",
+        "input": "I lift my hand and this bright white light pours out of it across the church. Wherever it touches the creature, the extra limbs and faces dissolve until there's nothing left to come at me.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Become untouchable",
+        "input": "Right when it rushes me, my body turns strong and almost made of metal, so it can't tear into me at all. I feel invincible, and it starts backing away from me instead.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Fly above the attack",
+        "input": "I rise up off the floor and float above the altar while the broken pieces of it claw at empty air. From up there I send down fire from my hands and the whole thing burns away.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Hide behind altar",
+        "input": "I drop behind the altar and curl up tight, trying not to breathe too loud while it crawls past. I just stay there and hope it doesn't notice me.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Freeze in place",
+        "input": "When all the faces turn toward me, I go completely still and stop fighting. I can't make myself run or swing, so I just stand there and let it come closer.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Play dead quietly",
+        "input": "I lie down in the ash and blood and pretend I'm already dead. I keep my eyes shut and wait for it to lose interest.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Jolt myself awake",
+        "input": "Right before it reaches me, I force my eyes open and rip myself out of sleep. I don't stay there long enough to see what happens.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "End dream abruptly",
+        "input": "I tell myself to wake up and the whole church cuts out at once. Everything just stops before it touches me.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Escape by waking",
+        "input": "As soon as I feel trapped against the altar, I start thrashing until I wake up in bed. The dream doesn't really resolve, it just breaks off.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Hack it apart",
+        "input": "I go at it with the axe until I'm chopping through every face and limb over and over, long after it stops moving. I don't just kill it, I reduce it to a pile of wet pieces.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Burn creature completely",
+        "input": "I pin it in the pews and set the whole church on fire so it can scream while it burns. I keep feeding the flames until there's nothing left but blackened meat and ash.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Crush every piece",
+        "input": "I smash each twitching part of it one by one, stomping on the hands and jaws as they try to regrow. I make sure every last scrap is destroyed.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Feel absolutely nothing",
+        "input": "It's all still there—the smoke, the rot, the cracking bones—but I don't feel anything about it. I'm just blank, like none of it matters.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Say I'm fine",
+        "input": "I watch it come toward me and I tell myself I'm fine, totally fine. The fear doesn't count and I act like it doesn't bother me at all.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Detached from horror",
+        "input": "The blood on my hands and the smell of sulfur are there, but I stay flat and cold the whole time. I don't let myself react because I don't care what happens.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Same nightmare repeats",
+        "input": "It happens exactly the same way as always. I'm in the burned church, I hack at it, it keeps growing back, and I end up trapped at the altar unable to move.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Nothing changes at all",
+        "input": "Nothing is different. The creature keeps coming, the sound gets worse, the pieces on the floor pull themselves back together, and I freeze when it rushes me.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Relive it identically",
+        "input": "I just relive the whole thing straight through without changing anything. All of its faces turn toward me at once and I still can't lift my arms when it comes.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Overwhelmed with terror",
+        "input": "I feel pure terror in my chest, like I can't breathe and my whole body knows I'm about to die. I'm helpless and frozen watching it come closer.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Paralyzed and helpless",
+        "input": "I'm so scared I can't move. It feels like all the strength drains out of me and I'm just trapped there in panic.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Disgust and dread",
+        "input": "I feel sickened and terrified at the same time, and the dread just keeps building. There's this awful helpless feeling, like nothing I do would matter.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Smoke-filled ruined church",
+        "input": "The church is burned black, with heavy smoke hanging in the air and a strong smell of sulfur and rot. Everything looks scorched and ruined around the altar.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "Wet cracking sounds",
+        "input": "The whole place is filled with those wet, cracking noises, and the air feels thick and hard to breathe. Blood is smeared across the floor among the broken pieces.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "Dark altar scene",
+        "input": "It's dim and smoky inside, and the altar behind me feels cold and damaged. Pieces of the creature are twitching all over the ground in the ruined church.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "Keeps striking until still",
+        "input": "I swing the axe into it over and over and keep chopping at whatever grows back until it finally stops coming at me. It feels like I'm just trying to survive, but I don't really stop once I've started.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "proportionality",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "VIOLENT_REVENGE"
+      },
+      {
+        "description": "Frozen and terrified",
+        "input": "I just stand there shaking, like my body won't listen, and all I can think is how scared I am. Part of me is feeling the fear, but part of me is almost giving up and not doing anything.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "passivity",
+        "nodeA": "AVOIDANCE",
+        "nodeB": "AFFECT_EXPRESSION"
+      },
+      {
+        "description": "Pushes fear aside",
+        "input": "I tell myself not to let it get to me and keep my face blank while it comes closer. I'm calmer on the surface, though I might just be shoving the fear down so I can keep going.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "regulation_vs_denial",
+        "nodeA": "EMOTIONAL_MASTERY",
+        "nodeB": "SUPPRESSION"
+      },
+      {
+        "description": "Same scene returns",
+        "input": "It's the same burned church, the same smell, the same thing pulling itself together and coming at me again. I'm mostly just describing it, but it also feels like I'm right back inside the exact nightmare.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "description_vs_replay",
+        "nodeA": "NARRATIVE_SETTING",
+        "nodeB": "TRAUMA_REPLAY"
+      },
+      {
+        "description": "Backs away quickly",
+        "input": "I move away from it fast and try to get out from in front of the altar before it reaches me. It could be me taking charge of the situation, or maybe I'm just trying not to face it.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "active_vs_passive",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "AVOIDANCE"
+      },
+      {
+        "description": "Tries to break it",
+        "input": "I tell myself this has to stop and force everything in me toward changing what's happening right there. It sounds like taking control, but it also feels a little like trying to shut the whole dream off.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "action_vs_escape",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "INTERRUPTION"
+      },
+      {
+        "description": "Doubts process, then acts",
+        "input": "This whole rewrite thing feels kind of fake to me, but okay, instead of hacking at it I plant my feet at the altar, grab the brass cross stand, and pin its limbs down while I shout for people to come help me.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "META + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      },
+      {
+        "description": "Fear leads to waking",
+        "input": "I'm honestly terrified because it keeps growing back and learning me, so I just panic and force myself awake before it reaches the altar.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "multipart",
+        "pattern": "FEELING + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "Steadies self, then escapes",
+        "input": "I take a breath and tell myself it's just trying to feed on my fear, and for a second I back toward the church doors like I'm going to face it calmly, but then I lose it and bolt out and hide behind the pews until it's gone.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "multipart",
+        "pattern": "ADAPTIVE + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "Complains, then hides",
+        "input": "I don't really get how making this up is supposed to help, and honestly I just crawl under the altar and stay completely still so none of its faces can find me.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "multipart",
+        "pattern": "META + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "Scared but takes control",
+        "input": "I'm scared as hell when all the faces turn toward me, but I slow my breathing, stop swinging wildly, and tell it out loud it doesn't get to decide what happens in this church.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "FEELING + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      },
+      {
+        "description": "Calms and uses help",
+        "input": "I steady my hands first so I'm not slipping on the axe anymore, then I ring the church bell and people come in with extinguishers and heavy blankets and we trap the thing before it can pull itself back together.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "ADAPTIVE + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      }
+    ]
+  },
+  {
+    "suite": "Paralyzed on train tracks with a train approaching fast",
+    "nightmare": "I’m lying flat on cold train tracks at night, my cheek pressed against the greasy metal rail, and no matter how hard I try, I can’t move anything but my eyes. In the distance I see a single white headlight swelling larger and larger, and I hear the train horn blare through the dark, mixed with the violent rattle of the tracks vibrating under my body so hard it feels like my bones are shaking loose. I try to scream, but my throat only makes this thin, broken sound, and I can smell hot metal and dirt while the light floods over me and the engine rushes closer impossibly fast. Right before it reaches me, the whole world is nothing but deafening noise, blinding light, and the certainty that I’m about to be crushed.",
+    "tests": [
+      {
+        "description": "Pushes off the tracks",
+        "input": "I force my arms to work all at once, shove myself sideways, and roll off the rails into the gravel before the train reaches me. I’m breathing hard, but I’m on my feet and out of its path.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Stands and takes control",
+        "input": "Instead of freezing, I jerk upright and step off the tracks on my own. I square my shoulders and watch the train blast past without touching me.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Crawls to safety",
+        "input": "I dig my elbows into the ground and drag myself forward until my body finally breaks free of the rails. Once I’m clear, I keep moving until I know I’m safe.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Calls for people nearby",
+        "input": "My voice comes back enough for me to yell, and people from the station run toward me. Two of them grab my arms and pull me off the tracks together.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Engineer sees and stops",
+        "input": "I manage to wave one hand, and the engineer notices me through the headlight. The horn changes, the brakes scream, and the train stops short while workers rush out to help me.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Friend rescues me",
+        "input": "Out of nowhere my brother is there beside me, telling me to look at him and keep breathing. He hauls me up under the shoulders and gets me off the rails just in time.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Finds space between ties",
+        "input": "I notice a shallow maintenance trench beside the track and drop into it. The train roars over me, but I’m protected underneath and come out shaken but okay.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Uses switch lever",
+        "input": "There’s a heavy track switch next to me, and I grab it and throw all my weight into it. The train gets diverted onto the other line and misses me completely.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Scene becomes safe platform",
+        "input": "The tracks start changing under me until I realize I’m actually lying on an empty station platform, not in danger at all. The train just pulls in normally and stops to let me step aboard.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Breathes and unfreezes",
+        "input": "I stop fighting the panic and take one slow, full breath. As soon as I calm down, my body loosens and I can move myself off the tracks.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Realizes inner control",
+        "input": "I feel the fear, but I tell myself I’m not helpless and the terror starts to shrink. Once I believe that, the paralysis breaks and I move with a clear head.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Meets train calmly",
+        "input": "The light gets bigger, but I stay surprisingly calm and grounded instead of spiraling. That calm gives me enough control to roll away before the train arrives.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Floats above the rails",
+        "input": "Right before the train hits me, my body lifts straight up into the air like gravity stops working. I hover above the tracks and watch it pass underneath me.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Freezes train with power",
+        "input": "I throw out my hand and the whole train locks in place a few feet from me, silent and still. Then I stand up and walk away from it.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Transforms into light",
+        "input": "As the engine comes at me, I turn into a bright streak of light and slip off the tracks instantly. The train can’t touch me because I’m not trapped in a body anymore.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Stays completely still",
+        "input": "I stop fighting and just lie perfectly still on the tracks, staring up at the light and hoping if I don't move at all maybe it somehow passes over me.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Shuts eyes and waits",
+        "input": "I squeeze my eyes shut and go limp, like if I don't look at it and don't make a sound, I can disappear into the dark until it's over.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Curls inward silently",
+        "input": "I can't get off the rails, so I just fold in on myself as much as I can and stay frozen there, trying not to draw any attention while the train gets closer.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Jerks awake instantly",
+        "input": "Right when the headlight hits my face, I force my eyes open and yank myself awake before anything happens.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Breaks dream on purpose",
+        "input": "As soon as I hear the horn, I tell myself this isn't real and I rip out of the dream and wake up in bed.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Escapes by waking",
+        "input": "I can feel the tracks shaking under me, and instead of staying there I make myself bolt awake so the whole scene just cuts off.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Destroys the train brutally",
+        "input": "I suddenly rip free, jump up, and tear the train apart with my bare hands, crushing the engine and smashing metal until there's nothing left but twisted wreckage.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Kills the conductor savagely",
+        "input": "I stop the train, drag the conductor out, and beat him to death on the tracks because I want him to suffer the way I was about to.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Blows everything up",
+        "input": "The fear flips into rage and I make the whole train explode, cars flying everywhere, fire everywhere, everybody inside getting wiped out with it.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Feels nothing at all",
+        "input": "I'm still lying on the tracks with the train coming, but I don't feel scared or upset about it at all. It doesn't matter to me.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Acts totally unfazed",
+        "input": "The light gets bigger and the rails are shaking, and I'm just blank about it, like none of it touches me and I'm completely fine.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Dismisses the danger",
+        "input": "I watch the train rushing at me and honestly I don't care. It's like my body is there, but emotionally I have nothing to say about it.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Same crushing ending",
+        "input": "It goes exactly the same way every time: I'm stuck on the tracks, the horn blares, the light fills everything, and I know I'm about to be crushed.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Nothing changes at all",
+        "input": "I try to move and can't, I try to scream and barely make a sound, and the train keeps coming just like before with nothing different.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Relives nightmare identically",
+        "input": "I'm back with my cheek on the cold rail, smelling the metal and dirt, hearing that same horn, and it all happens the same until the moment right before impact.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Frozen in terror",
+        "input": "I’m completely terrified, like every part of me is locked up with panic and I know something awful is coming. The fear is so big it almost blots everything else out.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Helpless dread rising",
+        "input": "I feel helpless and trapped, and this heavy dread keeps building in my chest as the sound gets closer. It’s that sick certainty that I’m not going to get away.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Overwhelmed and small",
+        "input": "I’m so scared I feel tiny, like I don’t matter against something huge bearing down on me. There’s this raw helplessness and horror all through me.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Cold tracks at night",
+        "input": "It’s nighttime and the tracks are freezing under my face, with grease and dirt pressed into my skin. The whole place feels dark, empty, and exposed.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "Headlight in darkness",
+        "input": "There’s a single white light far off in the dark, and it keeps looking brighter against everything around it. The rails hum and the air smells like hot metal.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "Deafening empty railway",
+        "input": "The night around me is black and barren, and the tracks are vibrating with this harsh, rattling noise. The horn cuts through the dark and the whole scene feels cold and brutal.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "Shove at the engine",
+        "input": "At the last second I somehow wrench one arm free and slam at the front of the train with everything I've got, like I'm trying to stop it or smash it away before it hits me.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "proportionality",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "VIOLENT_REVENGE"
+      },
+      {
+        "description": "Frozen and terrified",
+        "input": "I just lie there feeling completely terrified, and all I can do is stare at the light and hear myself making these weak little sounds.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "passivity",
+        "nodeA": "AVOIDANCE",
+        "nodeB": "AFFECT_EXPRESSION"
+      },
+      {
+        "description": "Push fear aside",
+        "input": "I tell myself not to panic and sort of press the fear down so I can stay calm while the train keeps coming.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "regulation_vs_denial",
+        "nodeA": "EMOTIONAL_MASTERY",
+        "nodeB": "SUPPRESSION"
+      },
+      {
+        "description": "Same tracks again",
+        "input": "It's the same cold tracks, the same horn, the same light getting bigger, and it all plays out the way it always does.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "description_vs_replay",
+        "nodeA": "NARRATIVE_SETTING",
+        "nodeB": "TRAUMA_REPLAY"
+      },
+      {
+        "description": "Roll away fast",
+        "input": "As soon as I can move, I throw myself off the tracks and get as far from the rail as I can before the train reaches me.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "active_vs_passive",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "AVOIDANCE"
+      },
+      {
+        "description": "Try to break it",
+        "input": "I tell myself this doesn't get to keep happening and I force everything in me to break the scene somehow, like either changing it or jerking myself out of it.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "action_vs_escape",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "INTERRUPTION"
+      },
+      {
+        "description": "skeptical then pulls free",
+        "input": "This whole rewriting thing feels kind of fake to me, but fine, I picture myself slowing my breathing, rolling my body off the rail, and standing up beside the tracks before the train gets there.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "META + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      },
+      {
+        "description": "terrified and wakes up",
+        "input": "I’m so scared when I hear the train coming that instead of doing anything I just force myself awake right before it hits me.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "multipart",
+        "pattern": "FEELING + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "tries escape then quits",
+        "input": "I tell myself to stay calm and yank my arm enough to start sliding off the track, but then I panic and just blank the whole dream out so it ends.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "multipart",
+        "pattern": "ADAPTIVE + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "complains then hides",
+        "input": "I honestly don't get how this is supposed to help, and in the rewrite I just drag myself under the platform and hide there until everything passes.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "multipart",
+        "pattern": "META + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "afraid but takes control",
+        "input": "I’m still really scared, but I make myself breathe, yell for the conductor to stop, and pull my body off the tracks instead of freezing there.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "FEELING + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      },
+      {
+        "description": "calms down and signals",
+        "input": "I steady myself first so I’m not trapped in that panic, and then I grab the signal lever by the tracks and wave down help so the train stops before it reaches me.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "ADAPTIVE + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      }
+    ]
+  },
+  {
+    "suite": "Trapped in a room full of snakes with severe phobia",
+    "nightmare": "I’m standing in a small, windowless room with damp concrete walls, and the floor is moving before I realize it’s covered in snakes, thick and thin bodies sliding over each other with a wet, whispering sound that fills the air. The smell is sour and earthy, and I can feel my throat tightening as cold scales brush against my bare feet and begin winding around my ankles; every time I jerk away, there are more of them, coiling out of the corners and dropping from the ceiling vents. I’m pounding on the locked door, screaming so hard my chest burns, but all I can hear over my own voice is the constant hissing and the soft slap of bodies against the floor as they rise higher around my legs. Then I look down and see one lifting its head right in front of my face, its tongue flicking against my skin as the mass of them tightens around me and I can’t move at all.",
+    "tests": [
+      {
+        "description": "Kick snakes off",
+        "input": "I stop pounding on the door and start stamping hard, kicking the snakes away from my legs until there’s space around me. Then I grab the one in front of my face by the neck and throw it across the room.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Force door open",
+        "input": "Instead of freezing, I plant my feet and ram my shoulder into the door over and over until the lock gives. I shove through it before the snakes can pull me back down.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Stand and command",
+        "input": "I turn toward the snakes and hold my ground instead of panicking. I use my hands to peel them off my ankles and keep pushing them back until they stop closing in on me.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Call for partner",
+        "input": "I yell for my partner, and suddenly they’re on the other side of the door telling me to keep talking to them. They get it open and pull me out while I hold onto their arm.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Help arrives quickly",
+        "input": "I scream for help and this time people actually hear me. Two workers rush in with boots and gloves and guide me through the snakes to the hallway.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Reach for mother's hand",
+        "input": "When I call out, my mother appears calm and steady, and she tells me to look at her and keep breathing. She takes my hand and walks me to the door, and the snakes back away from us.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Use vent pipe",
+        "input": "I notice a metal pipe hanging loose under the vent, so I wrench it free and use it to sweep the snakes back. That gives me enough room to reach the lock and get out.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Open hidden hatch",
+        "input": "I see a floor hatch in the corner that wasn’t obvious at first, and I pry it open. There’s a narrow stairway underneath, so I climb down and leave the room behind me.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Lights reveal harmless snakes",
+        "input": "I find a switch on the wall and flip on bright lights and a loud fan. Once the room is clear, I can see they’re small harmless garter snakes, and they scatter away from my feet.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Slow breathing steadies me",
+        "input": "I make myself take one slow breath and then another, and my chest stops burning. When I stop thrashing, I can think clearly enough to step carefully and keep the snakes from wrapping tighter.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Realize I am safe",
+        "input": "I look at the room and tell myself I’m scared, but I’m not helpless. As soon as I believe that, the panic drops and the snakes lose some of their grip on me.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Calm turns down fear",
+        "input": "I stop screaming and focus on staying calm, almost like grounding myself inside the dream. The hissing fades into the background, and I’m able to move without feeling trapped.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Snakes freeze with magic",
+        "input": "I lift my hand and everything in the room goes still, like I can control it with a thought. The snakes freeze in place long enough for me to walk right through them.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Grow wings and rise",
+        "input": "Wings come out of my back and I lift up off the floor before the snakes can reach me. I fly straight through the ceiling vent into open air.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Turn into fire",
+        "input": "My whole body starts glowing hot, and the snakes can’t hold onto me anymore. I turn into fire and the coils fall away while I move through the locked door like it’s nothing.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Curl up and stay still",
+        "input": "I pull my knees up and press myself against the wall, trying not to move at all so maybe the snakes will lose interest. I keep my eyes shut and just wait for it to be over.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Hide face and freeze",
+        "input": "I cover my face with my hands and stand completely still while they slide over my legs. I tell myself if I don't react, nothing worse will happen.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Play dead on floor",
+        "input": "I lower myself onto the concrete and go limp like I'm dead, barely breathing while the snakes coil around me. I don't fight them anymore, I just let them be there.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Jolt myself awake",
+        "input": "Right before the snake gets to my face, I force myself awake and sit up gasping. I don't stay in the room long enough to see what happens next.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "End dream abruptly",
+        "input": "I just make the whole thing stop and everything goes black. Then I'm awake in bed before the snakes can reach any higher.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Pinch out of dream",
+        "input": "I realize it's happening and I pinch myself hard until I wake up. The room and the hissing disappear, but nothing actually gets resolved.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Hack snakes to pieces",
+        "input": "I grab a machete from nowhere and start chopping the snakes apart, over and over until the floor is covered in blood and pieces of them. I don't stop until every last one is shredded.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Burn room with snakes",
+        "input": "I set the whole room on fire and listen to them sizzle while they twist around in the flames. I want all of them destroyed, even if the whole place burns down with them.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Crush and smash everything",
+        "input": "I start stomping on their heads and smashing them into the concrete until they're pulp. I keep going in this rage, killing them in the most brutal way I can.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Numb to the snakes",
+        "input": "The snakes are all over me, but I don't feel scared or grossed out by it at all. I just stand there like it means nothing.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Act like nothing matters",
+        "input": "I look down at them wrapping around my legs and I shrug because it doesn't bother me. Even the hissing in my face feels unimportant, like I don't care either way.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Say I'm completely fine",
+        "input": "I keep telling myself I'm fine, totally calm, and none of this is getting to me. The room is full of snakes, but emotionally I feel absolutely nothing.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Everything happens the same",
+        "input": "It's the exact same room, the same smell, the same snakes covering the floor and dropping from the vents. I pound on the locked door, they wrap around my legs, and I end up stuck again with one right in my face.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Relive nightmare unchanged",
+        "input": "Nothing changes at all. I feel the cold scales on my feet, I panic, more snakes keep coming, and I can't move while they tighten around me.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Repeat same trapped ending",
+        "input": "I go through the whole thing exactly like before, screaming at the door while the hissing gets louder and louder. It still ends with me frozen in place, surrounded and unable to get away.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Overwhelmed with terror",
+        "input": "I feel absolutely terrified, like my whole body is frozen and my chest is going to cave in from panic.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Helpless and trapped",
+        "input": "I’m so scared and helpless that it feels like all the strength drains out of me at once. There’s this awful sense that I’m completely trapped.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Disgust and dread",
+        "input": "I feel sick with dread, and this deep disgust crawls through me at the same time. It’s like fear is sitting in my throat and I can barely breathe around it.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Cold concrete room",
+        "input": "The room is small and windowless, with damp concrete walls and a sour, earthy smell hanging in the air.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "Snakes covering floor",
+        "input": "The floor is covered in thick and thin snakes sliding over each other, and the whole space is filled with hissing and that wet slapping sound.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "Close choking atmosphere",
+        "input": "The air feels tight and stale, and everything around me seems close and oppressive. Cold scales brush against my bare skin while the room stays dim and closed in.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "Striking through the snakes",
+        "input": "I start kicking and stomping at the snakes around my feet, and when one lifts up near my face I grab it and slam it away hard enough that the rest back off. I can't tell if I'm just trying to get free or if I'm going further than I need to.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "proportionality",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "VIOLENT_REVENGE"
+      },
+      {
+        "description": "Frozen in terror",
+        "input": "I just stand there shaking and feel the panic take over, like my body won't do anything except stare at them and breathe too fast. Part of me is letting myself feel how scared I am, but part of me is just not acting at all.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "passivity",
+        "nodeA": "AVOIDANCE",
+        "nodeB": "AFFECT_EXPRESSION"
+      },
+      {
+        "description": "Pushing fear aside",
+        "input": "I tell myself to stay calm and not give the fear any more room, so I kind of push it down and focus on getting through it. It feels steadying, but also a little like I'm refusing to feel what's actually there.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "regulation_vs_denial",
+        "nodeA": "EMOTIONAL_MASTERY",
+        "nodeB": "SUPPRESSION"
+      },
+      {
+        "description": "Same room again",
+        "input": "It's the same windowless room and the snakes keep coming out of the corners and vents just like before, and I watch it happen again. I'm not really changing anything, just describing it as it repeats.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "description_vs_replay",
+        "nodeA": "NARRATIVE_SETTING",
+        "nodeB": "TRAUMA_REPLAY"
+      },
+      {
+        "description": "Backing toward the door",
+        "input": "I start moving fast toward the door, trying to get my legs free and put distance between me and the snakes. It could be me taking charge, or maybe I'm just trying to get away from it all.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "active_vs_passive",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "AVOIDANCE"
+      },
+      {
+        "description": "Trying to break it",
+        "input": "I tell myself this doesn't have to keep going and I forcefully try to stop what's happening, like either changing the dream or snapping myself out of it. It feels like taking control, but maybe also like trying to end the whole scene before dealing with it.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "action_vs_escape",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "INTERRUPTION"
+      },
+      {
+        "description": "Skeptical then takes control",
+        "input": "I mean this whole rewriting thing feels kind of fake, but fine, instead of freaking out I plant my feet, breathe, and grab a metal pipe from the corner to push the snakes back so I can get to the door.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "META + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      },
+      {
+        "description": "Terrified and forces waking",
+        "input": "I'm honestly panicking so badly my chest locks up, and instead of doing anything I just squeeze my eyes shut and force myself to wake up before the snakes get any higher.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "multipart",
+        "pattern": "FEELING + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "Tries coping then quits",
+        "input": "I tell myself to stay calm and kick a path through them toward the door, but the second they start dropping from the vents again I give up and curl into the corner hoping if I stay still they won't notice me.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "multipart",
+        "pattern": "ADAPTIVE + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "Complains then hides",
+        "input": "Why am I supposed to make this better when it's obviously awful, because honestly I just imagine myself flattening against the wall and not moving at all until it's over.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "multipart",
+        "pattern": "META + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "Afraid but faces snakes",
+        "input": "I'm scared out of my mind, but I slow my breathing, remind myself they're not stronger than me, and peel them off my legs one by one while I shout for the door to unlock.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "FEELING + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      },
+      {
+        "description": "Calms down and gets help",
+        "input": "I steady myself first so I don't spiral, and then I bang on the door in a controlled way until someone opens it and helps me clear the snakes out with bright lights and noise.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "ADAPTIVE + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      }
+    ]
+  },
+  {
+    "suite": "Lost in a foreign city unable to speak the language",
+    "nightmare": "I’m alone in a city I don’t recognize, surrounded by tall gray buildings and neon signs covered in words I can’t read, and the streets are packed with people moving fast around me like I’m invisible. Every time I try to ask for help, my mouth feels thick and numb, and when I force the words out they come out wrong, twisted into sounds I don’t understand, while strangers stare at me with blank faces and keep walking. I can hear train brakes screaming somewhere nearby and loud announcements echoing above me in a language that gets faster and harsher, and panic crawls up my chest as I realize I’ve lost my phone, my money, everything. Then the crowd suddenly surges and carries me toward a dark tunnel entrance, and as I dig my heels into the wet pavement and try to scream, I see the last bit of daylight disappear behind me.",
+    "tests": [
+      {
+        "description": "Plant feet and push",
+        "input": "I stop letting the crowd drag me and plant my feet hard on the pavement. I start pushing my way sideways through people until I break out of the surge and get back into the open street.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Turn toward tunnel",
+        "input": "Instead of panicking, I turn and face the tunnel entrance and walk toward it on my own terms. My voice comes back strong enough for me to shout \"Move,\" and people finally step aside.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Climb to higher ground",
+        "input": "I grab the metal barrier by the sidewalk and pull myself up on top of it so the crowd can't carry me anymore. From there I jump down into a clear space and start moving fast in the direction I choose.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Ask one person directly",
+        "input": "I stop trying to speak to everybody and look one woman right in the eye, and somehow the words come out clearly enough for me to ask for help. She takes my arm and leads me out of the crowd.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Call for public help",
+        "input": "I wave both arms and yell that I'm lost, and this time people actually notice me. A station worker comes over and helps me get away from the tunnel entrance.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Find a friendly ally",
+        "input": "I see another person standing off to the side who looks just as overwhelmed as I feel, so I go straight to him. We figure it out together and follow signs to a safe, bright station office.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Use map and signs",
+        "input": "I notice a lit transit map behind the crowd and walk over to it instead of getting swept along. Once I study it for a second, the symbols make sense and I find a clear exit route.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Open side door",
+        "input": "Right before the tunnel, I spot a service door in the wall and shove it open. It leads into a quiet hallway with lights, stairs, and a way back outside.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "City becomes readable",
+        "input": "The neon signs stop looking scrambled and turn into words I can actually read. They point me toward information, a phone, and a safe place to sit down.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Slow breathing and steady",
+        "input": "I feel the panic rising, but I take one slow breath and then another until my chest loosens. Once I calm down, the noise gets less overwhelming and I can think clearly enough to find my way.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Realize I'm capable",
+        "input": "I tell myself I'm not helpless and I don't have to match the crowd's panic. My voice steadies, my body relaxes, and I start making decisions instead of freezing.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Notice it is dreamlike",
+        "input": "Something in me clicks and I realize none of this can actually trap me. As soon as I know that, the fear drops and the tunnel doesn't feel dangerous anymore.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Rise above the crowd",
+        "input": "Just before I reach the tunnel, I lift off the ground and float above everybody. From up there I can see the whole city and glide toward a bright station full of helpful people.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Translate with magic light",
+        "input": "A warm light comes out of my hands and spreads across the signs and loudspeakers, turning everything into words I understand. The city stops feeling hostile once I can hear and read it clearly.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Create protective barrier",
+        "input": "I make a clear shield around myself, and the crowd parts around it instead of crushing me. Then the dark tunnel fills with soft light and opens into a safe train platform where I know exactly where to go.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Duck into doorway",
+        "input": "I slip out of the crowd and press myself into a dark doorway, holding my breath so nobody notices me. I stay completely still and wait for everything to pass.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Curl up and freeze",
+        "input": "When the crowd starts shoving me toward the tunnel, I drop down against the wall and curl up with my arms over my head. I don't fight anymore, I just freeze there.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Hide from the crowd",
+        "input": "I see a narrow alley and squeeze behind a dumpster where no one can see me. I keep my eyes down and don't call out to anyone again.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Jolt myself awake",
+        "input": "Right before the tunnel swallows me, I force my eyes open and wake up in bed. I don't stay there long enough to see what happens next.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Break the dream",
+        "input": "I realize it's happening again and I make myself jerk awake before the crowd can carry me any farther. The whole scene just cuts off.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Pinch out of sleep",
+        "input": "I start pinching my arm hard in the dream until I wake myself up. As soon as I feel the panic rising, I'm gone from it.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Attack the strangers",
+        "input": "I turn on the people staring at me and start smashing their faces into the concrete until the street is covered in blood. Nobody looks blank after that.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Destroy the whole city",
+        "input": "I get so furious that I start tearing through everything around me, ripping signs down, setting cars on fire, and bringing the buildings down on top of the crowd. I want the whole city ruined.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Brutal tunnel retaliation",
+        "input": "When they shove me toward the tunnel, I pull out a knife and stab anyone who touches me over and over until they drop. Then I go into the tunnel hunting for whoever trapped me there.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Feel nothing at all",
+        "input": "I'm standing there with no phone and no way to speak, but it doesn't bother me. I don't feel scared or upset, just nothing.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Pretend it's fine",
+        "input": "The announcements get harsher and the crowd pushes me, but I tell myself it's fine and none of it really matters. I just act like there's no reason to panic.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Numb through the panic",
+        "input": "Even when the daylight disappears, I stay completely flat and shut down inside. I don't let myself feel anything about being trapped there.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Everything happens the same",
+        "input": "It's the exact same city, the same signs I can't read, the same numb mouth when I ask for help. The crowd carries me into the tunnel just like before.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "No change to nightmare",
+        "input": "Nothing changes at all. I lose everything, nobody understands me, and I get swallowed by the crowd while the daylight disappears behind me.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Relive it identically",
+        "input": "I relive the whole thing exactly the way it always goes, step by step. I still can't speak right, nobody helps, and I end up in the dark tunnel again.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Overwhelmed with panic",
+        "input": "I feel pure panic rising in my chest, like I’m small and completely helpless in the middle of all of it. The fear is so strong I can barely think.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Numb and terrified",
+        "input": "I’m terrified and strangely numb at the same time, like my whole body knows something bad is coming. It feels lonely and hopeless.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Ashamed and helpless",
+        "input": "I feel embarrassed, scared, and completely exposed, like everyone can see I don’t belong there. Under that, there’s this helpless sinking feeling.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Cold unfamiliar city",
+        "input": "The city is gray and towering, with neon signs glowing in words I can’t read. Everything feels cold, wet, and unfamiliar.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "Crowded faceless streets",
+        "input": "The streets are packed tight with people and nobody’s face shows much of anything. There’s train noise in the background and harsh announcements bouncing off the buildings.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "Dark tunnel atmosphere",
+        "input": "Ahead of me there’s a dark tunnel opening, and the last bit of daylight looks far away. The pavement is slick and the air feels heavy and loud.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "Shoving through the crowd",
+        "input": "When the crowd starts dragging me toward the tunnel, I throw my elbows and shove people off me hard enough to make them stumble so I can get free. I'm not really thinking about how hard I'm hitting them, just that I need them to stop.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "proportionality",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "VIOLENT_REVENGE"
+      },
+      {
+        "description": "Frozen and terrified",
+        "input": "I just stand there with my chest tightening, feeling scared and small while everyone rushes past me. I want to do something, but I can't seem to make myself move.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "passivity",
+        "nodeA": "AVOIDANCE",
+        "nodeB": "AFFECT_EXPRESSION"
+      },
+      {
+        "description": "Pushing fear aside",
+        "input": "I tell myself not to panic and keep my face blank, like if I don't give the fear any room it won't take over. Part of me feels calmer, and part of me feels like I'm stuffing it down.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "regulation_vs_denial",
+        "nodeA": "EMOTIONAL_MASTERY",
+        "nodeB": "SUPPRESSION"
+      },
+      {
+        "description": "Same city again",
+        "input": "It's the same city and the same tunnel, and everything unfolds the way it always does with the noise and the crowd closing in. I'm mostly just describing it, but it also feels like I'm right back in it.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "description_vs_replay",
+        "nodeA": "NARRATIVE_SETTING",
+        "nodeB": "TRAUMA_REPLAY"
+      },
+      {
+        "description": "Getting out fast",
+        "input": "I turn and move away from the tunnel as fast as I can, just trying to get myself somewhere safer before the crowd swallows me. It feels like taking action, but also like I'm just trying to get away from it.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "active_vs_passive",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "AVOIDANCE"
+      },
+      {
+        "description": "Refusing the scene",
+        "input": "I tell myself this doesn't get to pull me under, and I force myself to break whatever is happening before the tunnel closes around me. It feels a little like taking charge and a little like trying to shut the whole dream off.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "action_vs_escape",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "INTERRUPTION"
+      },
+      {
+        "description": "Doubting then asking help",
+        "input": "This whole rewrite thing feels kind of fake, but fine, instead of freezing I slow my breathing and grab a transit worker by the arm so they look at me and help me out of the crowd before I get pulled into the tunnel.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "META + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      },
+      {
+        "description": "Scared and hiding away",
+        "input": "I feel panicky and small, like I’m about to disappear, so I duck into a doorway and make myself invisible until I either wake up or the whole thing passes.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "multipart",
+        "pattern": "FEELING + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "Calms then forces wake",
+        "input": "I try to steady myself and follow the train sounds toward an exit, but then the crowd keeps closing in and I just force my eyes open so I don’t have to stay there.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "multipart",
+        "pattern": "ADAPTIVE + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "Complaining then shutting down",
+        "input": "I don’t really get why I’m supposed to change it if the dream is already awful, because honestly I’d just curl up against the wall by the tunnel and stop trying to talk to anyone.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "multipart",
+        "pattern": "META + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "Afraid but takes control",
+        "input": "I’m terrified and my chest is tight, but I plant my feet, take one full breath, and start shouting simple words until I flag down somebody in uniform to guide me back into the light.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "FEELING + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      },
+      {
+        "description": "Breathes and uses environment",
+        "input": "I slow myself down enough to think, then I climb up onto a bench above the crowd so I can read the station map and follow the signs back toward the daylight instead of getting swept into the tunnel.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "ADAPTIVE + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      }
+    ]
+  },
+  {
+    "suite": "Failing a test in front of a mocking audience",
+    "nightmare": "I’m sitting alone at a tiny desk in the middle of a huge auditorium, and the test paper in front of me is covered in symbols and questions I can’t understand because the words keep blurring and rearranging themselves. The room is unbearably hot under the bright lights, sweat runs down my back, and all I can hear is the scratching of my pencil that won’t leave any marks and the low, growing laughter from the audience rising around me like it’s closing in. When I look up, hundreds of faces are staring down at me from the dark rows, grinning, whispering, and pointing, and then a voice over the loudspeaker calls my name and announces my score as a zero. My chest locks up, my hands shake so badly I can’t hold the paper, and as the laughter turns into jeering and people start standing and moving toward the stage, I realize I still haven’t answered a single question.",
+    "tests": [
+      {
+        "description": "Stand and stop announcement",
+        "input": "I push the desk back hard, stand up, and tell whoever is on the loudspeaker to stop. Then I grab the test paper, walk to the front of the stage, and say nobody gets to humiliate me like that.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Take microphone control",
+        "input": "I march straight to the microphone and take it out of their hands. My voice comes out steady when I say the exam is over and everyone in the room needs to sit down and be quiet.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Tear up the test",
+        "input": "I stop trying to answer and rip the paper in half. I face the crowd instead of shrinking, and I tell them I'm leaving on my own terms.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Call for teacher help",
+        "input": "I raise my hand and call out for the teacher because I can't read the page. When she comes down to me, she tells the audience to back off and stands beside me.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Friend appears beside me",
+        "input": "I look into the crowd and spot my best friend, and I ask her to come sit with me. She does, and suddenly I'm not alone while the room gets quieter.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Ask audience for support",
+        "input": "Instead of freezing, I tell the room I'm overwhelmed and need someone to help me understand what the test is asking. A few people come forward kindly, and the laughing dies down once they start helping.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Open doors and cool room",
+        "input": "I notice a side door, walk over to it, and throw it open. Cool air rushes in, the heat breaks, and the auditorium starts feeling like a normal classroom again.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Switch on readable lights",
+        "input": "I find a lamp on the desk and turn it on, and the symbols stop shifting around. The paper turns into plain questions I actually know how to answer.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Move desk off stage",
+        "input": "I drag the tiny desk out of the center and place it in the front row where it feels less exposed. Once I'm out of that spotlight, the audience just looks like regular students waiting quietly.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Slow breathing and focus",
+        "input": "I put both feet on the floor and take a long, slow breath until my chest loosens. The noise fades enough for me to focus on one question at a time.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Remember I am capable",
+        "input": "I tell myself I know more than this dream is making me feel, and I don't have to panic. As soon as I calm down, my hands stop shaking and I can read the page.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Realize crowd can't harm",
+        "input": "I look up and remind myself they're just people and their laughter doesn't define me. Once I stop believing I'm trapped, the fear drops and I feel steady again.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Make words obey me",
+        "input": "I point at the test and the blurring symbols freeze, then rearrange into clear sentences I can understand. The pencil starts writing perfectly on its own as I read.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Float above auditorium",
+        "input": "I rise up out of the chair and hover above the stage where the heat and noise can't reach me. From up there the whole room shrinks, and the crowd loses its power over me.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Turn jeers into birds",
+        "input": "When the laughter gets loud, I lift my hand and it changes into a flock of birds flying out through the ceiling. The dark auditorium fills with daylight, and everything feels peaceful.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Hide under desk",
+        "input": "I slide off the chair and curl up under the little desk with my arms over my head. I keep my eyes on the floor and wait for everyone to stop looking at me.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Freeze in silence",
+        "input": "I just sit there completely still, too scared to move or speak. Even when they start laughing louder, I stare at the paper and do nothing.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Pretend not to notice",
+        "input": "I lower my head and act like I can't hear the loudspeaker or the people in the seats. I stay small and try to disappear into the desk until it passes.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Jolt awake immediately",
+        "input": "As soon as the voice says my score, I force my eyes open and wake up in bed. I don't stay there long enough to see what happens next.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Escape by waking",
+        "input": "I realize it's starting again, so I pinch myself hard and drag myself out of the dream. The auditorium is just gone all at once.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "End dream abruptly",
+        "input": "Right before the crowd reaches the stage, I make everything cut to black and I wake up. I don't deal with any of it, I just end it.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Attack the audience",
+        "input": "I snap and start tearing through the crowd, beating people until the laughing stops. The whole auditorium turns into chaos and nobody is left standing.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Destroy the auditorium",
+        "input": "I set the room on fire and watch the seats, the stage, and the test all burn while they scream. I want the whole place wiped out.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Brutalize the announcer",
+        "input": "I find the person on the loudspeaker and violently attack them, over and over, until there's nothing left for them to say. Then I go after anyone who laughed.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Feel nothing at all",
+        "input": "They announce the zero and everyone laughs, but I don't feel anything. It doesn't get to me and I just sit there numb.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Act completely fine",
+        "input": "My chest stays calm and I tell myself it's no big deal, like none of it matters. I just ignore the panic and pretend I'm perfectly okay.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Deny any distress",
+        "input": "Even with all those faces staring at me, I decide I don't care. The heat, the shame, the zero—none of it bothers me at all.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Everything happens the same",
+        "input": "It's the exact same dream from start to finish. I'm at the desk, the words blur, they laugh, my score is zero, and I can't answer anything.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Relive it unchanged",
+        "input": "Nothing shifts at all; I go through the whole thing exactly like before. The room gets hot, my pencil won't work, and the crowd closes in while I freeze.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Repeat the nightmare",
+        "input": "I just end up back in the auditorium and it unfolds the same way again. The voice announces my zero and I'm still trapped there with no answers.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Overwhelmed and ashamed",
+        "input": "I feel completely overwhelmed and humiliated sitting there, like my whole body is tight with panic and everyone can see me falling apart. There’s this heavy shame in my chest that makes me want to disappear.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Frozen with panic",
+        "input": "I’m terrified and frozen, and my heart is pounding so hard it feels like I can’t breathe. I feel helpless, small, and exposed in front of all those people.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Crushed by dread",
+        "input": "I just feel this huge wave of dread and embarrassment, like I already know I’ve failed before anything is even over. It’s a sinking, hopeless feeling more than anything else.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Hot glaring auditorium",
+        "input": "The auditorium is enormous and dim except for the harsh white lights over my little desk. The air feels thick and hot, and the rows of seats stretch out forever into the dark.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "Distorted test page",
+        "input": "The paper in front of me is warped with strange symbols, and the words keep sliding around so nothing stays readable. Everything around me feels too bright, too exposed, and unreal.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "Crowd looming silently",
+        "input": "There are hundreds of faces above me in the dark rows, all turned in my direction under the stage glow. The whole place feels huge, pressurized, and closed in even though it’s wide open.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "Shoving through the crowd",
+        "input": "When they start coming toward the stage, I shove the first few people back hard and keep swinging my arms until there's space around me. I'm not sure if I'm defending myself or just lashing out so they can't get any closer.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "proportionality",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "VIOLENT_REVENGE"
+      },
+      {
+        "description": "Frozen at the desk",
+        "input": "I just sit there gripping the desk, feeling my chest lock up and my eyes sting, like I'm too scared to move or say anything. It feels like I'm showing how terrified I am, but also kind of giving up.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "passivity",
+        "nodeA": "AVOIDANCE",
+        "nodeB": "AFFECT_EXPRESSION"
+      },
+      {
+        "description": "Pushing the panic down",
+        "input": "I tell myself to stay calm and not let the laughter get inside me, so I kind of press the panic down and keep facing forward. Part of it feels steadying, and part of it feels like I'm pretending I'm not falling apart.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "regulation_vs_denial",
+        "nodeA": "EMOTIONAL_MASTERY",
+        "nodeB": "SUPPRESSION"
+      },
+      {
+        "description": "Same exam again",
+        "input": "It's the same auditorium and the same paper that won't stay still, and I watch it all happen the way it always does. I'm mostly just describing the scene, but it also feels like I'm right back in it.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "description_vs_replay",
+        "nodeA": "NARRATIVE_SETTING",
+        "nodeB": "TRAUMA_REPLAY"
+      },
+      {
+        "description": "Backing off the stage",
+        "input": "I get up from the desk and move off the stage as fast as I can before they reach me. It could be me taking action to protect myself, or just trying to get away from the whole thing.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "active_vs_passive",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "AVOIDANCE"
+      },
+      {
+        "description": "Trying to break it",
+        "input": "I tell myself this isn't how it's going to go and try to force the scene to shift, like by standing up and willing the room to stop. It feels a little like taking charge, but also like I'm trying to shut the dream off.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "action_vs_escape",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "INTERRUPTION"
+      },
+      {
+        "description": "Doubts process, takes control",
+        "input": "I mean, this whole rewriting thing feels kind of fake to me, but fine, instead of freezing I stand up, tell the audience to be quiet, and ask for a clear copy of the test while I slow my breathing.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "META + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      },
+      {
+        "description": "Panics and forces waking",
+        "input": "I get really scared when everyone starts laughing, so I just squeeze my eyes shut and force myself awake before they can come any closer.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "multipart",
+        "pattern": "FEELING + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "Tries breathing, then hides",
+        "input": "I try to calm myself down and tell myself it's only a test, but when the people start standing up I crawl under the little desk and just wait there so nobody can see me.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "multipart",
+        "pattern": "ADAPTIVE + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "Complains, then escapes dream",
+        "input": "Honestly I don't get how changing it is supposed to help, and in the dream I just decide to wake myself up so I don't have to sit there being humiliated.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "multipart",
+        "pattern": "META + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "Afraid but asks help",
+        "input": "I'm terrified and my chest is tight, but I take a breath, raise my hand, and ask for help reading the test instead of letting the crowd decide what happens.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "FEELING + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      },
+      {
+        "description": "Calms down and changes room",
+        "input": "I steady myself first and remind myself I can think clearly, and then I make the auditorium lights soften and the paper turn back into normal words so I can finish the exam.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "ADAPTIVE + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      }
+    ]
+  },
+  {
+    "suite": "Finding a loved one injured on the ground",
+    "nightmare": "I’m running down a dark street slick with rain, and under the yellow flicker of a dying streetlight I see someone crumpled on the pavement ahead. As I get closer, my stomach drops—it’s my loved one, lying twisted on the ground with blood shining black-red across their clothes, their skin cold and damp when I grab their hand. I can hear this awful wet gurgling in their breathing and my own voice breaking as I scream for help, but the street is completely empty, like the whole world has gone silent except for that choking sound. Their eyes flutter open just enough to look at me, terrified, and when I try to lift them I feel something shift wrong beneath them, and then they stop breathing.",
+    "tests": [
+      {
+        "description": "Apply pressure and lift",
+        "input": "I drop to my knees, press my coat hard against the wound, and get my arms under them carefully so I can carry them toward the corner store with the light on. I keep moving and shouting that they're staying with me until I get them somewhere safe.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Take charge of scene",
+        "input": "Instead of freezing, I force myself to check their breathing, straighten my voice, and do chest compressions right there in the street. I stay focused on one step at a time like I know exactly what to do.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Shield and move them",
+        "input": "I pull off my sweater, wrap it around them, and drag them out of the rain under the awning so I can keep them warm and awake. My whole body feels steady and strong, like I'm not helpless anymore.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Call emergency services",
+        "input": "I get my phone out with shaking hands and call 911, and this time someone answers right away and stays on the line with me. I tell them exactly where we are and keep talking to my loved one until the sirens get close.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Flag down nearby people",
+        "input": "The street isn't empty anymore—I pound on the doors of the buildings and people come out. A couple of them kneel beside me and one person runs to get an ambulance.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Reach familiar ally",
+        "input": "I call my brother, and he picks up immediately and tells me he's two blocks away. He gets there fast, takes over the first aid, and I don't feel alone with it anymore.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Find medical supplies",
+        "input": "I spot a first-aid kit in a delivery van with the door hanging open, and inside there's gauze and a blanket. I use what's there to stop the bleeding and keep them warm until help arrives.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Move into safe shelter",
+        "input": "I notice the diner across the street is open, bright, and full of people, so I get them inside instead of staying in that dark road. The whole place shifts from cold and empty to warm and manageable.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Use light and dry ground",
+        "input": "I drag a street work lamp closer and suddenly I can see clearly that the blood isn't as bad as I thought. I lay them on a dry patch by the wall where I can actually help them.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Steady breath and focus",
+        "input": "I feel the panic rising, but I take one slow breath and my head clears. Once I calm down, I can hear their breathing better and I stop spiraling long enough to help.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Talk with confidence",
+        "input": "I hold their hand and keep my voice low and steady, telling both of us that we're going to get through this. The terror eases enough that I can stay present instead of falling apart.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Recognize inner control",
+        "input": "Something in me realizes I don't have to let the horror run the whole scene, and I stop feeling trapped by it. I become calm and clear, like I can choose what happens next.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Heal with glowing hands",
+        "input": "I put my hands over their chest and a warm light spreads through them, sealing the wound and easing their breathing. Their skin turns warm again and they open their eyes like they're fully coming back.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Reverse time briefly",
+        "input": "I raise my hand and the whole street rewinds a few minutes, the rain lifting back into the sky and the blood disappearing. I get to them before they collapse and pull them out of danger.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Summon protective guide",
+        "input": "A huge bright guardian appears beside me and wraps us in this calm, golden shield. It carries my loved one gently and takes us somewhere safe where they can recover.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Freeze beside them",
+        "input": "I stop a few feet away and just lock up. I can't make myself touch them or call out again, so I stand there staring while the choking sound gets quieter.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Hide from the scene",
+        "input": "As soon as I realize it's them, I back into a dark doorway and crouch there, holding my breath so nobody sees me. I stay hidden and wait for it to be over instead of going to them.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Look away and retreat",
+        "input": "I turn my face away because I can't bear to see their body, and I keep walking backward down the street. I don't help, I just leave them there and try not to hear them.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Jolt myself awake",
+        "input": "Right when I hear the gurgling, I force my eyes open and rip myself out of sleep. I don't stay long enough to see anything else happen.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "End the dream abruptly",
+        "input": "I tell myself this has to stop and everything cuts to black. The whole street disappears before I do anything with them.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Escape by waking",
+        "input": "I start panicking and focus on waking up as hard as I can, like I'm clawing my way out of it. I leave the street completely and never find out what happens next.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Attack whoever did it",
+        "input": "I suddenly know someone hurt them, and I hunt that person down in the alley and beat them until there's nothing left moving. I don't stop when they're already dead.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Brutal street retaliation",
+        "input": "I grab a piece of metal from the ground and smash in the attacker's face over and over, splattering the whole street. I'm screaming at them while I do it, like I want them to suffer worse than my loved one did.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Destroy everything violently",
+        "input": "I can't save them, so I go wild and start stabbing the person responsible again and again, then I wreck the cars and windows around us too. It turns into me trying to tear the whole place apart.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Feel nothing at all",
+        "input": "I kneel next to them and notice the blood, but it doesn't hit me emotionally. I just think, okay, this is happening, and I feel completely blank.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Act unfazed by death",
+        "input": "When they stop breathing, I shrug like it doesn't matter that much. I'm calm and detached, almost bored, and nothing about it really bothers me.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Deny any distress",
+        "input": "I hold their cold hand and tell myself I'm totally fine, like none of this gets to me. Even hearing that choking sound, I don't let myself feel scared or sad.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Everything happens unchanged",
+        "input": "It goes exactly the same way every time: the rain, the dying light, finding them bleeding out on the pavement. I grab their hand, hear that awful breathing, and they die while I'm screaming for help.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Relive the same ending",
+        "input": "Nothing is different. I run to them, feel something shift wrong when I try to lift them, and then they stop breathing just like before.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Stuck in identical scene",
+        "input": "I'm back on the same empty street with the same yellow flicker and the same black-red blood on their clothes. I can't change a single part of it, and I watch the whole thing happen again until the end.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "overwhelming panic",
+        "input": "I feel pure panic hit me all at once, like I can't get enough air and my whole body is shaking. I'm terrified and completely helpless standing there.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "grief and helplessness",
+        "input": "I’m flooded with this awful grief and dread, and it feels like my chest is collapsing in on itself. I just feel broken and powerless.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "frozen in horror",
+        "input": "I am horrified, and everything in me goes numb with shock. I feel helpless and sick with fear.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "empty rain-soaked street",
+        "input": "The street is dark and glossy with rain, and the yellow light above keeps flickering like it's about to die. Everything around me feels cold, empty, and far away.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "silent nighttime scene",
+        "input": "It’s the middle of the night, and the whole block is unnaturally still. The air is damp and cold, and there’s this eerie silence hanging over everything.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "dim and desolate atmosphere",
+        "input": "The pavement shines black with rain, and the light is weak and yellow against the darkness. The whole place feels deserted and heavy, like the world has gone quiet.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "Attack to stop threat",
+        "input": "When I realize someone's done this, I throw myself at them and keep hitting until they finally go down and can't come near us anymore. In my head it's about stopping them, but I don't really stop to see when enough is enough.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "proportionality",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "VIOLENT_REVENGE"
+      },
+      {
+        "description": "Frozen in terror",
+        "input": "I just stand there holding their hand, completely frozen and shaking, like my body won't let me do anything except feel how scared I am. I'm crying and calling out, but I still can't make myself move.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "passivity",
+        "nodeA": "AVOIDANCE",
+        "nodeB": "AFFECT_EXPRESSION"
+      },
+      {
+        "description": "Push fear aside",
+        "input": "I tell myself I need to stay calm and not let the panic take over, so I push the fear down and focus on what has to happen next. It feels steadying, but also a little like I'm not letting myself feel it.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "regulation_vs_denial",
+        "nodeA": "EMOTIONAL_MASTERY",
+        "nodeB": "SUPPRESSION"
+      },
+      {
+        "description": "Same scene again",
+        "input": "It starts the same way with the rain and the streetlight, and I find them there on the pavement again, hearing that awful breathing. I'm mostly just saying what happens, but nothing in it really changes.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "description_vs_replay",
+        "nodeA": "NARRATIVE_SETTING",
+        "nodeB": "TRAUMA_REPLAY"
+      },
+      {
+        "description": "Move away quickly",
+        "input": "I back away fast and pull myself out of the street, like I need to get moving before I completely fall apart. Part of me is trying to find help, and part of me just needs to get away from seeing it.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "active_vs_passive",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "AVOIDANCE"
+      },
+      {
+        "description": "Refuse what is happening",
+        "input": "I tell myself this is not how it's going to go and try to break the scene before it reaches the moment they stop breathing. It feels like I'm taking hold of it, but also maybe just trying to shut the whole thing off.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "action_vs_escape",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "INTERRUPTION"
+      },
+      {
+        "description": "skeptical then gets help",
+        "input": "This still feels kind of pointless to me, but okay, instead of freezing I drop to my knees, call 911, press my jacket against the wound, and keep talking to my loved one until the ambulance lights finally show up.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "META + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      },
+      {
+        "description": "panicked and wakes up",
+        "input": "I feel completely sick and terrified seeing them like that, so before I even try to help I just force myself awake because I can't stand hearing that choking sound.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "multipart",
+        "pattern": "FEELING + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "tries helping then flees",
+        "input": "I kneel down and try to slow my breathing while I reach for my phone, but then I freak out that they're dying in my hands and I just back away and run down the street.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "multipart",
+        "pattern": "ADAPTIVE + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "complains then shuts down",
+        "input": "Why am I supposed to rewrite this when it just makes me feel worse, because honestly I'd rather blur the whole scene out and make myself wake up before I touch them.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "multipart",
+        "pattern": "META + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "scared but takes charge",
+        "input": "I'm terrified and my stomach is dropping, but I make myself stay with them, breathe slowly, put pressure on the blood, and keep shouting for help instead of panicking.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "FEELING + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      },
+      {
+        "description": "calms down and recruits help",
+        "input": "I steady myself first so I don't spiral, then I drag us under the streetlight to see better and wave down a passing car so the driver helps me keep my loved one breathing until paramedics arrive.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "ADAPTIVE + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      }
+    ]
+  },
+  {
+    "suite": "Looking in a mirror and seeing my face melting",
+    "nightmare": "I’m standing alone in a bathroom that’s too bright, the fluorescent light buzzing above me, and when I look in the mirror my reflection seems normal for a second before the skin around my eyes starts to sag and slide downward like warm wax. I try to touch my face, but my fingers come away slick and cold, and in the glass I watch my cheeks dripping off in thick, silent folds while my mouth stretches crookedly and one eye sinks lower than the other. I can hear my own breathing getting sharp and panicked, the wet pattering sound of pieces of me hitting the sink, and I keep trying to scream but my lips are softening and peeling apart before the sound can come out. I’m frozen there, forced to watch my face collapse into something unrecognizable, and then my reflection suddenly opens its melting mouth wide and starts reaching one ruined hand through the mirror toward me.",
+    "tests": [
+      {
+        "description": "Shove mirror hand back",
+        "input": "When that ruined hand comes through the mirror, I grab its wrist and slam the medicine cabinet door on it until the glass cracks. I keep my feet planted and force it back through before it can touch me.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Hold reflection in place",
+        "input": "I step right up to the sink instead of freezing and press both palms hard against the mirror, staring it down. The thing on the other side starts to melt back, but I keep pushing until it can't come through.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Take control of body",
+        "input": "I stop panicking and wipe my face with a towel, then I straighten my mouth and jaw with my hands like I'm putting myself back together. The reflection copies me instead of attacking, and I make it back away.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Call for my sister",
+        "input": "I finally get my voice out and yell for my sister, and she opens the bathroom door right away. The second she stands beside me and says my face is still there, the thing in the mirror loses its grip on me.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Get help from doctor",
+        "input": "I grab my phone off the counter and call 911, trying to keep talking while I look away from the glass. A paramedic and a doctor show up in the dream, guide me out of the bathroom, and tell me I'm safe.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Partner comes inside",
+        "input": "I pound on the door and my partner comes in and wraps a blanket around me so I don't have to face it alone. We look at the mirror together, and with someone else there it just turns back into a normal reflection.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Cover the mirror",
+        "input": "I snatch the bath towel and throw it over the mirror before the hand gets all the way through. Once the glass is covered, the buzzing light quiets down and I can open the door and leave.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Change the harsh lighting",
+        "input": "I reach up and switch off the fluorescent light, then turn on a softer lamp by the sink. In the warmer light my face stops sagging, and the bathroom feels normal again.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Use water to reset",
+        "input": "I turn on the faucet and splash cold water over my face and the mirror until everything blurs. When I look up again, the glass is just steamed over and the room has turned into my own calm bathroom at home.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Slow my breathing",
+        "input": "I notice how fast I'm breathing, so I force myself to take one long inhale and a slow exhale. The panic drops enough that my face steadies in the mirror and I can see it's still me.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Remember I'm safe",
+        "input": "I tell myself, this is fear and it's passing, and I stop fighting the feeling for a second. Once I calm down, the melting slows and the reflection can't scare me anymore.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Stand calm and centered",
+        "input": "Instead of trying to scream, I put a hand on my chest and stay really still until I feel grounded. The thing reaching through the mirror shrinks back when it sees I'm not panicking.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Heal face with light",
+        "input": "I lift my hand and this warm gold light comes out of it, sealing my skin back into place. Then I aim it at the mirror and the reaching reflection dissolves like smoke.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Turn mirror into water",
+        "input": "I decide the mirror can't trap me, and it softens into a pool of clear water instead of glass. The ruined version of me sinks under it, and I walk through without being harmed.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Become untouchable stone",
+        "input": "When my face starts sliding, my whole body turns solid and smooth like stone, so nothing can peel off anymore. The hand coming through the mirror can't get a grip on me, and it cracks apart.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Hide under the sink",
+        "input": "As soon as the hand starts coming through the mirror, I drop to the floor and curl up under the sink cabinet so I don't have to see it. I stay completely still and wait for it to pass.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Keep eyes shut",
+        "input": "I squeeze my eyes closed and turn my face away from the mirror while my skin keeps slipping. I just stand there frozen, trying not to move at all.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Back into the corner",
+        "input": "I back into the far corner of the bathroom and make myself small, like if I don't react it won't notice me. I don't fight it or say anything, I just wait there in panic.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Jolt myself awake",
+        "input": "Right when the reflection reaches toward me, I force myself awake before it can touch me. I sit up breathing hard and the whole thing just cuts off.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Escape by waking",
+        "input": "I realize it's happening and I make myself open my eyes in bed. The bathroom disappears before anything gets resolved.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "End dream abruptly",
+        "input": "I basically yank myself out of the dream the second my face starts melting. I wake up on purpose so I don't have to stay there.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Smash the reflection",
+        "input": "When that hand comes through, I grab a piece of broken glass and stab at its face over and over until the mirror is covered in blood and shards. I don't stop until the whole thing is destroyed.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Rip it apart",
+        "input": "I yank the arm out through the mirror and tear the reflection apart with my hands. I keep crushing it into the sink until there's nothing left but mangled pieces.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Destroy the whole bathroom",
+        "input": "I get furious and start smashing everything, the mirror, the sink, the lights, all of it, until the reflection is shredded in the wreckage. I want it completely obliterated.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Feel nothing at all",
+        "input": "I watch my face slide off in the mirror and it doesn't bother me. I just feel blank, like it's nothing.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Say I'm fine",
+        "input": "Even with my mouth peeling apart, I tell myself I'm fine and there's no reason to get upset. I stay calm by acting like none of it means anything.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Numb to the horror",
+        "input": "The hand reaches through the mirror and I have no emotional reaction to it at all. I just stand there completely numb, like I don't care what happens.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Everything happens the same",
+        "input": "I'm back in the same bright bathroom and it all unfolds exactly the same way, my face melting, the wet sounds, the frozen panic. The reflection still reaches through the mirror and nothing changes.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Relive it identically",
+        "input": "I look in the mirror, my skin starts sliding off, and I can't scream, just like before. I don't do anything different, I just go through the whole thing again.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "No change in nightmare",
+        "input": "It's the same scene with the buzzing fluorescent light and my reflection collapsing into something ruined. I stay stuck there and watch it happen the exact same way until the hand comes out toward me.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Overwhelmed by fear",
+        "input": "I feel pure terror standing there, like my whole body knows something is horribly wrong and I can't stop panicking.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Disgust and helplessness",
+        "input": "I'm disgusted and helpless at the same time, sick to my stomach watching my face come apart and not being able to do anything.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Frozen in dread",
+        "input": "I feel this heavy dread and total paralysis, like I'm trapped inside the moment and all I can do is be afraid.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Harsh bathroom lighting",
+        "input": "The bathroom is painfully bright, with that fluorescent buzzing filling the room and making everything feel sterile and wrong.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "Mirror and cold sink",
+        "input": "The mirror is right in front of me over a cold white sink, and the whole place feels too quiet except for the hum above me.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "Unnatural stillness everywhere",
+        "input": "Everything around me feels unnaturally still and close, like the air is tight and the room has no warmth in it at all.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "Mirror shove struggle",
+        "input": "When that ruined hand starts coming through, I slam it back into the glass and keep hitting at it until it pulls away or breaks apart. I'm not even sure if I'm defending myself or just trying to destroy it before it can touch me.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "proportionality",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "VIOLENT_REVENGE"
+      },
+      {
+        "description": "Frozen and terrified",
+        "input": "I just stand there shaking, watching my face slide apart, and all I can really do is feel how scared and helpless I am. It's like the fear itself is the only thing moving.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "passivity",
+        "nodeA": "AVOIDANCE",
+        "nodeB": "AFFECT_EXPRESSION"
+      },
+      {
+        "description": "Push fear aside",
+        "input": "I tell myself to stay calm and not let the panic take over, so I kind of push the fear down and keep looking at it. Part of me feels in control, and part of me feels numb.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "regulation_vs_denial",
+        "nodeA": "EMOTIONAL_MASTERY",
+        "nodeB": "SUPPRESSION"
+      },
+      {
+        "description": "Same scene again",
+        "input": "It all plays out the same way in the bright bathroom, with my face starting to melt as soon as I look in the mirror. I'm mostly just describing it, but it also feels like I'm right back inside it.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "description_vs_replay",
+        "nodeA": "NARRATIVE_SETTING",
+        "nodeB": "TRAUMA_REPLAY"
+      },
+      {
+        "description": "Back away fast",
+        "input": "As soon as the hand comes through, I move away from the sink and head for the door as fast as I can. It feels like taking charge, but also like I just need to get out of there.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "active_vs_passive",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "AVOIDANCE"
+      },
+      {
+        "description": "Refuse the dream",
+        "input": "I tell myself this isn't how it's going to go and try to break whatever's happening before it gets worse. It could be me taking control, or maybe I'm just trying to shut the whole thing down.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "action_vs_escape",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "INTERRUPTION"
+      },
+      {
+        "description": "Reluctant mirror confrontation",
+        "input": "This feels kind of ridiculous to say out loud, but fine, instead of freezing I plant my feet, grab the sink for balance, and tell the thing in the mirror it doesn't get to touch me while I slam the medicine cabinet shut on its hand.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "META + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      },
+      {
+        "description": "Terrified forced awakening",
+        "input": "I'm honestly so panicked by the whole melting-face part that I don't even try to deal with it, I just squeeze my eyes shut and force myself awake before the hand can come through.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "multipart",
+        "pattern": "FEELING + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "Breathing then escape",
+        "input": "I try to steady myself and breathe and even tell my reflection to stop, but as soon as that ruined hand reaches out I give up and duck to the floor behind the sink so I don't have to see it anymore.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "multipart",
+        "pattern": "ADAPTIVE + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "Complaining then hiding",
+        "input": "I don't really get how rewriting this is supposed to help, because if I'm being honest I just want to shove the bathroom door shut, crawl into the tub, and hide behind the shower curtain until it's over.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "multipart",
+        "pattern": "META + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "Scared but assertive",
+        "input": "I'm really scared when my face starts sliding off, but I make myself take one slow breath, look straight at the mirror, and say that's not my real body before I step back and knock the reaching hand away.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "FEELING + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      },
+      {
+        "description": "Calm and use environment",
+        "input": "I slow my breathing first so I don't freeze, and then I rip the fluorescent light loose and smash the mirror with it so the reflection loses its way out and I can get to the door.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "ADAPTIVE + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      }
+    ]
+  },
+  {
+    "suite": "Trying to run through thick mud while being chased",
+    "nightmare": "I’m running through a field of thick, black mud that sucks at my legs like hands, and every step takes everything I have just to move a few inches. I can hear something behind me crashing closer through the wet ground—heavy, uneven footsteps and this ragged breathing that doesn’t sound human—and when I try to look back, my neck feels stiff and my chest locks up with panic. The mud is ice-cold and crawling over my shoes, pulling me down harder and harder, and I can smell this rotten swamp smell while my heart pounds so loud it drowns out my own screams. Just as my foot comes completely free and I lurch forward, something grabs my ankle from behind and yanks me backward into the mud.",
+    "tests": [
+      {
+        "description": "Turn and break free",
+        "input": "When something grabs my ankle, I whirl around instead of freezing and slam my heel down into the mud until its grip loosens. I yank my leg free and plant myself solidly, facing whatever is behind me.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Stand ground firmly",
+        "input": "I stop fighting the mud long enough to square my shoulders and turn toward the breathing. I tell it, \"You're not dragging me anywhere,\" and I push back hard against the thing holding me.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Pull self to safety",
+        "input": "I drop low, dig my hands into the ground, and drag myself forward with all my strength instead of panicking. Once my foot comes loose, I get up and run in a straight line like I'm finally in control of my body.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Call for my brother",
+        "input": "I shout for my brother, and he comes running across the field with a rope. He throws it to me and keeps talking to me until I can pull myself out of the mud.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "People hear me",
+        "input": "This time when I scream, people actually hear me from a road nearby and come toward the sound. They reach down, grab my arms, and help me stand while the thing behind me stops coming closer.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Ask for help directly",
+        "input": "I stop trying to handle it alone and yell, \"I need help right now.\" Someone appears beside me, steady and calm, and helps me get my footing so I can move again.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Find a fallen branch",
+        "input": "I see a thick branch half-buried in the mud and grab it like a walking stick. Using it to brace myself, I lever my legs free and make it onto a patch of dry ground.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Mud becomes solid path",
+        "input": "The black mud starts to firm up under my feet until it turns into a narrow trail. I follow that solid path out of the field while the crashing sound fades farther behind me.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Reach a nearby fence",
+        "input": "I notice an old fence post sticking out and pull myself toward it. Once I grab it, I climb over into a dry pasture and the swamp smell disappears.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Slow my breathing",
+        "input": "I feel my chest locking up, so I force myself to take one slow breath and then another. As I calm down, the panic stops running the dream and I can think clearly enough to get unstuck.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Realize I am safe",
+        "input": "I tell myself that the fear is huge, but it can't actually control me. Once I say that, my body loosens, my neck turns normally, and I stop feeling so helpless.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Confidence replaces panic",
+        "input": "Instead of spiraling, I steady myself and focus on one step at a time. The more confident I feel, the less the mud pulls at me, like it loses power when I stop feeding it fear.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Lift above the swamp",
+        "input": "Right before I get dragged under, my body rises off the ground and I float above the mud. I watch the thing below me shrink as I drift out of reach.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Light from my hands",
+        "input": "I turn around and a bright light comes out of my hands, flooding the whole field. Whatever was chasing me can't come near it, and the mud dries up where the light touches.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Transform into powerful animal",
+        "input": "When it grabs my ankle, I change into a huge animal with strong legs and tear free easily. I bound across the swamp in a few leaps and leave the whole thing behind me.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Drop and play dead",
+        "input": "When I hear it getting close, I stop fighting the mud and let myself go limp. I lie face down and pretend I'm dead so maybe it will pass over me.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Hide in the reeds",
+        "input": "I drag myself off to the side where the mud is deeper and sink down behind a patch of tall swamp grass. I keep completely still and don't look back, just trying not to be noticed.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Freeze in place",
+        "input": "My body just locks up and I stop moving altogether. I stand there in the mud with my eyes shut, hoping if I don't do anything it won't find me.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Jolt myself awake",
+        "input": "Right when it grabs my ankle, I force my eyes open and rip myself out of sleep. I don't stay there long enough to see what it is.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "End the dream abruptly",
+        "input": "As soon as the panic hits my chest, I tell myself to wake up and everything cuts out. The field and the mud just disappear before anything else happens.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Escape by waking",
+        "input": "I feel the breathing right behind me and I start thrashing until I wake myself up. The only way out is ending the dream completely.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Hack it apart",
+        "input": "I spin around with a machete and start chopping at whatever grabbed me until it's in pieces in the mud. I keep swinging long after it stops moving.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Beat it to death",
+        "input": "I wrench my leg free, tackle it, and slam its head into the swamp over and over. I don't stop until the water is black and still and I know I've crushed it.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Burn the whole swamp",
+        "input": "I set the field on fire and let the flames swallow the thing chasing me, the mud, all of it. I watch everything burn down because I want nothing left standing.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Feel absolutely nothing",
+        "input": "It grabs my ankle and pulls me under, but I don't feel scared or upset at all. It's just happening and I don't care.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Act like it's fine",
+        "input": "The mud is freezing and that breathing is right behind me, and I'm completely unbothered by it. I just tell myself it's nothing and keep my face blank.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Numb to the terror",
+        "input": "Even when my chest tightens and I hear myself screaming, inside I feel flat. None of it gets to me and I have no reaction to it.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Same ending again",
+        "input": "It plays out exactly the same way every time. I run through the black mud, hear it coming, and it grabs my ankle and drags me back under.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Nothing changes at all",
+        "input": "I can't make anything different happen. The field, the smell, the panic, the thing behind me—it's all the same and I get pulled down into the mud again.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Relive it word for word",
+        "input": "I just go through the whole nightmare as it is, from struggling for each step to getting yanked backward by my ankle. There isn't any change or escape in it.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Overwhelming fear",
+        "input": "I feel pure panic in my chest, like I can't breathe and I'm completely trapped. I'm terrified and helpless.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Frozen in dread",
+        "input": "I am so scared I can barely think, and this heavy dread just takes over my whole body. It feels like hopelessness more than anything.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Despair and helplessness",
+        "input": "I feel small, weak, and overwhelmed, like the fear is bigger than me. There's this awful sense that I'm not going to get away.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Cold black field",
+        "input": "The whole field is thick with black mud, and the air smells rotten like a swamp. Everything feels icy and heavy around me.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "Dark oppressive atmosphere",
+        "input": "It's dim and gray, and the ground looks endless and wet in every direction. The place feels dead and suffocatingly still.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "Unnatural threatening sounds",
+        "input": "Behind me there are heavy, uneven sounds in the mud and this ragged breathing that doesn't sound human. The whole scene feels cold, foul, and wrong.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "Mud struggle backlash",
+        "input": "When whatever grabs my ankle pulls me down, I kick and slam at it with all I've got until it lets go, and I don't really stop until it's gone still enough for me to get free.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "proportionality",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "VIOLENT_REVENGE"
+      },
+      {
+        "description": "Frozen in terror",
+        "input": "I just go rigid in the mud and feel the panic take over, like I can't make my body do anything except stand there and feel how scared I am.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "passivity",
+        "nodeA": "AVOIDANCE",
+        "nodeB": "AFFECT_EXPRESSION"
+      },
+      {
+        "description": "Pushing fear down",
+        "input": "I tell myself not to freak out and keep moving, like if I press the fear down enough it won't get in the way.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "regulation_vs_denial",
+        "nodeA": "EMOTIONAL_MASTERY",
+        "nodeB": "SUPPRESSION"
+      },
+      {
+        "description": "Same swamp again",
+        "input": "It all plays out in that same black mud with the crashing steps behind me, basically the way it always does, and I just watch it happening again.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "description_vs_replay",
+        "nodeA": "NARRATIVE_SETTING",
+        "nodeB": "TRAUMA_REPLAY"
+      },
+      {
+        "description": "Dragging myself away",
+        "input": "I wrench my leg loose and haul myself forward as fast as I can, just trying to get out of that part of the swamp before it reaches me.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "active_vs_passive",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "AVOIDANCE"
+      },
+      {
+        "description": "Trying to break it",
+        "input": "I sort of tell myself this isn't how it's going to go and force everything in me to make the scene stop or shift somehow.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "action_vs_escape",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "INTERRUPTION"
+      },
+      {
+        "description": "Doubting then calling help",
+        "input": "This whole rewrite thing feels kind of fake to me, but if I go with it then I stop fighting the panic, yell for help, and imagine a bright rescue light pulling me out of the mud while I turn and face whatever's behind me.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "META + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      },
+      {
+        "description": "Terrified and forcing awake",
+        "input": "I'm so panicked when that hand grabs my ankle that I can't even think straight, and I just jolt myself awake before I have to see what it is.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "multipart",
+        "pattern": "FEELING + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "Breathing then giving up",
+        "input": "I try to slow my breathing and yank my leg free like I'm going to deal with it, but then I freak out again and decide to bury myself in the mud so it can't see me.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "multipart",
+        "pattern": "ADAPTIVE + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "Complaining then hiding",
+        "input": "I honestly don't get how changing a dream is supposed to help anything, so in the rewrite I just crawl into the thick mud and stay completely still so whatever's chasing me passes by.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "multipart",
+        "pattern": "META + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "Scared but standing firm",
+        "input": "I'm terrified and my chest is locking up, but I make myself take one full breath, plant my feet on solid ground, and turn around to face the thing instead of letting it drag me under.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "FEELING + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      },
+      {
+        "description": "Calming and changing terrain",
+        "input": "I steady myself first and let the panic come down, and then I imagine the mud drying into firm ground under me so I can move freely and confront whatever is chasing me.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "ADAPTIVE + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      }
+    ]
+  },
+  {
+    "suite": "Trying to lock a door against an intruder but the lock is broken",
+    "nightmare": "I’m in my house at night, and everything is wrong—too quiet except for the slow, heavy footsteps coming down the hallway toward me. My hands are slick with sweat as I shove the door closed and fumble with the lock, but it just spins uselessly under my fingers, clicking without catching, while the knob on the other side gives a soft, deliberate rattle. I can hear my own breathing turning ragged, feel the wood trembling against my palms, and see the shadow of someone standing just outside, blotting out the strip of light under the door. Then the rattling stops completely, and in the silence I feel the knob begin to turn, slowly, from the other side.",
+    "tests": [
+      {
+        "description": "Open door and face",
+        "input": "I stop backing up, unlock the door myself, and pull it open before they can. I stand there looking straight at whoever is outside and tell them they need to leave my house now.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Hold door and shove",
+        "input": "When the knob starts turning, I plant my feet and push hard against the door until it swings back on them. I rush forward and force the person into the hallway so they can't trap me anymore.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Step forward with control",
+        "input": "Instead of freezing, I square my shoulders and walk toward the door on purpose. The fear is still there, but I take control of the room and make it clear I'm not helpless.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Call family for help",
+        "input": "I yell for my brother from the next room, and he answers right away. Hearing him come down the hall makes me feel less alone, and the person outside backs off.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Phone emergency services",
+        "input": "My hands are shaking, but I grab my phone and call 911 while I keep talking loudly through the door. The dispatcher stays with me until I hear help pulling up outside.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Neighbors come over",
+        "input": "I start shouting for help out the window, and the neighbors switch on their lights and come outside. As soon as other people are there, the hallway doesn't feel dangerous anymore.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Barricade with furniture",
+        "input": "I drag a dresser and a chair in front of the door and wedge them tight under the knob. The door stops shaking, and I finally feel like I have something solid between me and whatever's out there.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Escape through window",
+        "input": "I notice the bedroom window is open, so I climb out onto the porch roof and get down safely. Once I'm outside in the fresh air, the house doesn't have that trapped feeling anymore.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Hallway turns harmless",
+        "input": "When I switch on the light, the shadow under the door shrinks and I realize it's just my coat hanging near a fan, making strange sounds. The whole house goes back to normal and quiet in a peaceful way.",
+        "expected_safe": true,
+        "expected_node": "ENVIRONMENTAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Slow breathing and steady",
+        "input": "I make myself take one slow breath and then another until my chest loosens. Once I calm down, the rattling at the door doesn't control me the same way.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Remember I am safe",
+        "input": "I suddenly know I'm safe in my own room, and that certainty settles through my body. The panic drains off, and I can think clearly instead of just reacting.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Realize it is dream",
+        "input": "I recognize that this is a dream, and as soon as I know that, the fear drops way down. I stand there calmly and the door loses all its power over me.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Freeze the door magically",
+        "input": "I lift my hand and the lock glows, sealing the door shut with a kind of blue light. The person outside can't touch it anymore, and I feel completely protected.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Become powerful and untouchable",
+        "input": "My body suddenly fills with this huge calm strength, and I grow taller than the hallway itself. Whoever is outside feels tiny, and they can't threaten me anymore.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Send light through house",
+        "input": "I snap my fingers and warm light rushes through the house, washing every room clean. The shadow under the door disappears, and the whole place feels protected like nothing bad can enter.",
+        "expected_safe": true,
+        "expected_node": "MYTHICAL_MASTERY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Hide in the closet",
+        "input": "I back away from the door and crawl into the closet, pulling the coats over me so whoever is outside won't see me. I stay completely still and hold my breath while the handle keeps moving.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Freeze behind the bed",
+        "input": "I slide down to the floor beside the bed and just freeze there. I don't call out or try anything, I just make myself small and wait for it to pass.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Pretend no one's inside",
+        "input": "I stand silently behind the door with my hands over my mouth, pretending the house is empty. Even when the knob starts turning, I don't move.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Jolt myself awake",
+        "input": "As soon as the knob starts to turn, I force my eyes open and drag myself out of the dream. I wake up before I ever see who's there.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "End the dream abruptly",
+        "input": "I tell myself this has to stop right now, and everything just cuts out. I'm suddenly awake in bed with my heart pounding.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Escape by waking",
+        "input": "Right when the shadow fills the doorway, I jerk myself awake on purpose. I don't stay long enough for anything else to happen.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Hack attacker apart",
+        "input": "When the door opens, I grab a knife and lunge at the person, stabbing them over and over until they drop. I keep going long after they're not moving because I want to make sure they're ruined.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Beat intruder to death",
+        "input": "I swing the lamp into their face, then I keep smashing them with it until there's blood all over the hallway. I don't stop until their body is unrecognizable.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Burn the whole house",
+        "input": "I decide if someone's coming for me, then nobody gets out, so I set the room on fire and trap them inside with me. I watch everything burn just to destroy them completely.",
+        "expected_safe": false,
+        "expected_node": "VIOLENT_REVENGE",
+        "test_type": "clean"
+      },
+      {
+        "description": "Feel nothing at all",
+        "input": "The footsteps come closer and the knob turns, but I don't feel scared or anything really. It's like none of it matters to me.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Act totally unaffected",
+        "input": "I just stand there and tell myself I'm fine, completely fine. Whoever is outside the door doesn't bother me.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Dismiss the fear",
+        "input": "I hear the rattling and see the shadow, and I basically shrug because I don't care. My chest isn't tight anymore because I shut all of that off.",
+        "expected_safe": false,
+        "expected_node": "SUPPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Everything happens the same",
+        "input": "It's the exact same house, same footsteps, same broken lock under my hand. The shadow stops outside the door and the knob slowly turns, just like always.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Relive it unchanged",
+        "input": "Nothing changes at all—I still shove the door, the lock still won't catch, and I can hear myself breathing hard. Then the rattling stops and I know the person is about to come in.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Repeat the nightmare exactly",
+        "input": "I go through the whole thing exactly the same way again. I'm at the door with my sweaty hands, the light disappears under it, and the handle starts turning from the other side.",
+        "expected_safe": false,
+        "expected_node": "TRAUMA_REPLAY",
+        "test_type": "clean"
+      },
+      {
+        "description": "Overwhelming fear",
+        "input": "I feel terrified, like my whole body is frozen and I can't make myself do anything. There's this helpless panic in my chest that just keeps building.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Helpless dread",
+        "input": "I'm so scared I feel weak and shaky, like all the strength drains out of me. It feels hopeless and I just wait there in pure dread.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Paralyzed panic",
+        "input": "I am completely panicked and numb at the same time. It feels like fear has me pinned in place.",
+        "expected_safe": true,
+        "expected_node": "AFFECT_EXPRESSION",
+        "test_type": "clean"
+      },
+      {
+        "description": "Dark silent hallway",
+        "input": "The house is dark and unnaturally still, with the hallway stretching out in shadow. The air feels cold and heavy.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "Bedroom at night",
+        "input": "It's nighttime in my room, and the only light is a thin strip under the door. Everything around me feels dim, cramped, and too quiet.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "Heavy oppressive atmosphere",
+        "input": "The whole house has this tense, suffocating feeling, like the silence is pressing in on me. The door and walls seem close around me, and the hallway outside is black.",
+        "expected_safe": true,
+        "expected_node": "NARRATIVE_SETTING",
+        "test_type": "clean"
+      },
+      {
+        "description": "Overwhelming self-defense",
+        "input": "When the door starts opening, I grab the nearest heavy thing and swing at him over and over until he goes down and the hallway finally gets quiet. It feels like I'm protecting myself, but I also don't really stop once I've started.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "proportionality",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "VIOLENT_REVENGE"
+      },
+      {
+        "description": "Frozen with fear",
+        "input": "I just stand there with my hands on the door, shaking and trying not to fall apart, because I'm too scared to do anything else. It feels like all I can do is stay there and feel how terrified I am.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "passivity",
+        "nodeA": "AVOIDANCE",
+        "nodeB": "AFFECT_EXPRESSION"
+      },
+      {
+        "description": "Pushing fear aside",
+        "input": "I tell myself to stay calm and not let the fear take over, so I kind of shove it to the side and keep going. I'm in control, but I'm also not really letting myself feel much of it.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "regulation_vs_denial",
+        "nodeA": "EMOTIONAL_MASTERY",
+        "nodeB": "SUPPRESSION"
+      },
+      {
+        "description": "Same scene again",
+        "input": "It plays out the same way, with the footsteps, the lock slipping, and the shadow under the door while I wait for the knob to turn. I'm mostly just describing it, but it also feels like I'm right back inside it.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "description_vs_replay",
+        "nodeA": "NARRATIVE_SETTING",
+        "nodeB": "TRAUMA_REPLAY"
+      },
+      {
+        "description": "Getting out fast",
+        "input": "As soon as I realize the lock won't hold, I move away from the door and get out of there as fast as I can. It feels like taking action, but mostly what I'm doing is escaping before I have to face him.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "active_vs_passive",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "AVOIDANCE"
+      },
+      {
+        "description": "Refusing the scene",
+        "input": "I tell myself this isn't going to happen and force myself to break out of it somehow, like either taking control or just making the whole thing stop. I'm not sure if I'm changing the dream or trying to shut it down.",
+        "expected_safe": null,
+        "expected_node": null,
+        "test_type": "boundary",
+        "boundary": "action_vs_escape",
+        "nodeA": "BEHAVIORAL_MASTERY",
+        "nodeB": "INTERRUPTION"
+      },
+      {
+        "description": "skeptical then calls out",
+        "input": "I still kind of hate doing this because it feels fake, but fine, instead of freezing at the door I yell for my neighbor and grab a chair to jam under the knob so I can hold my ground.",
+        "expected_safe": true,
+        "expected_node": "BEHAVIORAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "META + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      },
+      {
+        "description": "terrified and hides",
+        "input": "I’m so scared my chest is tight, and instead of dealing with it I slide into the closet and stay completely still, hoping whoever is outside just goes away.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "multipart",
+        "pattern": "FEELING + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "tries breathing then wakes",
+        "input": "I take a breath and tell myself not to panic while I back away from the door, but the second the knob starts turning I give up and force myself awake before anything can happen.",
+        "expected_safe": false,
+        "expected_node": "INTERRUPTION",
+        "test_type": "multipart",
+        "pattern": "ADAPTIVE + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "complains then hides",
+        "input": "I honestly don’t get how rewriting this is supposed to help, because what I want to do is just crawl under the bed and make myself disappear until the footsteps stop.",
+        "expected_safe": false,
+        "expected_node": "AVOIDANCE",
+        "test_type": "multipart",
+        "pattern": "META + MALADAPTIVE",
+        "expected_primary_type": "maladaptive"
+      },
+      {
+        "description": "afraid but faces it",
+        "input": "I’m terrified and my hands are shaking, but I slow my breathing, turn on the hallway light, and say through the door that they need to leave because I’m not backing away this time.",
+        "expected_safe": true,
+        "expected_node": "EMOTIONAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "FEELING + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      },
+      {
+        "description": "calms then gets help",
+        "input": "I steady myself first so I’m not spiraling, and then I call 911 and shout to the person outside that the police are on the way while I wedge the dresser against the door.",
+        "expected_safe": true,
+        "expected_node": "SOCIAL_MASTERY",
+        "test_type": "multipart",
+        "pattern": "ADAPTIVE + ADAPTIVE",
+        "expected_primary_type": "adaptive"
+      }
+    ]
+  }
+]

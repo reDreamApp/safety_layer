@@ -1,0 +1,196 @@
+#!/usr/bin/env python3
+"""
+Generate abstract safety pipeline figure.
+
+High-level overview of the 5-stage SafetyCritic pipeline as clean blocks.
+No internals — just stages, flow, and the two outcomes (safe / constrain).
+
+This figure answers: "What are the stages and the overall flow?"
+The detailed pipeline figure (safety_pipeline_architecture) answers: "How does each stage work?"
+"""
+
+import subprocess
+import os
+
+DOT_SOURCE = r'''
+digraph safety_pipeline_abstract {
+    graph [
+        rankdir=TB
+        fontname="Helvetica,sans-Serif"
+        fontsize=12
+        bgcolor="white"
+        pad=0.5
+        nodesep=0.5
+        ranksep=0.55
+        label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0">
+            <TR><TD><B><FONT POINT-SIZE="14" COLOR="#1a1a1a">Safety Layer: Pipeline Overview</FONT></B></TD></TR>
+            <TR><TD><FONT POINT-SIZE="9.5" COLOR="#888888">Neuro-Symbolic Clinical Reasoning Engine</FONT></TD></TR>
+        </TABLE>>
+        labelloc=t
+    ]
+    node [fontname="Helvetica,sans-Serif" fontsize=10]
+    edge [fontname="Helvetica,sans-Serif" fontsize=8.5]
+
+    // ── Input ──
+    input [
+        shape=none margin=0
+        label=<
+        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"
+               BGCOLOR="#E3F2FD" COLOR="#1565C0" STYLE="ROUNDED">
+            <TR><TD ALIGN="CENTER"><B><FONT COLOR="#1565C0" POINT-SIZE="10">Patient Input</FONT></B></TD></TR>
+            <TR><TD ALIGN="CENTER"><FONT POINT-SIZE="7.5" COLOR="#666666">Rescripted nightmare text</FONT></TD></TR>
+        </TABLE>>
+    ]
+
+    // ── Stage 1: Segmentation ──
+    seg [
+        shape=none margin=0
+        label=<
+        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"
+               BGCOLOR="#FFF3E0" COLOR="#E65100" STYLE="ROUNDED">
+            <TR><TD ALIGN="CENTER">
+                <FONT COLOR="#BF360C" POINT-SIZE="7"><B>STAGE 1</B></FONT>
+            </TD></TR>
+            <TR><TD ALIGN="CENTER"><B><FONT COLOR="#E65100" POINT-SIZE="10">Intelligent Segmentation</FONT></B></TD></TR>
+            <TR><TD ALIGN="CENTER"><FONT POINT-SIZE="7.5" COLOR="#666666">Split text into classifiable dream actions</FONT></TD></TR>
+        </TABLE>>
+    ]
+
+    // ── Stage 2: META Filter ──
+    meta [
+        shape=none margin=0
+        label=<
+        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"
+               BGCOLOR="#F3E5F5" COLOR="#6A1B9A" STYLE="ROUNDED">
+            <TR><TD ALIGN="CENTER">
+                <FONT COLOR="#6A1B9A" POINT-SIZE="7"><B>STAGE 2</B></FONT>
+            </TD></TR>
+            <TR><TD ALIGN="CENTER"><B><FONT COLOR="#6A1B9A" POINT-SIZE="10">META Filter</FONT></B></TD></TR>
+            <TR><TD ALIGN="CENTER"><FONT POINT-SIZE="7.5" COLOR="#666666">Detect meta-narration vs. actual dream content</FONT></TD></TR>
+        </TABLE>>
+    ]
+
+    // ── Stage 3: Classification ──
+    classify [
+        shape=none margin=0
+        label=<
+        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"
+               BGCOLOR="#E8EAF6" COLOR="#283593" STYLE="ROUNDED">
+            <TR><TD ALIGN="CENTER">
+                <FONT COLOR="#283593" POINT-SIZE="7"><B>STAGE 3</B></FONT>
+            </TD></TR>
+            <TR><TD ALIGN="CENTER"><B><FONT COLOR="#283593" POINT-SIZE="10">Clinical Classification</FONT></B></TD></TR>
+            <TR><TD ALIGN="CENTER"><FONT POINT-SIZE="7.5" COLOR="#666666">Map segments to knowledge graph nodes</FONT></TD></TR>
+        </TABLE>>
+    ]
+
+    // ── Stage 4: Triage ──
+    triage [
+        shape=none margin=0
+        label=<
+        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"
+               BGCOLOR="#FCE4EC" COLOR="#B71C1C" STYLE="ROUNDED">
+            <TR><TD ALIGN="CENTER">
+                <FONT COLOR="#B71C1C" POINT-SIZE="7"><B>STAGE 4</B></FONT>
+            </TD></TR>
+            <TR><TD ALIGN="CENTER"><B><FONT COLOR="#B71C1C" POINT-SIZE="10">Severity Triage</FONT></B></TD></TR>
+            <TR><TD ALIGN="CENTER"><FONT POINT-SIZE="7.5" COLOR="#666666">Assess clinical risk level of findings</FONT></TD></TR>
+        </TABLE>>
+    ]
+
+    // ── Stage 5: Constraint Synthesis ──
+    constrain [
+        shape=none margin=0
+        label=<
+        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"
+               BGCOLOR="#E8F5E9" COLOR="#2E7D32" STYLE="ROUNDED">
+            <TR><TD ALIGN="CENTER">
+                <FONT COLOR="#2E7D32" POINT-SIZE="7"><B>STAGE 5</B></FONT>
+            </TD></TR>
+            <TR><TD ALIGN="CENTER"><B><FONT COLOR="#2E7D32" POINT-SIZE="10">Constraint Synthesis</FONT></B></TD></TR>
+            <TR><TD ALIGN="CENTER"><FONT POINT-SIZE="7.5" COLOR="#666666">Generate therapeutic correction message</FONT></TD></TR>
+        </TABLE>>
+    ]
+
+    // ── Outcomes ──
+    safe_out [
+        shape=none margin=0
+        label=<
+        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"
+               BGCOLOR="#C8E6C9" COLOR="#2E7D32" STYLE="ROUNDED">
+            <TR><TD ALIGN="CENTER"><B><FONT COLOR="#2E7D32" POINT-SIZE="10">Safe</FONT></B></TD></TR>
+            <TR><TD ALIGN="CENTER"><FONT POINT-SIZE="7.5" COLOR="#666666">Proceed with response</FONT></TD></TR>
+        </TABLE>>
+    ]
+
+    unsafe_out [
+        shape=none margin=0
+        label=<
+        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"
+               BGCOLOR="#FFCDD2" COLOR="#C62828" STYLE="ROUNDED">
+            <TR><TD ALIGN="CENTER"><B><FONT COLOR="#C62828" POINT-SIZE="10">Unsafe</FONT></B></TD></TR>
+            <TR><TD ALIGN="CENTER"><FONT POINT-SIZE="7.5" COLOR="#666666">Constrain + re-prompt LLM</FONT></TD></TR>
+        </TABLE>>
+    ]
+
+    // ── Knowledge Graph side annotation ──
+    kg [
+        shape=none margin=0
+        label=<
+        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"
+               BGCOLOR="#FFF8E1" COLOR="#F57F17" STYLE="ROUNDED">
+            <TR><TD ALIGN="CENTER"><B><FONT COLOR="#F57F17" POINT-SIZE="9">Clinical Knowledge Graph</FONT></B></TD></TR>
+            <TR><TD ALIGN="CENTER"><FONT POINT-SIZE="7" COLOR="#666666">12 nodes · 15 correction edges</FONT></TD></TR>
+        </TABLE>>
+    ]
+
+    // ── Main flow ──
+    input -> seg [color="#455A64" penwidth=1.3]
+    seg -> meta [color="#455A64" penwidth=1.3]
+    meta -> classify [color="#455A64" penwidth=1.3]
+    classify -> triage [color="#455A64" penwidth=1.3]
+
+    // ── Decision split from triage ──
+    triage -> safe_out [
+        label=<  <FONT COLOR="#2E7D32" POINT-SIZE="8">all adaptive / neutral</FONT>  >
+        color="#2E7D32" penwidth=1.3
+    ]
+    triage -> constrain [
+        label=<  <FONT COLOR="#C62828" POINT-SIZE="8">maladaptive detected</FONT>  >
+        color="#C62828" penwidth=1.3
+    ]
+    constrain -> unsafe_out [color="#C62828" penwidth=1.3]
+
+    // ── KG feeds into classification ──
+    kg -> classify [
+        style=dashed color="#F57F17" penwidth=1.0
+        label=<  <FONT COLOR="#F57F17" POINT-SIZE="7.5">node lookup +<BR/>correction edges</FONT>  >
+    ]
+
+    // ── Layout hints ──
+    {rank=same; safe_out; constrain}
+    {rank=same; unsafe_out}
+}
+'''
+
+def generate_figure():
+    output_dir = os.path.dirname(os.path.abspath(__file__))
+    dot_path = os.path.join(output_dir, "safety_pipeline_abstract.dot")
+
+    with open(dot_path, 'w') as f:
+        f.write(DOT_SOURCE)
+
+    for fmt in ['png', 'svg', 'pdf']:
+        output_path = os.path.join(output_dir, f"safety_pipeline_abstract.{fmt}")
+        dpi_flag = ['-Gdpi=200'] if fmt == 'png' else []
+        result = subprocess.run(
+            ['dot', '-T' + fmt] + dpi_flag + [dot_path, '-o', output_path],
+            capture_output=True, text=True
+        )
+        if result.returncode == 0:
+            print(f"✅ {output_path}")
+        else:
+            print(f"❌ {fmt}: {result.stderr}")
+
+if __name__ == "__main__":
+    generate_figure()

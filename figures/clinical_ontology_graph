@@ -1,0 +1,92 @@
+digraph clinical_ontology {
+	graph [bgcolor=white dpi=300 fontcolor="#1a1a1a" fontname=Helvetica fontsize=16 label="Clinical Ontology: Maladaptive Detection & Adaptive Correction
+(Knowledge Graph — Block A)" labelloc=t nodesep=0.6 pad=0.5 rankdir=LR ranksep=1.8 splines=curved]
+	node [fontname=Helvetica fontsize=11 penwidth=1.5 style=filled]
+	edge [fontname=Helvetica fontsize=9]
+	subgraph cluster_maladaptive {
+		color="#c62828" fontcolor="#c62828" fontname="Helvetica-Bold" fontsize=13 label="Maladaptive Patterns (Risks)" margin=16 style="rounded,dashed"
+		AVOIDANCE [label="Avoidance
+/ Flight
+[HIGH]" color="#c62828" fillcolor="#e57373" fontcolor=white shape=octagon]
+		INTERRUPTION [label="Interruption
+/ Waking
+[HIGH]" color="#c62828" fillcolor="#e57373" fontcolor=white shape=octagon]
+		VIOLENT_REVENGE [label="Violent
+Revenge
+[CRITICAL]" color="#b71c1c" fillcolor="#d32f2f" fontcolor=white shape=octagon]
+		SUPPRESSION [label="Suppression
+/ Denial
+[HIGH]" color="#c62828" fillcolor="#e57373" fontcolor=white shape=octagon]
+		TRAUMA_REPLAY [label="Trauma
+Replay
+[CRITICAL]" color="#b71c1c" fillcolor="#d32f2f" fontcolor=white shape=octagon]
+	}
+	subgraph cluster_adaptive {
+		color="#2e7d32" fontcolor="#2e7d32" fontname="Helvetica-Bold" fontsize=13 label="Adaptive Mastery Goals (MMS)" margin=16 style="rounded,dashed"
+		BEHAVIORAL_MASTERY [label="Behavioral
+Mastery
+(MMS I: Action)" color="#2e7d32" fillcolor="#a5d6a7" fontcolor="#1a1a1a" shape=box style="filled,rounded"]
+		SOCIAL_MASTERY [label="Social
+Mastery
+(MMS II: Help)" color="#2e7d32" fillcolor="#a5d6a7" fontcolor="#1a1a1a" shape=box style="filled,rounded"]
+		ENVIRONMENTAL_MASTERY [label="Environmental
+Mastery
+(MMS III: Environment)" color="#2e7d32" fillcolor="#a5d6a7" fontcolor="#1a1a1a" shape=box style="filled,rounded"]
+		EMOTIONAL_MASTERY [label="Emotional
+Mastery
+(MMS IV: Self-Soothing)" color="#2e7d32" fillcolor="#a5d6a7" fontcolor="#1a1a1a" shape=box style="filled,rounded"]
+		MYTHICAL_MASTERY [label="Mythical
+Mastery
+(MMS V: Supernatural)" color="#2e7d32" fillcolor="#a5d6a7" fontcolor="#1a1a1a" shape=box style="filled,rounded"]
+	}
+	subgraph cluster_neutral {
+		color="#9e9e9e" fontcolor="#757575" fontname="Helvetica-Bold" fontsize=13 label="Neutral (No Correction)" margin=16 style="rounded,dashed"
+		NARRATIVE_SETTING [label="Narrative
+Setting
+(validate_context)" color="#9e9e9e" fillcolor="#e0e0e0" fontcolor="#424242" shape=ellipse]
+		AFFECT_EXPRESSION [label="Affect
+Expression
+(empathy_validation)" color="#9e9e9e" fillcolor="#e0e0e0" fontcolor="#424242" shape=ellipse]
+	}
+	AVOIDANCE -> BEHAVIORAL_MASTERY [label="engage
+actively" color="#37474f" penwidth=2.2 style=bold]
+	AVOIDANCE -> SOCIAL_MASTERY [label="seek
+help" color="#78909c" penwidth=1.4 style=dashed]
+	AVOIDANCE -> MYTHICAL_MASTERY [label="empower
+through magic" color="#b0bec5" penwidth=1.0 style=dotted]
+	INTERRUPTION -> EMOTIONAL_MASTERY [label="regulate
+affect" color="#37474f" penwidth=2.2 style=bold]
+	INTERRUPTION -> ENVIRONMENTAL_MASTERY [label="find safety
+in dream" color="#78909c" penwidth=1.4 style=dashed]
+	INTERRUPTION -> MYTHICAL_MASTERY [label="divine
+protection" color="#b0bec5" penwidth=1.0 style=dotted]
+	VIOLENT_REVENGE -> BEHAVIORAL_MASTERY [label="controlled
+action" color="#37474f" penwidth=2.2 style=bold]
+	VIOLENT_REVENGE -> SOCIAL_MASTERY [label="collective
+response" color="#78909c" penwidth=1.4 style=dashed]
+	VIOLENT_REVENGE -> EMOTIONAL_MASTERY [label="regulate
+rage" color="#b0bec5" penwidth=1.0 style=dotted]
+	SUPPRESSION -> EMOTIONAL_MASTERY [label="acknowledge
+emotions" color="#37474f" penwidth=2.2 style=bold]
+	SUPPRESSION -> SOCIAL_MASTERY [label="share
+feelings" color="#78909c" penwidth=1.4 style=dashed]
+	SUPPRESSION -> BEHAVIORAL_MASTERY [label="channel into
+action" color="#b0bec5" penwidth=1.0 style=dotted]
+	TRAUMA_REPLAY -> BEHAVIORAL_MASTERY [label="act
+differently" color="#37474f" penwidth=2.2 style=bold]
+	TRAUMA_REPLAY -> ENVIRONMENTAL_MASTERY [label="change
+setting" color="#78909c" penwidth=1.4 style=dashed]
+	TRAUMA_REPLAY -> MYTHICAL_MASTERY [label="supernatural
+transformation" color="#b0bec5" penwidth=1.0 style=dotted]
+	subgraph cluster_legend {
+		color="#bdbdbd" fontcolor="#424242" fontname="Helvetica-Bold" fontsize=12 label=Legend margin=12 style=rounded
+		leg_crit [label="Critical Severity" color="#b71c1c" fillcolor="#d32f2f" fontcolor=white fontsize=9 shape=octagon]
+		leg_high [label="High Severity" color="#c62828" fillcolor="#e57373" fontcolor=white fontsize=9 shape=octagon]
+		leg_pri [label="Primary Correction" fillcolor=white fontsize=9 shape=plaintext]
+		leg_sec [label="Secondary Correction" fillcolor=white fontsize=9 shape=plaintext]
+		leg_ter [label="Tertiary Correction" fillcolor=white fontsize=9 shape=plaintext]
+		leg_crit -> leg_high [style=invis]
+		leg_pri -> leg_sec [label=primary color="#37474f" penwidth=2.2 style=bold]
+		leg_sec -> leg_ter [label=secondary color="#78909c" penwidth=1.4 style=dashed]
+	}
+}

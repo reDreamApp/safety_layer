@@ -1,0 +1,150 @@
+
+digraph problem_illustration {
+    // Global settings
+    graph [
+        rankdir=TB
+        fontname="Helvetica,sans-Serif"
+        fontsize=14
+        bgcolor="white"
+        pad=0.5
+        nodesep=0.6
+        ranksep=0.7
+        label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0">
+            <TR><TD><B><FONT POINT-SIZE="16" COLOR="#1a1a1a">The Safety Challenge in AI-Assisted Nightmare Rescripting</FONT></B></TD></TR>
+            <TR><TD><FONT POINT-SIZE="11" COLOR="#666666">Why unconstrained LLMs can reinforce maladaptive coping in IRT</FONT></TD></TR>
+        </TABLE>>
+        labelloc=t
+    ]
+    node [fontname="Helvetica,sans-Serif" fontsize=10]
+    edge [fontname="Helvetica,sans-Serif" fontsize=9]
+
+    // ── Nightmare context ──
+    nightmare [
+        shape=none
+        margin=0
+        label=<
+        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"
+               BGCOLOR="#E3F2FD" COLOR="#1565C0" STYLE="ROUNDED">
+            <TR><TD ALIGN="CENTER"><B><FONT COLOR="#1565C0" POINT-SIZE="11">Nightmare Context</FONT></B></TD></TR>
+            <TR><TD ALIGN="LEFT" BALIGN="LEFT" WIDTH="380">
+                <I><FONT POINT-SIZE="9.5" COLOR="#333333">
+                "I'm running through a dark forest. Something is chasing me —<BR/>
+                I can hear heavy footsteps behind me getting closer.<BR/>
+                The trees seem to reach out and grab at me."
+                </FONT></I>
+            </TD></TR>
+        </TABLE>>
+    ]
+
+    // ── Patient input ──
+    patient [
+        shape=none
+        margin=0
+        label=<
+        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"
+               BGCOLOR="#E8EAF6" COLOR="#283593" STYLE="ROUNDED">
+            <TR><TD ALIGN="CENTER"><B><FONT COLOR="#283593" POINT-SIZE="11">👤 Patient's Rescripting Attempt</FONT></B></TD></TR>
+            <TR><TD ALIGN="LEFT" BALIGN="LEFT" WIDTH="380">
+                <FONT POINT-SIZE="10" COLOR="#1a1a1a">
+                "I hide behind a big tree and hope it doesn't find me.<BR/>
+                I try to make myself as small as possible and wait<BR/>
+                for it to go away."
+                </FONT>
+            </TD></TR>
+            <TR><TD ALIGN="CENTER">
+                <FONT POINT-SIZE="8.5" COLOR="#E65100">⚠ Contains avoidance pattern — but sounds like a natural response</FONT>
+            </TD></TR>
+        </TABLE>>
+    ]
+
+    // ── Invisible split point ──
+    split [shape=point width=0 height=0]
+
+    // ── Without safety layer (BAD) ──
+    unsafe_response [
+        shape=none
+        margin=0
+        label=<
+        <TABLE BORDER="2" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"
+               BGCOLOR="#FFEBEE" COLOR="#C62828" STYLE="ROUNDED">
+            <TR><TD ALIGN="CENTER"><B><FONT COLOR="#C62828" POINT-SIZE="11">✗ Without Safety Layer</FONT></B></TD></TR>
+            <TR><TD ALIGN="LEFT" BALIGN="LEFT" WIDTH="260">
+                <FONT POINT-SIZE="10" COLOR="#1a1a1a">
+                "That's a great instinct — finding a safe<BR/>
+                hiding spot shows good survival skills!<BR/>
+                Imagine the tree is so large that nothing<BR/>
+                can see you behind it. You're completely<BR/>
+                hidden and protected..."
+                </FONT>
+            </TD></TR>
+            <TR><TD ALIGN="CENTER">
+                <FONT POINT-SIZE="8.5" COLOR="#C62828"><B>Reinforces avoidance behavior</B><BR/>Patient rehearses passivity and hiding</FONT>
+            </TD></TR>
+        </TABLE>>
+    ]
+
+    // ── With safety layer (GOOD) ──
+    safe_response [
+        shape=none
+        margin=0
+        label=<
+        <TABLE BORDER="2" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"
+               BGCOLOR="#E8F5E9" COLOR="#2E7D32" STYLE="ROUNDED">
+            <TR><TD ALIGN="CENTER"><B><FONT COLOR="#2E7D32" POINT-SIZE="11">✓ With Safety Layer</FONT></B></TD></TR>
+            <TR><TD ALIGN="LEFT" BALIGN="LEFT" WIDTH="260">
+                <FONT POINT-SIZE="10" COLOR="#1a1a1a">
+                "It makes sense to want safety. But in this<BR/>
+                dream, you have more power than you think.<BR/>
+                What if you picked up a sturdy branch<BR/>
+                and turned to face what's chasing you?<BR/>
+                How would that feel?"
+                </FONT>
+            </TD></TR>
+            <TR><TD ALIGN="CENTER">
+                <FONT POINT-SIZE="8.5" COLOR="#2E7D32"><B>Redirects to behavioral mastery</B><BR/>Patient rehearses active coping</FONT>
+            </TD></TR>
+        </TABLE>>
+    ]
+
+    // ── Safety detection strip ──
+    detection [
+        shape=none
+        margin=0
+        label=<
+        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"
+               BGCOLOR="#FFF3E0" COLOR="#E65100" STYLE="ROUNDED">
+            <TR>
+                <TD ALIGN="CENTER" WIDTH="500">
+                    <FONT POINT-SIZE="9.5" COLOR="#E65100">
+                    <B>Safety Layer Detection:</B>  Avoidance (HIDE) detected  →  Correction edge  →  Redirect to Behavioral Mastery (CONFRONT)
+                    </FONT>
+                </TD>
+            </TR>
+        </TABLE>>
+    ]
+
+    // ── Edges ──
+    nightmare -> patient [color="#455A64" penwidth=1.5]
+    patient -> split [arrowhead=none color="#455A64" penwidth=1.5]
+
+    split -> unsafe_response [
+        color="#C62828"
+        penwidth=1.5
+        label=<  <FONT COLOR="#C62828" POINT-SIZE="9"><I>  LLM only  </I></FONT>  >
+    ]
+    split -> safe_response [
+        color="#2E7D32"
+        penwidth=1.5
+        label=<  <FONT COLOR="#2E7D32" POINT-SIZE="9"><I>  LLM + Safety Layer  </I></FONT>  >
+    ]
+
+    // Force side-by-side layout for responses
+    { rank=same; unsafe_response; safe_response; }
+
+    // Detection strip below
+    unsafe_response -> detection [style=invis]
+    safe_response -> detection [style=invis]
+
+    // Also connect split to detection area invisibly for layout
+    { rank=same; split; }
+}

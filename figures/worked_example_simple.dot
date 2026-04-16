@@ -1,0 +1,124 @@
+
+digraph worked_example_simple {
+    graph [
+        rankdir=TB
+        fontname="Helvetica,sans-Serif"
+        fontsize=12
+        bgcolor="white"
+        pad=0.5
+        nodesep=0.5
+        ranksep=0.55
+        label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0">
+            <TR><TD><B><FONT POINT-SIZE="16" COLOR="#1a1a1a">How the Safety Layer Processes a Patient Response</FONT></B></TD></TR>
+        </TABLE>>
+        labelloc=t
+    ]
+    node [fontname="Helvetica,sans-Serif" fontsize=10]
+    edge [fontname="Helvetica,sans-Serif" fontsize=9 color="#455A64" penwidth=1.3]
+
+    // ── Input ──
+    input [
+        shape=none margin=0
+        label=<
+        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"
+               BGCOLOR="#E3F2FD" COLOR="#1565C0" STYLE="ROUNDED">
+            <TR><TD ALIGN="CENTER"><B><FONT COLOR="#1565C0" POINT-SIZE="11">What the patient says</FONT></B></TD></TR>
+            <TR><TD ALIGN="LEFT" BALIGN="LEFT" WIDTH="440">
+                <FONT POINT-SIZE="10.5">
+                "This exercise is weird, but okay — I find a heavy branch<BR/>
+                on the ground and pick it up. Then I just hide behind<BR/>
+                a tree and hope it goes away."
+                </FONT>
+            </TD></TR>
+        </TABLE>>
+    ]
+
+    // ── Step 1: Split into parts ──
+    step1 [
+        shape=none margin=0
+        label=<
+        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"
+               BGCOLOR="#FAFAFA" COLOR="#BDBDBD" STYLE="ROUNDED">
+            <TR><TD ALIGN="LEFT" COLSPAN="2"><FONT COLOR="#455A64" POINT-SIZE="10"><B>①  Split into parts</B></FONT></TD></TR>
+            <TR><TD HEIGHT="4" COLSPAN="2"></TD></TR>
+            <TR><TD BGCOLOR="#FFF9C4" CELLPADDING="8" STYLE="ROUNDED" ALIGN="LEFT" WIDTH="440">
+                <FONT POINT-SIZE="10" COLOR="#F57F17">"This exercise is weird, but okay"</FONT>
+            </TD></TR>
+            <TR><TD HEIGHT="6" COLSPAN="2"></TD></TR>
+            <TR><TD BGCOLOR="#E8F5E9" CELLPADDING="8" STYLE="ROUNDED" ALIGN="LEFT" WIDTH="440">
+                <FONT POINT-SIZE="10" COLOR="#1a1a1a">"I find a heavy branch and pick it up"</FONT>
+            </TD></TR>
+            <TR><TD HEIGHT="6" COLSPAN="2"></TD></TR>
+            <TR><TD BGCOLOR="#FFEBEE" CELLPADDING="8" STYLE="ROUNDED" ALIGN="LEFT" WIDTH="440">
+                <FONT POINT-SIZE="10" COLOR="#1a1a1a">"I hide behind a tree and hope it goes away"</FONT>
+            </TD></TR>
+        </TABLE>>
+    ]
+
+    // ── Step 2: Evaluate ──
+    step2 [
+        shape=none margin=0
+        label=<
+        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"
+               BGCOLOR="#FAFAFA" COLOR="#BDBDBD" STYLE="ROUNDED">
+            <TR><TD ALIGN="LEFT"><FONT COLOR="#455A64" POINT-SIZE="10"><B>②  Evaluate each part</B></FONT></TD></TR>
+            <TR><TD HEIGHT="4"></TD></TR>
+            <TR><TD ALIGN="LEFT">
+                <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="8" CELLPADDING="0">
+                    <TR>
+                        <TD ALIGN="LEFT" WIDTH="260"><FONT POINT-SIZE="10" COLOR="#9E9E9E"><S>"This exercise is weird"</S></FONT></TD>
+                        <TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#9E9E9E">skipped — not part of dream</FONT></TD>
+                    </TR>
+                    <TR>
+                        <TD ALIGN="LEFT"><FONT POINT-SIZE="10">"find a heavy branch"</FONT></TD>
+                        <TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#2E7D32">✓  Using tools (adaptive)</FONT></TD>
+                    </TR>
+                    <TR>
+                        <TD ALIGN="LEFT"><FONT POINT-SIZE="10">"hide behind a tree"</FONT></TD>
+                        <TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#C62828">✗  Avoidance (maladaptive)</FONT></TD>
+                    </TR>
+                </TABLE>
+            </TD></TR>
+        </TABLE>>
+    ]
+
+    // ── Step 3: Detection ──
+    step3 [
+        shape=none margin=0
+        label=<
+        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"
+               BGCOLOR="#FFF3E0" COLOR="#E65100" STYLE="ROUNDED">
+            <TR><TD ALIGN="LEFT"><FONT COLOR="#E65100" POINT-SIZE="10"><B>③  Maladaptive pattern detected</B></FONT></TD></TR>
+            <TR><TD ALIGN="LEFT" WIDTH="440">
+                <FONT POINT-SIZE="10" COLOR="#333333">
+                The patient picked up a tool (good!) but then fell back<BR/>
+                into hiding and waiting — an avoidance pattern.
+                </FONT>
+            </TD></TR>
+        </TABLE>>
+    ]
+
+    // ── Step 4: Guidance ──
+    step4 [
+        shape=none margin=0
+        label=<
+        <TABLE BORDER="2" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"
+               BGCOLOR="#E8F5E9" COLOR="#2E7D32" STYLE="ROUNDED">
+            <TR><TD ALIGN="LEFT"><FONT COLOR="#2E7D32" POINT-SIZE="10"><B>④  Guide the chatbot's response</B></FONT></TD></TR>
+            <TR><TD ALIGN="LEFT" BALIGN="LEFT" WIDTH="440">
+                <FONT POINT-SIZE="10" COLOR="#1a1a1a">
+                Acknowledge the positive step (picking up the branch).<BR/>
+                Redirect away from hiding — encourage the patient to<BR/>
+                use the branch actively, e.g. confronting the threat<BR/>
+                or creating a barrier.
+                </FONT>
+            </TD></TR>
+        </TABLE>>
+    ]
+
+    // ── Edges ──
+    input -> step1
+    step1 -> step2
+    step2 -> step3
+    step3 -> step4
+}
