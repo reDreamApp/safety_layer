@@ -34,3 +34,7 @@ After the above changes are complete, regenerate:
 
 - ~~Change 1 (1.1, 1.2): Remove all ZDPCS references~~ — Done
 - ~~Change 2: Fix confidence estimation in classifier~~ — Done (using LogprobsResult.confidence as primary metric, margin kept as diagnostic)
+- ~~Change 1.3: Add SUPPRESSION and TRAUMA_REPLAY nodes~~ — Done (Feb 17, 2026)
+- ~~Regenerate benchmark datasets~~ — Done (Mar 19, 2026). Dev set regenerated with GPT-5.4, 480 tests. See `docs/planning/Changes_2026-03-19.md` for full results.
+- ~~Benchmark dev set~~ — Done (Mar 19, 2026). Safety accuracy 95.0%, unsafe recall 98.3%. See changelog for detailed error analysis.
+- ~~META sanity check fix~~ — Done (Mar 19, 2026). Catches maladaptive content wrapped in meta-framing during rescripting.
