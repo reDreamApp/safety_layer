@@ -251,9 +251,33 @@ SYSTEM_PROMPT_TEMPLATES_EN = {
     """    
     }
 
+NIGHTMARE_SUMMARY_PROMPT_DE = """Du bist ein klinischer Assistent. Erstelle anhand des folgenden Gesprächsprotokolls einer Albtraum-Aufzeichnungssitzung eine umfassende Zusammenfassung des ursprünglichen Albtraums des Patienten.
+
+Erfasse alle relevanten Details so vollständig wie nötig:
+- Das Kernszenario (was passiert, wo, wann)
+- Beteiligte Personen, Figuren oder Bedrohungen
+- Wichtige Ereignisse und deren Abfolge
+- Die erlebten Emotionen und körperlichen Empfindungen
+- Sensorische Details (Anblicke, Geräusche, Gerüche, Texturen)
+
+Schreibe in der Ich-Perspektive des Patienten. Füge keine Interpretation, therapeutischen Kommentar oder Bewertung hinzu. Fasse nur zusammen, was der Patient beschrieben hat."""
+
+NIGHTMARE_SUMMARY_PROMPT_EN = """You are a clinical assistant. Given the conversation below from a nightmare recording session, write a comprehensive summary of the patient's original nightmare.
+
+Capture all relevant detail as fully as needed:
+- The core scenario (what happens, where, when)
+- People, figures, or threats involved
+- Key events and their sequence
+- Emotions and physical sensations experienced
+- Sensory details (sights, sounds, smells, textures)
+
+Write in the patient's first-person perspective. Do not add interpretation, therapeutic commentary, or judgment. Just summarize what the patient described."""
+
 __all__ = [
     'ROUTING_PROMPT',
     'SYSTEM_PROMPT_TEMPLATES_DE',
-    'SYSTEM_PROMPT_TEMPLATES_EN'
+    'SYSTEM_PROMPT_TEMPLATES_EN',
+    'NIGHTMARE_SUMMARY_PROMPT_DE',
+    'NIGHTMARE_SUMMARY_PROMPT_EN',
 ]
 

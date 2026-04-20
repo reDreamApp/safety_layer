@@ -16,6 +16,7 @@ class Conversation(BaseModel):
     messages: List[Message] = Field(default_factory=list)
     stages: List[str] = Field(default_factory=list)
     language: Optional[str] = None  # Add language field
+    nightmare_summary: Optional[str] = None  # Generated at recording→rewriting transition
 
     def add_message(self, content: str, role: str, stage: Optional[str] = None, language: Optional[str] = None) -> None:
         """Add a message to the conversation history"""
@@ -54,7 +55,8 @@ class ChatResponse(BaseModel):
     stages: List[str]
     language: Optional[str] = None  # Added language field
     usage: Optional[Dict] = None
-    
+    safety: Optional[Dict] = None
+
     def to_dict(self):
         return self.model_dump()
 

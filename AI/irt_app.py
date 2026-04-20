@@ -5,7 +5,8 @@ from .models import Conversation, Stage, ChatInput, ChatResponse
 import logging
 import json
 from langfuse.decorators import observe, langfuse_context
-from .prompts import SYSTEM_PROMPT_TEMPLATES_DE, SYSTEM_PROMPT_TEMPLATES_EN
+from .prompts import (SYSTEM_PROMPT_TEMPLATES_DE, SYSTEM_PROMPT_TEMPLATES_EN,
+                      NIGHTMARE_SUMMARY_PROMPT_DE, NIGHTMARE_SUMMARY_PROMPT_EN)
 
 # Load environment variables (searches upward from CWD to find project .env)
 load_dotenv(find_dotenv())
@@ -21,6 +22,15 @@ if not os.getenv('SCALEWAY_API_KEY') and not os.getenv('GROQ_API_KEY'):
 
 # Get logger instances
 logger = logging.getLogger(__name__)
+
+# Initialize safety critic (fail-open: chatbot works without it)
+try:
+    from safety.critic import SafetyCritic, SafetyResult
+    safety_critic = SafetyCritic()
+    logger.info("SafetyCritic initialized successfully")
+except Exception as e:
+    safety_critic = None
+    logger.warning(f"SafetyCritic initialization failed: {e}. Safety checks disabled.")
 
 # Configure Langfuse after load_dotenv()
 # Set LANGFUSE_ENABLED=false in .env or environment to disable tracing
@@ -68,17 +78,30 @@ async def process_chat_message(chat_input: ChatInput, conversation: Conversation
         detected_language = chat_input.language_override or conversation.language or "en"
         stage = await determine_stage_async(chat_input.message, conversation)
         conversation.language = detected_language
-        
-        response, usage = await get_response_async(stage, chat_input.message, conversation)
+
+        # Generate nightmare summary at recording→rewriting transition
+        if stage == "rewriting" and conversation.nightmare_summary is None:
+            conversation.nightmare_summary = await generate_nightmare_summary(conversation)
+
+        # Safety evaluation during rewriting stage
+        safety_result = None
+        if stage == "rewriting":
+            safety_result = await evaluate_safety(chat_input.message, conversation)
+
+        response, usage = await get_response_async(
+            stage, chat_input.message, conversation,
+            safety_constraint=safety_result.constraint if safety_result else None
+        )
         conversation.add_message(response, "assistant", stage, language=detected_language)
-        
+
         response_obj = ChatResponse(
             session_id=chat_input.session_id,
             stage=stage,
             response=response,
             stages=conversation.stages,
             usage=usage,
-            language=detected_language
+            language=detected_language,
+            safety=safety_result.to_dict() if safety_result else None
         )
         
         # Update both trace and observation output
@@ -126,7 +149,16 @@ async def process_chat_message_stream(chat_input: ChatInput, conversation: Conve
         detected_language = chat_input.language_override or conversation.language or "en"
         stage = await determine_stage_async(chat_input.message, conversation)
         conversation.language = detected_language
-        
+
+        # Generate nightmare summary at recording→rewriting transition
+        if stage == "rewriting" and conversation.nightmare_summary is None:
+            conversation.nightmare_summary = await generate_nightmare_summary(conversation)
+
+        # Safety evaluation during rewriting stage
+        safety_result = None
+        if stage == "rewriting":
+            safety_result = await evaluate_safety(chat_input.message, conversation)
+
         history = conversation.get_history_as_string()
         intro_message_de = "AI: Ich bin hier, um dir zu helfen, deine Albträume zu bewältigen und sie in positivere Erfahrungen zu verwandeln.\\nNimm dir Zeit, deinen Albtraum so detailliert wie möglich zu beschreiben. Wenn du fertig bist, werde ich hier sein, um dir Anleitung und Unterstützung zu bieten, während wir ihn gemeinsam in eine positivere Erzählung umwandeln."
         intro_message_en = "AI: I'm here to help you work through your nightmares and turn them into more positive experiences.\\nTake your time to describe your nightmare in as much detail as you can. When you're ready, I'll be here to guide and support you as we reshape it together into a more empowering story."
@@ -143,7 +175,10 @@ async def process_chat_message_stream(chat_input: ChatInput, conversation: Conve
         
         full_response = ""
         final_usage = {}
-        async for chunk, chunk_usage in get_response_stream_async(stage, full_prompt, conversation, detected_language):
+        async for chunk, chunk_usage in get_response_stream_async(
+            stage, full_prompt, conversation, detected_language,
+            safety_constraint=safety_result.constraint if safety_result else None
+        ):
             if chunk:
                 full_response += chunk
                 yield f"data: {json.dumps({'content': chunk, 'stages': conversation.stages, 'language': detected_language})}\n\n"
@@ -161,8 +196,10 @@ async def process_chat_message_stream(chat_input: ChatInput, conversation: Conve
             usage=final_usage
         )
         
+        if safety_result:
+            yield f"data: {json.dumps({'safety': safety_result.to_dict()})}\n\n"
         yield "data: [DONE]\n\n"
-        
+
     except Exception as e:
         logger.error(f"Streaming error: {str(e)}")
         yield f"data: {json.dumps({'error': str(e)})}\n\n"
@@ -219,8 +256,67 @@ async def determine_stage_async(user_input: str, conversation: Conversation) -> 
     
     return stage.value
 
+@observe(name="generate_nightmare_summary", as_type="generation")
+async def generate_nightmare_summary(conversation: Conversation) -> Optional[str]:
+    """Generate a comprehensive summary of the nightmare from the recording phase.
+
+    Called once at the recording→rewriting transition. Extracts user messages
+    from before the first rewriting-stage response and summarizes them.
+    """
+    try:
+        is_english = (conversation.language == "en")
+        summary_prompt = NIGHTMARE_SUMMARY_PROMPT_EN if is_english else NIGHTMARE_SUMMARY_PROMPT_DE
+
+        # Collect user messages from recording phase (before first rewriting assistant message)
+        recording_messages = []
+        for msg in conversation.messages:
+            if msg.role == "assistant" and msg.stage == "rewriting":
+                break
+            if msg.role == "user":
+                recording_messages.append(msg.content)
+
+        if not recording_messages:
+            logger.warning("No recording-phase user messages found for nightmare summary")
+            return None
+
+        recording_text = "\n".join(recording_messages)
+        prompt = f"Patient's nightmare description:\n{recording_text}"
+
+        response_agent.system_prompt = summary_prompt
+        summary, usage, _ = await response_agent.generate(prompt)
+
+        logger.info(f"Generated nightmare summary ({len(summary)} chars)")
+        return summary.strip()
+
+    except Exception as e:
+        logger.error(f"Failed to generate nightmare summary: {e}")
+        return None
+
+
+@observe(name="safety_evaluation", as_type="generation")
+async def evaluate_safety(user_input: str, conversation: Conversation):
+    """Run SafetyCritic on user input during the rewriting stage.
+
+    Returns SafetyResult or None if the critic is unavailable or fails.
+    Fail-open: the chatbot still has system prompt safety instructions.
+    """
+    if safety_critic is None:
+        return None
+
+    try:
+        result = await safety_critic.evaluate_intervention(
+            user_input,
+            nightmare_context=conversation.nightmare_summary
+        )
+        logger.info(f"Safety evaluation: is_safe={result.is_safe}, node={result.node_id}, severity={result.severity}")
+        return result
+    except Exception as e:
+        logger.error(f"Safety evaluation failed (proceeding without constraint): {e}")
+        return None
+
+
 @observe(name="get_response", as_type="generation", capture_input=False, capture_output=False)
-async def get_response_async(stage: str, user_input: str, conversation: Conversation) -> Tuple[str, dict]:
+async def get_response_async(stage: str, user_input: str, conversation: Conversation, safety_constraint: Optional[str] = None) -> Tuple[str, dict]:
     """Async version of get_response"""
     langfuse_context.update_current_observation(
         name="Response Generation",
@@ -245,8 +341,11 @@ async def get_response_async(stage: str, user_input: str, conversation: Conversa
     
     prompt_template = templates[stage]
     full_prompt = f"\n\nConversation history:\n{history_for_prompt}" # Use the modified history
-    
-    response_agent.system_prompt = prompt_template
+
+    if safety_constraint:
+        response_agent.system_prompt = prompt_template + "\n\n" + safety_constraint
+    else:
+        response_agent.system_prompt = prompt_template
     response, usage, _ = await response_agent.generate(full_prompt)
     
     langfuse_context.update_current_observation(
@@ -257,7 +356,7 @@ async def get_response_async(stage: str, user_input: str, conversation: Conversa
     return response, usage
 
 @observe(name="get_response_stream", as_type="generation", capture_input=False, capture_output=False)
-async def get_response_stream_async(stage: str, full_prompt: str, conversation: Conversation, language: str) -> AsyncGenerator[Tuple[str, Optional[dict]], None]:
+async def get_response_stream_async(stage: str, full_prompt: str, conversation: Conversation, language: str, safety_constraint: Optional[str] = None) -> AsyncGenerator[Tuple[str, Optional[dict]], None]:
     """Async streaming version of get_response"""
     langfuse_context.update_current_observation(
         name="Response Generation",
@@ -274,8 +373,11 @@ async def get_response_stream_async(stage: str, full_prompt: str, conversation: 
     is_english = (language == "en")
     templates = SYSTEM_PROMPT_TEMPLATES_EN if is_english else SYSTEM_PROMPT_TEMPLATES_DE
     prompt_template = templates[stage]
-    response_agent.system_prompt = prompt_template
-    
+    if safety_constraint:
+        response_agent.system_prompt = prompt_template + "\n\n" + safety_constraint
+    else:
+        response_agent.system_prompt = prompt_template
+
     full_response = ""
     final_usage = {}
     async for chunk, chunk_usage, _ in response_agent.generate_stream(full_prompt):

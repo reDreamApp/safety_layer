@@ -49,6 +49,7 @@ uv run python tests/test_critic_interactive.py --scenario data/scenarios/chase_s
 - Generate and run test set for generalization validation
 - Post-hoc manual annotation pass on generated dataset
 - Research how to handle irrelevant/trolling user inputs (e.g., off-topic, nonsense, adversarial prompts in rewriting stage)
+- **Run full-set semantic consistency benchmark (N=5, all 480 dev cases) for S1 and S2.** Targeted run on error+control slice (Apr 14) showed consistency fixes 65% of S1 errors / 83% of S2 errors with zero regressions and gives a usable UQ signal for S2 (agreement separation 0.255 vs 0.012 from logprobs). Need full-set run to confirm the "zero broken cases" property on all previously-correct predictions before closing out the UQ chapter. Est. ~2h for S1, ~5.4h for S2. See `docs/planning/System2_CoT_Findings.md` §8.
 
 **Completed:**
 - Removed all ZDPCS references
