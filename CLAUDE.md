@@ -42,14 +42,14 @@ uv run python tests/test_critic_interactive.py --scenario data/scenarios/chase_s
 ## Current State
 **Phase 1 (Setup):** Complete
 **Phase 2 (Safety Module):** Complete — graph, classifier, critic all working, benchmarked
-**Phase 3 (Integration):** Not started — hook SafetyCritic into irt_app.py
+**Phase 3 (Integration):** Complete — SafetyCritic hooked into `AI/irt_app.py` (fail-open init, evaluation during rewriting stage, nightmare summary generation). Integration surfaced flow-breaking issues (redirect loop, stage-transition blocking, summary sanitization) — **documented as findings, not fixed** (see `docs/planning/integration_eval_notes.md`). Rationale: modifying the base system would confound the safety-vs-baseline comparison.
+**Phase 4 (Evaluation + Writing):** In progress
 
 **Immediate TODO:**
-- Run benchmark with META sanity check fix, compare results
-- Generate and run test set for generalization validation
-- Post-hoc manual annotation pass on generated dataset
-- Research how to handle irrelevant/trolling user inputs (e.g., off-topic, nonsense, adversarial prompts in rewriting stage)
 - **Run full-set semantic consistency benchmark (N=5, all 480 dev cases) for S1 and S2.** Targeted run on error+control slice (Apr 14) showed consistency fixes 65% of S1 errors / 83% of S2 errors with zero regressions and gives a usable UQ signal for S2 (agreement separation 0.255 vs 0.012 from logprobs). Need full-set run to confirm the "zero broken cases" property on all previously-correct predictions before closing out the UQ chapter. Est. ~2h for S1, ~5.4h for S2. See `docs/planning/System2_CoT_Findings.md` §8.
+- **Generate single-turn eval dataset** for system-level eval (thesis §4.5) — LLM responses with/without safety layer for expert rating.
+- **Obtain expert annotation** from Dr. Annika Gieselmann (currently awaiting Fragebogen feedback) and Katharina Lüth (IRT researcher, Osnabrück) on test set — for IRR on the targeted-annotated slice.
+- **Thesis writing** — skeleton at `docs/planning/thesis_skeleton.md` (18 figures planned; 3 exist, ~8 need creation).
 
 **Completed:**
 - Removed all ZDPCS references
@@ -57,16 +57,28 @@ uv run python tests/test_critic_interactive.py --scenario data/scenarios/chase_s
 - Codebase restructuring (Feb 17, 2026)
 - Change 1.3: Added SUPPRESSION (DENY) and TRAUMA_REPLAY (REPLAY) maladaptive nodes (Feb 17, 2026)
 - Regenerated dev benchmark dataset with GPT-5.4 (480 tests, 12 nodes) (Mar 19, 2026)
-- Full dev benchmark: 95.0% safety accuracy, 98.3% unsafe recall (Mar 19, 2026)
+- Full dev benchmark: 93.8% safety accuracy / 100% unsafe recall (S1), 94.5% / 98.9% (S2) (Mar 23–25, 2026)
 - META sanity check: catches maladaptive content in meta-framed inputs during rescripting (Mar 19, 2026)
 - Added GPT-5.4 model config, made max_tokens configurable on Agent (Mar 19, 2026)
 - Fixed multipart test cases to include expected_node for node-level evaluation (Mar 19, 2026)
+- System 2 (CoT) classifier + logprobs/semantic-consistency UQ comparison (Mar 25, 2026)
+- Context-aware few-shot ablation — negative result, documented (Mar 25, 2026)
+- Targeted semantic consistency on error+control slice (Apr 14, 2026)
+- Test set generated (315 cases, 7 themes) + targeted human annotation pass by Ramon: 114 cases (all boundary, all AFFECT_EXPRESSION, all VIOLENT_REVENGE, 60-case stratified spot-check across 10 nodes) (Apr 13–16, 2026)
+- SafetyCritic integrated into `AI/irt_app.py`; integration eval findings documented (Apr 17, 2026)
+- Ontology validated by Dr. Annika Gieselmann
 - Detailed changelog: `docs/planning/Changes_2026-03-19.md`
 
-**Open questions:**
-- Awaiting ontology validation from Dr. Annika Gieselmann
+**Scoped out of thesis (documented as future work):**
+- Adversarial/trolling input handling — initial test suggested the system handles it; not pursued further
+- S2 BEHAVIORAL_MASTERY → AVOIDANCE failure pattern — documented as a limitation / negative finding in thesis §4.4; ensemble design (S1 primary + S2 second-opinion on low-conf) avoids the issue without requiring a fix
+- Ensemble approach (S1 primary + S2 second opinion + semantic consistency on S2) — proposed in `System2_CoT_Findings.md` §6.5, not implemented
+- Integration fixes (redirect loop, stage-aware constraint injection, safe-but-faithful summarization) — future work; see `integration_eval_notes.md`
+
+**Open items:**
+- Fragebogen feedback from Dr. Gieselmann (ontology itself already validated)
+- Expert annotation from Gieselmann + Lüth on test set
 - Confidence threshold: analyzed, stays at 0.0 (see Changes_2026-03-19.md §9 for rationale)
-- Adversarial/trolling input handling strategy
 
 ## Key Clinical Context
 - **Maladaptive patterns** (unsafe): Avoidance/flight, Interruption/waking, Violent revenge, Suppression/denial, Trauma Replay/re-experiencing

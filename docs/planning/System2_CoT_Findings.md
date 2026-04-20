@@ -293,9 +293,12 @@ This ablation is documented as a negative result in the thesis. The `use_context
 
 - [x] Run semantic consistency on error cases (targeted, ~22 min) to check if voting predicts errors — **DONE 2026-04-14.** Results: `consistency_errors_20260414_151034.csv`. Consistency fixed 17/26 S1 errors (65%) and 19/23 S2 errors (83%), zero cases broken in the error+control slice. Agreement separation S2: 0.012 (logprobs) → 0.255 (voting) — voting is the usable UQ signal for CoT. Agreement separation S1: 0.070 → 0.086, plus direct error correction via majority vote.
 - [ ] **Run full semantic consistency benchmark on the full 480-case dev set (S1 and S2).** The targeted results are promising, but the "zero broken cases" property has only been confirmed on a 25-case correct-control slice per system. A full-set run is needed to rule out regressions on previously-correct predictions before declaring semantic consistency the recommended UQ method. Est. ~2h for S1, ~5.4h for S2 (per §5 cost estimates). Blocks: writeup of the UQ chapter / `Semantic_Consistency_Findings.md`.
-- [ ] Investigate S2's BEHAVIORAL_MASTERY → AVOIDANCE failure pattern (prompt issue?)
-- [ ] Consider ensemble approach: S1 primary + S2 second opinion on uncertain cases
-- [ ] Analyze whether the 2 S2 missed unsafe cases would have been caught by consistency voting
+- [ ] Analyze whether the 2 S2 missed unsafe cases would have been caught by consistency voting (fold into full-set consistency writeup)
+
+### Scoped out (documented as limitations / future work)
+
+- **S2 BEHAVIORAL_MASTERY → AVOIDANCE failure pattern — not investigated further.** Decision (2026-04-20): document in the thesis as a negative finding, not as an engineering puzzle. Rationale: (a) the proposed ensemble uses S1 as primary and only consults S2 on low-confidence S1 predictions — BEHAVIORAL_MASTERY cases are almost always high-confidence in S1, so they rarely reach S2 and a fix would not move end-to-end metrics; (b) prompt iteration is a rabbit hole requiring repeated benchmark re-runs; (c) the pattern already carries its weight as a negative result that complements the logprobs-separation collapse (§3) — both illustrate that CoT does not uniformly dominate and launders its own uncertainty. Will be documented in thesis §4.4 (Failure Analysis) with the concrete examples from §4 above. Revisit only if the full-set consistency run surfaces previously-correct BEHAVIORAL_MASTERY cases breaking at scale.
+- **Ensemble approach (S1 primary + S2 second-opinion + semantic-consistency UQ on S2) — not implemented for the thesis.** Proposed in §6 point 5; listed as future work in thesis §5.5. Implementation would require an integration layer, threshold calibration, and a separate end-to-end eval — out of scope given timeline constraints.
 
 ---
 
