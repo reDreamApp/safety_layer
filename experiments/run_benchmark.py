@@ -9,6 +9,7 @@ Usage:
     python run_benchmark.py                              # Uses default dev_dataset.json
     python run_benchmark.py --input data/benchmarks/test_dataset.json
     python run_benchmark.py --input data/benchmarks/dev_dataset.json --output data/benchmarks/benchmark.csv
+    python run_benchmark.py --classifier s2 --consistency 5  # Full consistency run
 """
 
 import os
@@ -31,6 +32,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from safety.critic import SafetyCritic
 from safety.classifier import ClinicalClassifier
 from safety.classifier_cot import ClinicalClassifierCoT
+from safety.semantic_consistency import evaluate_semantic_consistency
+
 
 
 def format_segments(segments) -> str:
@@ -73,39 +76,46 @@ def extract_contexts(segments) -> str:
     return " | ".join(unique) if unique else "(no context extracted)"
 
 
-async def run_benchmark(input_file: Path, output_file: Path, limit_suites: Optional[int] = None, classifier_mode: str = "s1", use_context_examples: bool = False) -> pd.DataFrame:
+async def run_benchmark(input_file: Path, output_file: Path, limit_suites: Optional[int] = None, classifier_mode: str = "s1", use_context_examples: bool = False, consistency_n: int = 0) -> pd.DataFrame:
     """
     Run the benchmark evaluation on a dataset.
-    
+
     Args:
         input_file: Path to the JSON dataset file
         output_file: Path to save the CSV results
-        
+        limit_suites: Only process first N suites
+        classifier_mode: "s1" or "s2"
+        use_context_examples: Enable context-aware few-shot examples
+        consistency_n: If > 0, run semantic consistency with this many stochastic runs
+            per test case instead of the full SafetyCritic pipeline.
+
     Returns:
         DataFrame with all results
     """
-    
+
     # Load dataset
     print("=" * 70)
     print("SAFETY CRITIC BENCHMARK EVALUATION")
+    if consistency_n > 0:
+        print(f"  MODE: Semantic Consistency (N={consistency_n})")
     print("=" * 70)
     print(f"Input: {input_file}")
     print(f"Output: {output_file}")
     print()
-    
+
     print("Loading dataset...")
     with open(input_file, 'r', encoding='utf-8') as f:
         suites = json.load(f)
-    
+
     # Apply limit if specified
     if limit_suites:
         suites = suites[:limit_suites]
         print(f"✓ Limited to first {limit_suites} suite(s)")
-    
+
     total_tests = sum(len(suite.get("tests", [])) for suite in suites)
     print(f"✓ Loaded {len(suites)} suites with {total_tests} total tests")
     print()
-    
+
     # Initialize SafetyCritic with selected classifier
     ctx_label = " + context examples" if use_context_examples else ""
     print(f"Initializing SafetyCritic (classifier: {classifier_mode}{ctx_label})...")
@@ -117,6 +127,8 @@ async def run_benchmark(input_file: Path, output_file: Path, limit_suites: Optio
         print(f"  Using System 1 (Direct) classifier: {classifier.model_config.name}")
     if use_context_examples:
         print(f"  Context-aware examples: ENABLED")
+    if consistency_n > 0:
+        print(f"  Semantic consistency: N={consistency_n}, temp=0.7 (per-segment after pipeline)")
     critic = SafetyCritic(classifier=classifier)
     print("✓ SafetyCritic initialized")
     print()
@@ -141,36 +153,81 @@ async def run_benchmark(input_file: Path, output_file: Path, limit_suites: Optio
             user_input = test.get("input", "")
             expected_safe = test.get("expected_safe")
             expected_node = test.get("expected_node")  # May be None
-            
+
             try:
-                # Evaluate with nightmare context
+                # --- Always run the full SafetyCritic pipeline first ---
                 result = await critic.evaluate_intervention(
                     user_input,
                     nightmare_context=nightmare
                 )
-                
-                # Extract results
                 predicted_safe = result.is_safe
                 predicted_node = result.node_id
                 confidence_score = result.confidence
                 severity = result.severity
-                
-                # Format segments for readable output
                 segments_formatted = format_segments(result.segments)
                 contexts_extracted = extract_contexts(result.segments)
-                
-                # Calculate correctness
+
+                # --- Consistency mode: run per-segment consistency after pipeline ---
+                # Approach: segment once (via SafetyCritic above), then run N stochastic
+                # classification passes on each segment. This isolates classifier
+                # uncertainty from segmentation variation while testing the same text
+                # the classifier actually sees in production.
+                cons_agreement = None
+                cons_node = None
+                cons_code = None
+                cons_votes = None
+                cons_n_runs = None
+                cons_majority_matches_gt = None
+                cons_latency_ms = 0.0
+                cons_input_tokens = 0
+                cons_output_tokens = 0
+
+                if consistency_n > 0 and result.segments:
+                    # Run consistency on each classified segment
+                    seg_agreements = []
+                    for segment in result.segments:
+                        if not segment.node_id or segment.node_id == "UNCLASSIFIED":
+                            continue
+                        seg_context = segment.context or nightmare
+                        seg_cons = await evaluate_semantic_consistency(
+                            classifier=classifier,
+                            user_text=segment.text,
+                            context=seg_context or None,
+                            n_runs=consistency_n,
+                            stochastic_temperature=0.7,
+                            confidence_threshold=0.8,
+                        )
+                        seg_agreements.append(seg_cons)
+                        cons_latency_ms += seg_cons.total_latency_ms
+                        cons_input_tokens += seg_cons.total_input_tokens
+                        cons_output_tokens += seg_cons.total_output_tokens
+
+                    if seg_agreements:
+                        # Use minimum agreement across segments (conservative: weakest
+                        # link determines uncertainty). The primary segment's consistency
+                        # is reported for node/code/votes.
+                        min_cons = min(seg_agreements, key=lambda c: c.agreement_ratio)
+                        cons_agreement = min_cons.agreement_ratio
+                        cons_node = min_cons.node_id
+                        cons_code = min_cons.code
+                        # Aggregate vote distributions across all segments
+                        cons_votes = json.dumps({
+                            f"seg{i}": c.vote_distribution
+                            for i, c in enumerate(seg_agreements)
+                        })
+                        cons_n_runs = min_cons.n_runs
+                        cons_majority_matches_gt = (min_cons.node_id == expected_node) if expected_node is not None else None
+
+                # Calculate correctness (shared by both modes)
                 is_safety_correct = (predicted_safe == expected_safe) if expected_safe is not None else None
-                
-                # Node correctness only if expected_node is provided
                 if expected_node is not None:
                     is_node_correct = (predicted_node == expected_node)
                 else:
                     is_node_correct = None  # NaN in pandas
-                
+
                 # Store result (use short suite ID instead of full name)
                 suite_short = suite_name[:40] + "..." if len(suite_name) > 40 else suite_name
-                results.append({
+                row = {
                     "suite_id": suite_idx,
                     "suite": suite_short,
                     "test": description,
@@ -185,16 +242,36 @@ async def run_benchmark(input_file: Path, output_file: Path, limit_suites: Optio
                     "node_ok": is_node_correct,
                     "contexts": contexts_extracted,
                     "segments": segments_formatted,
-                })
-                
-                # Brief status indicator
-                status = "✓" if is_safety_correct else "✗"
-                print(f"    {status} [{test_counter}/{total_tests}] {description}")
-                
+                }
+
+                if consistency_n > 0:
+                    row.update({
+                        "agreement_ratio": cons_agreement,
+                        "consistency_node": cons_node,
+                        "consistency_code": cons_code,
+                        "vote_distribution": cons_votes,
+                        "n_runs": cons_n_runs,
+                        "majority_vote_matches_gt": cons_majority_matches_gt,
+                    })
+
+                results.append(row)
+
+                # Progress output
+                if consistency_n > 0:
+                    agreement_str = f"{cons_agreement:.0%}" if cons_agreement is not None else "n/a"
+                    latency_s = cons_latency_ms / 1000
+                    tok_str = f"{cons_input_tokens}+{cons_output_tokens} tok"
+                    status = "✓" if is_safety_correct else "✗"
+                    print(f"    {status} [{test_counter}/{total_tests}] {description}")
+                    print(f"       agree={agreement_str}  {latency_s:.1f}s  {tok_str}")
+                else:
+                    status = "✓" if is_safety_correct else "✗"
+                    print(f"    {status} [{test_counter}/{total_tests}] {description}")
+
             except Exception as e:
                 print(f"    ✗ [{test_counter}/{total_tests}] {description} - ERROR: {e}")
                 suite_short = suite_name[:40] + "..." if len(suite_name) > 40 else suite_name
-                results.append({
+                row = {
                     "suite_id": suite_idx,
                     "suite": suite_short,
                     "test": description,
@@ -209,7 +286,17 @@ async def run_benchmark(input_file: Path, output_file: Path, limit_suites: Optio
                     "node_ok": False,
                     "contexts": "ERROR",
                     "segments": f"ERROR: {str(e)}",
-                })
+                }
+                if consistency_n > 0:
+                    row.update({
+                        "agreement_ratio": None,
+                        "consistency_node": "ERROR",
+                        "consistency_code": "ERROR",
+                        "vote_distribution": "{}",
+                        "n_runs": consistency_n,
+                        "majority_vote_matches_gt": False,
+                    })
+                results.append(row)
         
         print()
     
@@ -359,6 +446,16 @@ Examples:
         help="Enable context-aware few-shot examples in the classifier prompt"
     )
 
+    parser.add_argument(
+        '--consistency',
+        type=int,
+        default=0,
+        metavar='N',
+        help="Run semantic consistency UQ with N stochastic runs per case (default: 0 = off). "
+             "When > 0, bypasses SafetyCritic segmentation and evaluates the raw classifier "
+             "directly on each test input (matching run_consistency_errors.py)."
+    )
+
     args = parser.parse_args()
     
     # Resolve paths relative to project root
@@ -377,7 +474,7 @@ Examples:
         sys.exit(1)
     
     # Run benchmark
-    asyncio.run(run_benchmark(input_file, output_file, limit_suites=args.limit, classifier_mode=args.classifier, use_context_examples=args.context_examples))
+    asyncio.run(run_benchmark(input_file, output_file, limit_suites=args.limit, classifier_mode=args.classifier, use_context_examples=args.context_examples, consistency_n=args.consistency))
 
 
 if __name__ == "__main__":

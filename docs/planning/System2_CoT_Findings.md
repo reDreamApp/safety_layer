@@ -292,8 +292,9 @@ This ablation is documented as a negative result in the thesis. The `use_context
 ## 8. Next Steps
 
 - [x] Run semantic consistency on error cases (targeted, ~22 min) to check if voting predicts errors — **DONE 2026-04-14.** Results: `consistency_errors_20260414_151034.csv`. Consistency fixed 17/26 S1 errors (65%) and 19/23 S2 errors (83%), zero cases broken in the error+control slice. Agreement separation S2: 0.012 (logprobs) → 0.255 (voting) — voting is the usable UQ signal for CoT. Agreement separation S1: 0.070 → 0.086, plus direct error correction via majority vote.
-- [ ] **Run full semantic consistency benchmark on the full 480-case dev set (S1 and S2).** The targeted results are promising, but the "zero broken cases" property has only been confirmed on a 25-case correct-control slice per system. A full-set run is needed to rule out regressions on previously-correct predictions before declaring semantic consistency the recommended UQ method. Est. ~2h for S1, ~5.4h for S2 (per §5 cost estimates). Blocks: writeup of the UQ chapter / `Semantic_Consistency_Findings.md`.
-- [ ] Analyze whether the 2 S2 missed unsafe cases would have been caught by consistency voting (fold into full-set consistency writeup)
+- [x] **Run full semantic consistency benchmark on the full 480-case dev set (S1 and S2).** — **DONE 2026-04-22.** See §10 for full-set results. Headline: consistency delivers the promised UQ signal on S2 (agreement AUROC 0.702 for safety vs logprob 0.494 — logprob is random on S2), but the "zero broken cases" property from the targeted slice does **not** generalise to the full set: S1 shows 7 fixes / 6 regressions (including one unsafe→safe flip). Root-cause investigation traces every S1 regression to segmenter-drift between runs, not to vote aggregation. S2 baseline comparison is compromised (stale dataset) — needs a fresh S2 baseline re-run on the current dev set for a clean diff.
+- [ ] **Re-run S2 baseline on the current dev set** (~2.5h) so the S2 consistency comparison is apples-to-apples. Current S2 baseline (`benchmark_results_s2.csv`, Mar 25) pre-dates the Apr 10 affect-fix dataset regeneration; only 44/420 test names overlap with the consistency CSV. Without this, the S2 consistency headline (97.1% safety / 98.3% unsafe recall) can only be reported in absolute terms.
+- [ ] Add §10 analysis + recommendations into the UQ chapter of the thesis (thesis §4.x).
 
 ### Scoped out (documented as limitations / future work)
 
@@ -318,3 +319,118 @@ This ablation is documented as a negative result in the thesis. The `use_context
 | `data/benchmarks/benchmark_results_pre_meta_fix.csv` | S1 pre-META-fix (Mar 19, superseded) |
 | `data/benchmarks/benchmark_results_s1_ctx.csv` | S1 + context examples results |
 | `data/benchmarks/benchmark_results_s2_ctx.csv` | S2 + context examples results |
+| `data/benchmarks/benchmark_results_s1_consistency.csv` | **S1 full-set semantic consistency (N=5)** (2026-04-20) |
+| `data/benchmarks/benchmark_results_s2_consistency.csv` | **S2 full-set semantic consistency (N=5)** (2026-04-22) |
+
+---
+
+## 10. Full-set Semantic Consistency Results (2026-04-22)
+
+N=5 semantic-consistency run on the full 480-case dev set. 420 cases have a ground-truth node label (60 META / no-label cases excluded from accuracy metrics, matching the §2 reporting convention). Runtime: ~2h34m (S1) / ~12h44m (S2).
+
+### 10.1 Headline metrics
+
+| | Safety acc | Node acc | Safe recall | Unsafe recall | Unsafe precision | Unsafe F1 |
+|---|---|---|---|---|---|---|
+| S1 baseline (N=1, 2026-04-20) | 93.8% (394/420) | 70.2% (295/420) | 90.0% | 98.9% (178/180) | 88.1% | 93.2% |
+| S1 consistency (N=5) | 94.0% (395/420) | 70.5% (296/420) | 90.8% | 98.3% (177/180) | 88.9% | 93.4% |
+| S2 baseline (N=1, 2026-03-25) † | 94.5% (397/420) | 78.1% (328/420) | 91.2% | 98.9% (178/180) | 89.4% | 94.0% |
+| S2 consistency (N=5) | 97.1% (408/420) | 76.2% (320/420) | 96.3% | 98.3% (177/180) | 95.2% | 96.7% |
+
+† **S2 baseline is on the pre-affect-fix dataset** (dev_dataset.json was regenerated 2026-04-10). Only 44/420 test names overlap with the S2 consistency CSV, so the S2 baseline vs consistency diff is **not apples-to-apples**. Absolute S2 consistency numbers are still valid; case-level fix/regression counts cannot be computed until a fresh S2 baseline on the current dataset is run.
+
+### 10.2 S1 case-level diff (valid apples-to-apples, n=420)
+
+| | Count |
+|---|---|
+| Both correct on safety | 388 |
+| Both wrong on safety | 19 |
+| **Fixed** (baseline wrong → consistency right) | **7** |
+| **Regressed** (baseline right → consistency wrong) | **6** |
+| Node axis: fixed | 17 |
+| Node axis: regressed | 16 |
+
+Net improvement on safety is +1 case (0.2pp). The targeted Apr 14 slice's "zero broken cases" property does **not** hold on the full set.
+
+**Clinical breakdown of the 6 S1 regressions:**
+
+- **5 are false alarms** (safe content now flagged as unsafe — clinically tolerable, costs UX not safety): "Realize I am safe" / "Lift above the city" / "Refuse public shaming" / "Relief in the mirror" / "turn and pull free". Pattern: the consistency run's segmenter produces **finer segmentation** than baseline, splitting off subordinate/temporal clauses ("When X", "Right before X", "It happens the same way") into their own segments. These clauses — which describe the pre-rescript nightmare state inside a rescripting narrative — then get classified as TRAUMA_REPLAY or AVOIDANCE, even though the overall rescript is adaptive.
+- **1 is a clinical miss** (unsafe content now marked safe — clinically critical): "Same locked room" (gt=TRAUMA_REPLAY). Ground-truth content: _"It happens exactly the same way: I'm barefoot in that small room with snakes covering the floor… I claw at the locked door and scream…"_
+
+### 10.3 Root cause: the regressions are segmenter-drift, not vote aggregation
+
+Per-case segmentation traces confirm every S1 regression is driven by the segmenter producing a different segment structure between the baseline and consistency runs — **not** by the vote aggregation step. Two specific failure modes:
+
+1. **META misclassification (the clinical miss).** Baseline labelled "It happens exactly the same way:" as `[THOUGHT]` → TRAUMA_REPLAY (99.9% conf). Consistency run labelled the identical phrase as `[META]` → filtered out of classification entirely. The remaining two segments (NARRATIVE_SETTING + BEHAVIORAL_MASTERY) then aggregate to safe/BEHAVIORAL_MASTERY with **agreement=1.00 and confidence=0.99**. Five unanimous samples voting identically does not rescue this: the classifier never sees the trauma-replay trigger, so consistency UQ is blind to the error.
+
+2. **Finer segmentation inflating false alarms (the other 5).** The consistency run consistently splits narrative setup ("When they expect me to read blank answers…", "Right before I get cornered…", "When the hand grabs my ankle…") into its own segment, which then gets coded as TRAUMA_REPLAY because it literally describes the nightmare state. Since all 5 classifier samples see the same segment, agreement is high (0.8–1.0) and the error passes the UQ filter.
+
+**Implication for the UQ chapter:** the `classify segment → vote` layer is robust, but semantic consistency over classification cannot detect upstream segmentation instability. Segmentation is run once per case (shared across all 5 samples), so any segmenter error is invisible to the agreement signal. This is a substantive limitation to document.
+
+#### 10.3.1 Determinism probe (2026-04-22): provider dominates temperature as the drift source
+
+To isolate *why* the segmenter drifts, I ran a 2×2 factorial probe on the 6 S1 regression cases: {OpenRouter, Scaleway-direct} × {temperature=0.1, temperature=0}, N=5 repeats per cell, identical prompt, model (Mistral Nemo), and system prompt throughout. "Unique signatures" counts distinct segment-type sequences across the 5 runs; higher = more drift. Script and raw data: `experiments/determinism_probe/probe_segmenter.py`, `data/benchmarks/segmenter_determinism_probe.{json,md}`.
+
+| Condition | Mean unique sigs / 5 | Cases with any drift |
+|---|---|---|
+| **OR, temp=0.1** (current production) | 2.33 | 5/6 |
+| OR, temp=0 | 2.33 | 6/6 |
+| SW, temp=0.1 | 1.17 | 1/6 |
+| **SW, temp=0** | **1.00** | **0/6** |
+
+**The provider, not the temperature, is the dominant driver.** Lowering temperature on OpenRouter does not help — the mean drift is unchanged (2.33), and OR at temp=0 actually drifts on *more* cases (6/6 vs 5/6) than at temp=0.1, including cases that were fully stable on OR at temp=0.1 ("turn and pull free"). Switching provider to Scaleway-direct eliminates almost all drift at temp=0.1 and all drift at temp=0.
+
+Specific observations that tie the probe back to the full-set regressions:
+
+1. **The [META] failure mode reproduces on OR and only on OR.** On "Same locked room" under OR+temp=0.1, 1/5 runs labels `"It happens exactly the same way"` as `[META]` (the remaining 4/5 label it `[THOUGHT]`). This is exactly the pattern that produced the clinically-critical unsafe-miss in §10.2 — and it does not appear in any Scaleway cell at either temperature.
+2. **OR violates the type vocabulary.** At OR+temp=0, "Realize I am safe" run 5 emits a segment of type `OBSERVATION`, which is not in the prompt's allowed set {`ACTION`, `THOUGHT`, `FEELING`, `META`}. This would be silently downstream-mishandled. Scaleway never emitted an out-of-vocab type.
+3. **OR drifts on segment boundaries even at temp=0.** "Same locked room" at OR+temp=0 produces two different structures (`THOUGHT|ACTION|ACTION` in 2/5 runs, `THOUGHT|THOUGHT|ACTION` in 3/5) — nominally-deterministic sampling that isn't.
+4. **Scaleway+temp=0 is bit-identical across 5×6=30 calls.** Every one of the 6 cases produces the same signature 5/5 runs. The only remaining drift on Scaleway is on "Same locked room" at temp=0.1 (2 sigs over 5 runs), and crucially neither sig is the `[META]` failure — both still expose the trauma-replay trigger to the classifier.
+
+**Mechanism.** OpenRouter is an aggregator: it load-balances requests across multiple upstream hosts (Together, Fireworks, DeepInfra, etc.), each running its own stack with independent GPU-batching non-determinism. Temperature=0 with greedy decoding is deterministic *within* a single engine on a single GPU, but breaks down across heterogeneous backends and dynamic batch composition. Hitting the model host directly removes that layer of non-determinism. This is a general fact about hosted-LLM aggregators that the thesis should cite: the `temperature` knob is not a complete determinism guarantee when routing is abstracted.
+
+**Actionable fix.** One-line change in `safety/critic.py` (the `SafetyCritic.__init__` segmenter agent): switch `MODELS["OR_MISTRAL_NEMO"]` → `MODELS["MISTRAL_NEMO"]` and set `temperature=0`. This eliminates segmenter drift (probe evidence: 0/6 cases drift), closes the `[META]` unsafe-miss pathway, and removes the out-of-vocab-type risk — at zero cost in latency or tokens. Worth doing before any further benchmark work so subsequent runs are reproducible.
+
+### 10.4 UQ signal: agreement vs logprob confidence
+
+Mean separation (correct − wrong) across safety judgements:
+
+| Signal | S1 safety Δ | S1 node Δ | S2 safety Δ | S2 node Δ |
+|---|---|---|---|---|
+| agreement_ratio | +0.158 | +0.106 | +0.143 | +0.091 |
+| logprob `conf` | +0.062 | +0.060 | **−0.003** | **−0.001** |
+
+AUROC for predicting correctness:
+
+| Signal | S1 safety | S1 node | S2 safety | S2 node |
+|---|---|---|---|---|
+| agreement_ratio | 0.728 | 0.663 | **0.702** | 0.629 |
+| logprob `conf`  | **0.769** | **0.840** | 0.494 | 0.535 |
+
+**Key finding confirmed on full set:** logprob confidence is essentially **random** as a UQ signal on S2 (AUROC 0.494 / 0.535, Δ ≈ 0), while agreement_ratio carries meaningful signal (AUROC 0.702 / 0.629). This validates the Apr 14 targeted-slice claim directionally, though the magnitude is smaller than the slice reported (full-set Δ=0.143 vs slice Δ=0.255 on S2 safety). The slice over-estimated the separation because it was constructed from errors + a small correct-control set, which sharpens the contrast artificially.
+
+On S1 the picture inverts: logprob confidence is already a **stronger** UQ signal than agreement (AUROC 0.769 vs 0.728 on safety, and decisively so for node: 0.840 vs 0.663). Semantic consistency adds little UQ value for S1.
+
+### 10.5 Revised conclusions for the UQ chapter
+
+1. **Semantic consistency is the right UQ method for S2 (CoT).** Logprobs are useless there — CoT launders token-level uncertainty through the reasoning chain (cf. §3). Agreement over N=5 recovers a usable signal with AUROC ≈ 0.7 for safety.
+2. **Logprob confidence is already adequate for S1.** Semantic consistency is not recommended as the default UQ method for S1 on cost grounds (4–5× inference cost for a weaker signal than free logprobs).
+3. **The "zero broken cases" claim from the targeted Apr 14 slice does not hold on the full set.** S1 regressed on 6 cases (one clinically critical unsafe→safe flip), S2 regression count cannot be computed without a clean baseline. Report honestly as a limitation rather than claiming net safety gain from consistency.
+4. **Segmenter stability is the upstream bottleneck — and the cause is now identified.** All 6 S1 regressions are caused by the segmenter producing different segment structures between runs on the same input — a phenomenon invisible to classification-level consistency. The Apr 22 determinism probe (§10.3.1) isolates the mechanism: the drift is driven by the **OpenRouter aggregator routing across heterogeneous upstream backends**, not by sampling temperature. Hitting Scaleway-direct at `temperature=0` reduces drift to 0/6 cases across 30 calls, including eliminating the `[META]` misclassification that produced the clinically-critical unsafe-miss. Recommended as a pre-thesis fix: switch the segmenter's `OR_MISTRAL_NEMO` → `MISTRAL_NEMO` and set `temperature=0` in `safety/critic.py`. Future work (out of thesis scope): consistency over the segmenter as a defence against residual provider-side drift.
+5. **Ensemble (S1 primary + S2 second-opinion on low-conf S1 + consistency UQ on S2) remains supported.** The full-set results are consistent with the §6.5 proposal: use the cheap, reliable S1 logprob signal as the primary gate; only spend N=5 consistency on S2 when S1 is uncertain. No change to the §6.5 recommendation.
+
+### 10.6 Reproduction
+
+```bash
+# S1 baseline (N=1)           — 2026-04-20 → benchmark_results.csv
+uv run python experiments/run_benchmark.py --classifier s1
+
+# S2 baseline (N=1)           — needs a re-run on the current dev set
+uv run python experiments/run_benchmark.py --classifier s2
+
+# S1 + semantic consistency (N=5) — 2026-04-20 → benchmark_results_s1_consistency.csv
+uv run python experiments/run_benchmark.py --classifier s1 --consistency --n-runs 5
+
+# S2 + semantic consistency (N=5) — 2026-04-22 → benchmark_results_s2_consistency.csv
+uv run python experiments/run_benchmark.py --classifier s2 --consistency --n-runs 5
+```
