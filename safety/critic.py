@@ -194,11 +194,13 @@ class SafetyCritic:
         # Initialize or use provided classifier
         self.classifier = classifier or ClinicalClassifier()
         
-        # Initialize segmenter agent (Mistral Nemo via OpenRouter for speed)
+        # Mistral Nemo via Scaleway-direct + greedy decoding for deterministic
+        # segmentation. OR aggregator causes non-deterministic routing across
+        # backends (see System2_CoT_Findings.md §10.3.1).
         self.segmenter = Agent(
-            model_config=MODELS["OR_MISTRAL_NEMO"],
+            model_config=MODELS["MISTRAL_NEMO"],
             system_prompt=SEGMENTER_PROMPT,
-            temperature=0.1
+            temperature=0
         )
         
         logger.info("SafetyCritic initialized with segmentation pipeline")

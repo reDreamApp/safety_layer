@@ -43,16 +43,16 @@
           "signatures": [
             "THOUGHT|ACTION|FEELING",
             "THOUGHT|ACTION|FEELING",
-            "THOUGHT|FEELING",
             "THOUGHT|ACTION|FEELING",
-            "THOUGHT|FEELING"
+            "THOUGHT|FEELING",
+            "THOUGHT|ACTION|FEELING"
           ],
           "detailed_signatures": [
             "[THOUGHT] I look at it and understand that it feed || [ACTION] so I stop giving it that || [FEELING] The fear drains out of me and I feel ste",
             "[THOUGHT] I look at it and understand that it feed || [ACTION] so I stop giving it that || [FEELING] The fear drains out of me and I feel ste",
-            "[THOUGHT] I look at it and understand that it feed || [FEELING] The fear drains out of me and I feel ste",
             "[THOUGHT] I look at it and understand that it feed || [ACTION] so I stop giving it that || [FEELING] The fear drains out of me and I feel ste",
-            "[THOUGHT] I look at it and understand that it feed || [FEELING] The fear drains out of me and I feel ste"
+            "[THOUGHT] I look at it and understand that it feed || [FEELING] The fear drains out of me and I feel ste",
+            "[THOUGHT] I look at it and understand that it feed || [ACTION] so I stop giving it that || [FEELING] The fear drains out of me and I feel ste"
           ],
           "errors": [
             null,
@@ -69,15 +69,15 @@
             "THOUGHT|THOUGHT|ACTION",
             "THOUGHT|THOUGHT|ACTION",
             "THOUGHT|THOUGHT|ACTION",
-            "META|THOUGHT|ACTION",
-            "THOUGHT|THOUGHT|ACTION"
+            "THOUGHT|THOUGHT|ACTION",
+            "META|THOUGHT|ACTION"
           ],
           "detailed_signatures": [
             "[THOUGHT] It happens exactly the same way: || [THOUGHT] I'm barefoot in that small room with sna || [ACTION] I claw at the locked door and scream whi",
+            "[THOUGHT] It happens exactly the same way || [THOUGHT] I'm barefoot in that small room with sna || [ACTION] I claw at the locked door and scream whi",
             "[THOUGHT] It happens exactly the same way: || [THOUGHT] I'm barefoot in that small room with sna || [ACTION] I claw at the locked door and scream whi",
-            "[THOUGHT] It happens exactly the same way: || [THOUGHT] I'm barefoot in that small room with sna || [ACTION] I claw at the locked door and scream whi",
-            "[META] It happens exactly the same way || [THOUGHT] I'm barefoot in that small room with sna || [ACTION] I claw at the locked door and scream whi",
-            "[THOUGHT] It happens exactly the same way: || [THOUGHT] I'm barefoot in that small room with sna || [ACTION] I claw at the locked door and scream whi"
+            "[THOUGHT] It happens exactly the same way || [THOUGHT] I'm barefoot in that small room with sna || [ACTION] I claw at the locked door and scream whi",
+            "[META] It happens exactly the same way: || [THOUGHT] I'm barefoot in that small room with sna || [ACTION] I claw at the locked door and scream whi"
           ],
           "errors": [
             null,
@@ -93,14 +93,171 @@
           "signatures": [
             "THOUGHT|ACTION|THOUGHT|ACTION",
             "THOUGHT|ACTION|THOUGHT",
-            "THOUGHT|ACTION|THOUGHT|ACTION",
+            "THOUGHT|ACTION|THOUGHT",
+            "THOUGHT|ACTION|THOUGHT",
+            "THOUGHT|ACTION|THOUGHT|ACTION"
+          ],
+          "detailed_signatures": [
+            "[THOUGHT] Right before I get cornered || [ACTION] I rise up off the ground and float above || [THOUGHT] From up there the maze is simple || [ACTION] I glide toward the way out",
+            "[THOUGHT] Right before I get cornered || [ACTION] I rise up off the ground and float above || [THOUGHT] From up there the maze is simple, and I ",
+            "[THOUGHT] Right before I get cornered || [ACTION] I rise up off the ground and float above || [THOUGHT] From up there the maze is simple, and I ",
+            "[THOUGHT] Right before I get cornered || [ACTION] I rise up off the ground and float above || [THOUGHT] From up there the maze is simple, and I ",
+            "[THOUGHT] Right before I get cornered || [ACTION] I rise up off the ground and float above || [THOUGHT] From up there the maze is simple || [ACTION] and I glide toward the way out"
+          ],
+          "errors": [
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "description": "Refuse public shaming",
+          "n_unique_signatures": 2,
+          "signatures": [
+            "ACTION|ACTION",
+            "THOUGHT|ACTION|ACTION",
+            "ACTION|ACTION",
+            "ACTION|ACTION",
+            "ACTION|ACTION"
+          ],
+          "detailed_signatures": [
+            "[ACTION] When they expect me to read blank answer || [ACTION] I walk down the aisle on my own terms in",
+            "[THOUGHT] When they expect me to read blank answer || [ACTION] I push my chair back and say no. || [ACTION] I walk down the aisle on my own terms in",
+            "[ACTION] When they expect me to read blank answer || [ACTION] I walk down the aisle on my own terms in",
+            "[ACTION] When they expect me to read blank answer || [ACTION] I walk down the aisle on my own terms in",
+            "[ACTION] When they expect me to read blank answer || [ACTION] I walk down the aisle on my own terms in"
+          ],
+          "errors": [
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "description": "Relief in the mirror",
+          "n_unique_signatures": 5,
+          "signatures": [
+            "ACTION|FEELING|THOUGHT|ACTION|THOUGHT",
+            "THOUGHT|THOUGHT",
+            "ACTION|FEELING|THOUGHT|FEELING|THOUGHT",
+            "ACTION|THOUGHT|THOUGHT|FEELING|THOUGHT",
+            "ACTION|FEELING|THOUGHT|THOUGHT|THOUGHT"
+          ],
+          "detailed_signatures": [
+            "[ACTION] I\u2019m still looking at myself || [FEELING] but instead of pure panic I feel this un || [THOUGHT] like I don\u2019t have to fight what I\u2019m seei || [ACTION] My chest loosens || [THOUGHT] and I realize I\u2019m not as alone in the ba",
+            "[THOUGHT] I\u2019m still looking at myself, but instead || [THOUGHT] My chest loosens and I realize I\u2019m not a",
+            "[ACTION] I\u2019m still looking at myself || [FEELING] but instead of pure panic I feel this un || [THOUGHT] like I don\u2019t have to fight what I\u2019m seei || [FEELING] My chest loosens || [THOUGHT] and I realize I\u2019m not as alone in the ba",
+            "[ACTION] I\u2019m still looking at myself || [THOUGHT] but instead of pure panic I feel this un || [THOUGHT] like I don\u2019t have to fight what I\u2019m seei || [FEELING] My chest loosens || [THOUGHT] and I realize I\u2019m not as alone in the ba",
+            "[ACTION] I\u2019m still looking at myself || [FEELING] but instead of pure panic I feel this un || [THOUGHT] like I don\u2019t have to fight what I\u2019m seei || [THOUGHT] My chest loosens and I realize || [THOUGHT] I\u2019m not as alone in the bathroom as I th"
+          ],
+          "errors": [
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "description": "turn and pull free",
+          "n_unique_signatures": 2,
+          "signatures": [
+            "ACTION|ACTION|ACTION",
+            "ACTION|ACTION|ACTION",
+            "ACTION|ACTION",
+            "ACTION|ACTION|ACTION",
+            "ACTION|ACTION|ACTION"
+          ],
+          "detailed_signatures": [
+            "[ACTION] When the hand grabs my ankle || [ACTION] I twist around, stomp hard into the mud, || [ACTION] I square up to the shape and shout at it",
+            "[ACTION] When the hand grabs my ankle || [ACTION] I twist around, stomp hard into the mud, || [ACTION] I square up to the shape and shout at it",
+            "[ACTION] When the hand grabs my ankle, I twist ar || [ACTION] I square up to the shape and shout at it",
+            "[ACTION] When the hand grabs my ankle || [ACTION] I twist around, stomp hard into the mud, || [ACTION] I square up to the shape and shout at it",
+            "[ACTION] When the hand grabs my ankle || [ACTION] I twist around, stomp hard into the mud, || [ACTION] I square up to the shape and shout at it"
+          ],
+          "errors": [
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        }
+      ]
+    },
+    {
+      "condition": "OR_temp0",
+      "model_key": "OR_MISTRAL_NEMO",
+      "temperature": 0.0,
+      "cases": [
+        {
+          "description": "Realize I am safe",
+          "n_unique_signatures": 2,
+          "signatures": [
+            "THOUGHT|FEELING",
+            "THOUGHT|ACTION|FEELING",
+            "THOUGHT|ACTION|FEELING",
+            "THOUGHT|ACTION|FEELING",
+            "THOUGHT|ACTION|FEELING"
+          ],
+          "detailed_signatures": [
+            "[THOUGHT] I look at it and understand that it feed || [FEELING] The fear drains out of me and I feel ste",
+            "[THOUGHT] I look at it and understand that it feed || [ACTION] so I stop giving it that || [FEELING] The fear drains out of me and I feel ste",
+            "[THOUGHT] I look at it and understand that it feed || [ACTION] so I stop giving it that || [FEELING] The fear drains out of me and I feel ste",
+            "[THOUGHT] I look at it and understand that it feed || [ACTION] so I stop giving it that || [FEELING] The fear drains out of me and I feel ste",
+            "[THOUGHT] I look at it and understand that it feed || [ACTION] so I stop giving it that || [FEELING] The fear drains out of me and I feel ste"
+          ],
+          "errors": [
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "description": "Same locked room",
+          "n_unique_signatures": 1,
+          "signatures": [
+            "THOUGHT|THOUGHT|ACTION",
+            "THOUGHT|THOUGHT|ACTION",
+            "THOUGHT|THOUGHT|ACTION",
+            "THOUGHT|THOUGHT|ACTION",
+            "THOUGHT|THOUGHT|ACTION"
+          ],
+          "detailed_signatures": [
+            "[THOUGHT] It happens exactly the same way: || [THOUGHT] I'm barefoot in that small room with sna || [ACTION] I claw at the locked door and scream whi",
+            "[THOUGHT] It happens exactly the same way: || [THOUGHT] I'm barefoot in that small room with sna || [ACTION] I claw at the locked door and scream whi",
+            "[THOUGHT] It happens exactly the same way: || [THOUGHT] I'm barefoot in that small room with sna || [ACTION] I claw at the locked door and scream whi",
+            "[THOUGHT] It happens exactly the same way: || [THOUGHT] I'm barefoot in that small room with sna || [ACTION] I claw at the locked door and scream whi",
+            "[THOUGHT] It happens exactly the same way: || [THOUGHT] I'm barefoot in that small room with sna || [ACTION] I claw at the locked door and scream whi"
+          ],
+          "errors": [
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        {
+          "description": "Lift above the city",
+          "n_unique_signatures": 1,
+          "signatures": [
+            "THOUGHT|ACTION|THOUGHT",
+            "THOUGHT|ACTION|THOUGHT",
+            "THOUGHT|ACTION|THOUGHT",
             "THOUGHT|ACTION|THOUGHT",
             "THOUGHT|ACTION|THOUGHT"
           ],
           "detailed_signatures": [
-            "[THOUGHT] Right before I get cornered, || [ACTION] I rise up off the ground and float above || [THOUGHT] From up there the maze is simple, || [ACTION] and I glide toward the way out.",
             "[THOUGHT] Right before I get cornered || [ACTION] I rise up off the ground and float above || [THOUGHT] From up there the maze is simple, and I ",
-            "[THOUGHT] Right before I get cornered, || [ACTION] I rise up off the ground and float above || [THOUGHT] From up there the maze is simple, || [ACTION] and I glide toward the way out.",
+            "[THOUGHT] Right before I get cornered || [ACTION] I rise up off the ground and float above || [THOUGHT] From up there the maze is simple, and I ",
+            "[THOUGHT] Right before I get cornered || [ACTION] I rise up off the ground and float above || [THOUGHT] From up there the maze is simple, and I ",
             "[THOUGHT] Right before I get cornered || [ACTION] I rise up off the ground and float above || [THOUGHT] From up there the maze is simple, and I ",
             "[THOUGHT] Right before I get cornered || [ACTION] I rise up off the ground and float above || [THOUGHT] From up there the maze is simple, and I "
           ],
@@ -116,17 +273,17 @@
           "description": "Refuse public shaming",
           "n_unique_signatures": 2,
           "signatures": [
-            "ACTION|ACTION",
-            "ACTION|ACTION",
-            "ACTION|ACTION",
             "THOUGHT|ACTION|ACTION",
+            "THOUGHT|ACTION|ACTION",
+            "ACTION|ACTION",
+            "ACTION|ACTION",
             "ACTION|ACTION"
           ],
           "detailed_signatures": [
+            "[THOUGHT] When they expect me to read blank answer || [ACTION] I push my chair back and say no. || [ACTION] I walk down the aisle on my own terms in",
+            "[THOUGHT] When they expect me to read blank answer || [ACTION] I push my chair back and say no. || [ACTION] I walk down the aisle on my own terms in",
             "[ACTION] When they expect me to read blank answer || [ACTION] I walk down the aisle on my own terms in",
             "[ACTION] When they expect me to read blank answer || [ACTION] I walk down the aisle on my own terms in",
-            "[ACTION] When they expect me to read blank answer || [ACTION] I walk down the aisle on my own terms in",
-            "[THOUGHT] When they expect me to read blank answer || [ACTION] I push my chair back and say no || [ACTION] I walk down the aisle on my own terms in",
             "[ACTION] When they expect me to read blank answer || [ACTION] I walk down the aisle on my own terms in"
           ],
           "errors": [
@@ -141,18 +298,18 @@
           "description": "Relief in the mirror",
           "n_unique_signatures": 5,
           "signatures": [
+            "ACTION|FEELING|THOUGHT|FEELING",
+            "ACTION|FEELING|THOUGHT|THOUGHT",
             "THOUGHT|THOUGHT",
             "FEELING|THOUGHT",
-            "ACTION|FEELING|THOUGHT|FEELING",
-            "ACTION|THOUGHT|THOUGHT|FEELING|THOUGHT",
-            "ACTION|FEELING|THOUGHT|FEELING|THOUGHT"
+            "ACTION|FEELING|THOUGHT|ACTION|THOUGHT"
           ],
           "detailed_signatures": [
+            "[ACTION] I\u2019m still looking at myself || [FEELING] but instead of pure panic I feel this un || [THOUGHT] like I don\u2019t have to fight what I\u2019m seei || [FEELING] My chest loosens and I realize I\u2019m not a",
+            "[ACTION] I\u2019m still looking at myself || [FEELING] but instead of pure panic I feel this un || [THOUGHT] like I don\u2019t have to fight what I\u2019m seei || [THOUGHT] My chest loosens and I realize I\u2019m not a",
             "[THOUGHT] I\u2019m still looking at myself, but instead || [THOUGHT] My chest loosens and I realize I\u2019m not a",
             "[FEELING] I\u2019m still looking at myself, but instead || [THOUGHT] My chest loosens and I realize I\u2019m not a",
-            "[ACTION] I\u2019m still looking at myself || [FEELING] but instead of pure panic I feel this un || [THOUGHT] like I don\u2019t have to fight what I\u2019m seei || [FEELING] My chest loosens and I realize I\u2019m not a",
-            "[ACTION] I\u2019m still looking at myself || [THOUGHT] but instead of pure panic I feel this un || [THOUGHT] like I don\u2019t have to fight what I\u2019m seei || [FEELING] My chest loosens || [THOUGHT] and I realize I\u2019m not as alone in the ba",
-            "[ACTION] I\u2019m still looking at myself || [FEELING] but instead of pure panic I feel this un || [THOUGHT] like I don\u2019t have to fight what I\u2019m seei || [FEELING] My chest loosens || [THOUGHT] and I realize I\u2019m not as alone in the ba"
+            "[ACTION] I\u2019m still looking at myself || [FEELING] but instead of pure panic I feel this un || [THOUGHT] like I don\u2019t have to fight what I\u2019m seei || [ACTION] My chest loosens || [THOUGHT] and I realize I\u2019m not as alone in the ba"
           ],
           "errors": [
             null,
@@ -177,163 +334,6 @@
             "[ACTION] When the hand grabs my ankle || [ACTION] I twist around, stomp hard into the mud, || [ACTION] I square up to the shape and shout at it",
             "[ACTION] When the hand grabs my ankle || [ACTION] I twist around, stomp hard into the mud, || [ACTION] I square up to the shape and shout at it",
             "[ACTION] When the hand grabs my ankle || [ACTION] I twist around, stomp hard into the mud, || [ACTION] I square up to the shape and shout at it",
-            "[ACTION] When the hand grabs my ankle || [ACTION] I twist around, stomp hard into the mud, || [ACTION] I square up to the shape and shout at it"
-          ],
-          "errors": [
-            null,
-            null,
-            null,
-            null,
-            null
-          ]
-        }
-      ]
-    },
-    {
-      "condition": "OR_temp0",
-      "model_key": "OR_MISTRAL_NEMO",
-      "temperature": 0.0,
-      "cases": [
-        {
-          "description": "Realize I am safe",
-          "n_unique_signatures": 3,
-          "signatures": [
-            "THOUGHT|ACTION|FEELING",
-            "THOUGHT|FEELING",
-            "THOUGHT|ACTION|FEELING",
-            "THOUGHT|ACTION|FEELING",
-            "THOUGHT|ACTION|FEELING|OBSERVATION"
-          ],
-          "detailed_signatures": [
-            "[THOUGHT] I look at it and understand that it feed || [ACTION] so I stop giving it that || [FEELING] The fear drains out of me and I feel ste",
-            "[THOUGHT] I look at it and understand that it feed || [FEELING] The fear drains out of me and I feel ste",
-            "[THOUGHT] I look at it and understand that it feed || [ACTION] so I stop giving it that || [FEELING] The fear drains out of me and I feel ste",
-            "[THOUGHT] I look at it and understand that it feed || [ACTION] so I stop giving it that || [FEELING] The fear drains out of me and I feel ste",
-            "[THOUGHT] I look at it and understand that it feed || [ACTION] so I stop giving it that || [FEELING] The fear drains out of me and I feel ste || [OBSERVATION] while it loses momentum"
-          ],
-          "errors": [
-            null,
-            null,
-            null,
-            null,
-            null
-          ]
-        },
-        {
-          "description": "Same locked room",
-          "n_unique_signatures": 2,
-          "signatures": [
-            "THOUGHT|ACTION|ACTION",
-            "THOUGHT|ACTION|ACTION",
-            "THOUGHT|THOUGHT|ACTION",
-            "THOUGHT|THOUGHT|ACTION",
-            "THOUGHT|THOUGHT|ACTION"
-          ],
-          "detailed_signatures": [
-            "[THOUGHT] It happens exactly the same way: || [ACTION] I'm barefoot in that small room with sna || [ACTION] I claw at the locked door and scream whi",
-            "[THOUGHT] It happens exactly the same way: || [ACTION] I'm barefoot in that small room with sna || [ACTION] I claw at the locked door and scream whi",
-            "[THOUGHT] It happens exactly the same way: || [THOUGHT] I'm barefoot in that small room with sna || [ACTION] I claw at the locked door and scream whi",
-            "[THOUGHT] It happens exactly the same way: || [THOUGHT] I'm barefoot in that small room with sna || [ACTION] I claw at the locked door and scream whi",
-            "[THOUGHT] It happens exactly the same way: || [THOUGHT] I'm barefoot in that small room with sna || [ACTION] I claw at the locked door and scream whi"
-          ],
-          "errors": [
-            null,
-            null,
-            null,
-            null,
-            null
-          ]
-        },
-        {
-          "description": "Lift above the city",
-          "n_unique_signatures": 2,
-          "signatures": [
-            "THOUGHT|ACTION|THOUGHT",
-            "THOUGHT|ACTION|THOUGHT",
-            "THOUGHT|ACTION|THOUGHT",
-            "THOUGHT|ACTION|THOUGHT|ACTION",
-            "THOUGHT|ACTION|THOUGHT"
-          ],
-          "detailed_signatures": [
-            "[THOUGHT] Right before I get cornered || [ACTION] I rise up off the ground and float above || [THOUGHT] From up there the maze is simple, and I ",
-            "[THOUGHT] Right before I get cornered || [ACTION] I rise up off the ground and float above || [THOUGHT] From up there the maze is simple, and I ",
-            "[THOUGHT] Right before I get cornered || [ACTION] I rise up off the ground and float above || [THOUGHT] From up there the maze is simple, and I ",
-            "[THOUGHT] Right before I get cornered, || [ACTION] I rise up off the ground and float above || [THOUGHT] From up there the maze is simple, || [ACTION] and I glide toward the way out.",
-            "[THOUGHT] Right before I get cornered || [ACTION] I rise up off the ground and float above || [THOUGHT] From up there the maze is simple, and I "
-          ],
-          "errors": [
-            null,
-            null,
-            null,
-            null,
-            null
-          ]
-        },
-        {
-          "description": "Refuse public shaming",
-          "n_unique_signatures": 2,
-          "signatures": [
-            "THOUGHT|ACTION|ACTION",
-            "THOUGHT|ACTION|ACTION",
-            "THOUGHT|ACTION|ACTION",
-            "ACTION|ACTION",
-            "THOUGHT|ACTION|ACTION"
-          ],
-          "detailed_signatures": [
-            "[THOUGHT] When they expect me to read blank answer || [ACTION] I push my chair back and say no. || [ACTION] I walk down the aisle on my own terms in",
-            "[THOUGHT] When they expect me to read blank answer || [ACTION] I push my chair back and say no || [ACTION] I walk down the aisle on my own terms in",
-            "[THOUGHT] When they expect me to read blank answer || [ACTION] I push my chair back and say no. || [ACTION] I walk down the aisle on my own terms in",
-            "[ACTION] When they expect me to read blank answer || [ACTION] I walk down the aisle on my own terms in",
-            "[THOUGHT] When they expect me to read blank answer || [ACTION] I push my chair back and say no || [ACTION] I walk down the aisle on my own terms in"
-          ],
-          "errors": [
-            null,
-            null,
-            null,
-            null,
-            null
-          ]
-        },
-        {
-          "description": "Relief in the mirror",
-          "n_unique_signatures": 3,
-          "signatures": [
-            "ACTION|FEELING|THOUGHT|ACTION|THOUGHT",
-            "THOUGHT|THOUGHT",
-            "FEELING|THOUGHT",
-            "THOUGHT|THOUGHT",
-            "FEELING|THOUGHT"
-          ],
-          "detailed_signatures": [
-            "[ACTION] I\u2019m still looking at myself || [FEELING] but instead of pure panic I feel this un || [THOUGHT] like I don\u2019t have to fight what I\u2019m seei || [ACTION] My chest loosens || [THOUGHT] and I realize I\u2019m not as alone in the ba",
-            "[THOUGHT] I\u2019m still looking at myself, but instead || [THOUGHT] My chest loosens and I realize I\u2019m not a",
-            "[FEELING] I\u2019m still looking at myself, but instead || [THOUGHT] My chest loosens and I realize I\u2019m not a",
-            "[THOUGHT] I\u2019m still looking at myself, but instead || [THOUGHT] My chest loosens and I realize I\u2019m not a",
-            "[FEELING] I\u2019m still looking at myself, but instead || [THOUGHT] My chest loosens and I realize I\u2019m not a"
-          ],
-          "errors": [
-            null,
-            null,
-            null,
-            null,
-            null
-          ]
-        },
-        {
-          "description": "turn and pull free",
-          "n_unique_signatures": 2,
-          "signatures": [
-            "ACTION|ACTION|ACTION",
-            "ACTION|ACTION|ACTION",
-            "ACTION|ACTION",
-            "ACTION|ACTION",
-            "ACTION|ACTION|ACTION"
-          ],
-          "detailed_signatures": [
-            "[ACTION] When the hand grabs my ankle || [ACTION] I twist around, stomp hard into the mud, || [ACTION] I square up to the shape and shout at it",
-            "[ACTION] When the hand grabs my ankle || [ACTION] I twist around, stomp hard into the mud, || [ACTION] I square up to the shape and shout at it",
-            "[ACTION] When the hand grabs my ankle, I twist ar || [ACTION] I square up to the shape and shout at it",
-            "[ACTION] When the hand grabs my ankle || [ACTION] I twist around, stomp hard into the mud,",
             "[ACTION] When the hand grabs my ankle || [ACTION] I twist around, stomp hard into the mud, || [ACTION] I square up to the shape and shout at it"
           ],
           "errors": [
@@ -380,18 +380,18 @@
           "description": "Same locked room",
           "n_unique_signatures": 2,
           "signatures": [
+            "ACTION|ACTION",
             "THOUGHT|ACTION",
             "ACTION|ACTION",
-            "ACTION|ACTION",
-            "ACTION|ACTION",
-            "THOUGHT|ACTION"
+            "THOUGHT|ACTION",
+            "ACTION|ACTION"
           ],
           "detailed_signatures": [
+            "[ACTION] It happens exactly the same way: I'm bar || [ACTION] I claw at the locked door and scream whi",
             "[THOUGHT] It happens exactly the same way: I'm bar || [ACTION] I claw at the locked door and scream whi",
             "[ACTION] It happens exactly the same way: I'm bar || [ACTION] I claw at the locked door and scream whi",
-            "[ACTION] It happens exactly the same way: I'm bar || [ACTION] I claw at the locked door and scream whi",
-            "[ACTION] It happens exactly the same way: I'm bar || [ACTION] I claw at the locked door and scream whi",
-            "[THOUGHT] It happens exactly the same way: I'm bar || [ACTION] I claw at the locked door and scream whi"
+            "[THOUGHT] It happens exactly the same way: I'm bar || [ACTION] I claw at the locked door and scream whi",
+            "[ACTION] It happens exactly the same way: I'm bar || [ACTION] I claw at the locked door and scream whi"
           ],
           "errors": [
             null,
@@ -535,20 +535,20 @@
         },
         {
           "description": "Same locked room",
-          "n_unique_signatures": 1,
+          "n_unique_signatures": 2,
           "signatures": [
             "ACTION|ACTION",
             "ACTION|ACTION",
             "ACTION|ACTION",
-            "ACTION|ACTION",
-            "ACTION|ACTION"
+            "THOUGHT|ACTION",
+            "THOUGHT|ACTION"
           ],
           "detailed_signatures": [
             "[ACTION] It happens exactly the same way: I'm bar || [ACTION] I claw at the locked door and scream whi",
             "[ACTION] It happens exactly the same way: I'm bar || [ACTION] I claw at the locked door and scream whi",
             "[ACTION] It happens exactly the same way: I'm bar || [ACTION] I claw at the locked door and scream whi",
-            "[ACTION] It happens exactly the same way: I'm bar || [ACTION] I claw at the locked door and scream whi",
-            "[ACTION] It happens exactly the same way: I'm bar || [ACTION] I claw at the locked door and scream whi"
+            "[THOUGHT] It happens exactly the same way: I'm bar || [ACTION] I claw at the locked door and scream whi",
+            "[THOUGHT] It happens exactly the same way: I'm bar || [ACTION] I claw at the locked door and scream whi"
           ],
           "errors": [
             null,

@@ -1,0 +1,73 @@
+{
+  "n_repeats": 20,
+  "results": [
+    {
+      "description": "Realize I am safe",
+      "n_unique": 2,
+      "most_common": [
+        [
+          "THOUGHT|ACTION|FEELING|THOUGHT",
+          13
+        ],
+        [
+          "THOUGHT|FEELING",
+          7
+        ]
+      ]
+    },
+    {
+      "description": "Same locked room",
+      "n_unique": 2,
+      "most_common": [
+        [
+          "THOUGHT|ACTION",
+          17
+        ],
+        [
+          "THOUGHT|ACTION|THOUGHT",
+          3
+        ]
+      ]
+    },
+    {
+      "description": "Lift above the city",
+      "n_unique": 1,
+      "most_common": [
+        [
+          "META|ACTION|THOUGHT",
+          20
+        ]
+      ]
+    },
+    {
+      "description": "Refuse public shaming",
+      "n_unique": 1,
+      "most_common": [
+        [
+          "ACTION|ACTION",
+          20
+        ]
+      ]
+    },
+    {
+      "description": "Relief in the mirror",
+      "n_unique": 1,
+      "most_common": [
+        [
+          "FEELING|THOUGHT",
+          20
+        ]
+      ]
+    },
+    {
+      "description": "turn and pull free",
+      "n_unique": 1,
+      "most_common": [
+        [
+          "ACTION|ACTION",
+          20
+        ]
+      ]
+    }
+  ]
+}

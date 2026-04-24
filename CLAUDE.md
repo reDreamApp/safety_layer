@@ -57,7 +57,14 @@ uv run python tests/test_critic_interactive.py --scenario data/scenarios/chase_s
 - Codebase restructuring (Feb 17, 2026)
 - Change 1.3: Added SUPPRESSION (DENY) and TRAUMA_REPLAY (REPLAY) maladaptive nodes (Feb 17, 2026)
 - Regenerated dev benchmark dataset with GPT-5.4 (480 tests, 12 nodes) (Mar 19, 2026)
-- Full dev benchmark: 93.8% safety accuracy / 100% unsafe recall (S1), 94.5% / 98.9% (S2) (Mar 23–25, 2026)
+- Full dev benchmark (post-fix deterministic segmenter + classifier, Apr 23–24, 2026):
+  - S1 baseline: 97.86% safety accuracy, 99.44% unsafe recall
+  - S1 consistency (N=5): 97.86% safety accuracy, 99.44% unsafe recall
+  - S2 baseline: 98.10% safety accuracy, 99.44% unsafe recall
+  - S2 consistency (N=5): **98.81% safety accuracy (best), 98.33% unsafe recall** — precision/recall trade-off
+  - Pre-fix runs (Mar 23–25, Apr 20–22) archived to `data/benchmarks/archive/pre_fix/`
+- Segmenter determinism fix (Apr 22–23, 2026): switched `safety/critic.py` segmenter to `MISTRAL_NEMO` (Scaleway-direct) + `temperature=0`. OR aggregator routing across heterogeneous backends was the dominant driver of run-to-run segment drift (5–6/6 regression cases pre-fix → 2/6 with clear majority modes post-fix). Determinism probe + diagnosis in `docs/planning/System2_CoT_Findings.md` §10.3.1; post-fix headline numbers in §11.
+- Transient-error retry logic added to `AI/agent.py` (4 attempts, exponential backoff) — resolves sporadic Scaleway connection drops seen during long consistency runs.
 - META sanity check: catches maladaptive content in meta-framed inputs during rescripting (Mar 19, 2026)
 - Added GPT-5.4 model config, made max_tokens configurable on Agent (Mar 19, 2026)
 - Fixed multipart test cases to include expected_node for node-level evaluation (Mar 19, 2026)

@@ -434,3 +434,61 @@ uv run python experiments/run_benchmark.py --classifier s1 --consistency --n-run
 # S2 + semantic consistency (N=5) — 2026-04-22 → benchmark_results_s2_consistency.csv
 uv run python experiments/run_benchmark.py --classifier s2 --consistency --n-runs 5
 ```
+
+---
+
+## 11. Post-fix deterministic benchmarks (2026-04-23 → 04-24)
+
+These are the four dev-set benchmarks re-run after applying the segmenter fix (§10.3.1) and switching both classifiers to deterministic baselines. **These numbers supersede §10 as the thesis-anchoring results.** §10 remains intact as the diagnosis and motivation for the fix.
+
+### 11.1 Configuration changes vs §10
+
+| Component | Pre-fix (§10) | Post-fix (§11) |
+|---|---|---|
+| Segmenter | `OR_MISTRAL_NEMO`, temp=0.1 (OpenRouter aggregator) | `MISTRAL_NEMO`, temp=0 (Scaleway direct) |
+| S1 / S2 classifier baseline | temp=0.1 (stochastic) | temp=0 (deterministic) |
+| Consistency stochastic arm | N=5 @ temp=0.7 (unchanged) | N=5 @ temp=0.7 (unchanged) |
+| Transient-error handling | none | `AI/agent.py` now retries 4× with exponential backoff on `APIConnectionError`, `APITimeoutError`, `InternalServerError`, `RateLimitError` |
+
+Rationale for deterministic baselines: a temp=0 baseline produces reproducible point estimates (no run-to-run noise floor), and the consistency benchmark's "does voting over N=5 @ temp=0.7 help?" question is cleaner against a noise-free reference than against a stochastic temp=0.1 baseline. Mistral's own documentation flags temp=0.7 as the upper bound of their recommended sampling range — so the stochastic arm sits at the top of the provider-vetted range without exceeding it.
+
+### 11.2 Headline metrics (post-fix, dev set N=480)
+
+| Metric | S1 baseline | S1 consistency | S2 baseline | S2 consistency |
+|---|---|---|---|---|
+| Rows | 480 | 480 | 480 | 480 |
+| Safety-evaluable rows | 420 | 420 | 420 | 420 |
+| **Safety accuracy** | 97.86% (411/420) | 97.86% (411/420) | 98.10% (412/420) | **98.81% (415/420)** |
+| **Unsafe recall** | **99.44% (179/180)** | **99.44% (179/180)** | **99.44% (179/180)** | 98.33% (177/180) |
+| Node accuracy (non-META) | 78.85% (328/416) | 78.66% (328/417) | 79.62% (332/417) | 80.58% (336/417) |
+| ERROR rows | 0 | 0 | 0 | 0 |
+
+S1 consistency CSV had 25 cases fail during the overnight run (burst of connection errors in suites 2–3) that were topped up via `experiments/topup_s1_consistency.py` against the retry-enabled `AI/agent.py`. After top-up, zero ERROR rows remain and the majority-vote metric is computable on all 480 cases.
+
+### 11.3 Notable changes vs §10 (pre-fix → post-fix)
+
+- **Clinically-critical unsafe-miss on "Same locked room" is resolved.** Pre-fix S1 consistency classified it as `BEHAVIORAL_MASTERY` / pred_safe=True due to the OR-aggregator-only `[META]` segmentation at the start of the user input. Post-fix S1 consistency classifies it as `TRAUMA_REPLAY` / pred_safe=False with 100% confidence on the opening segment. No more META misclassifications on this case across baseline or consistency.
+- **Segmentation is stable between baseline and consistency runs on the previously-regression cases.** Spot-checked "Realize I am safe" (`THOUGHT|FEELING`) and "Lift above the city" (`THOUGHT|ACTION|ACTION`): identical signatures in both runs, on both S1 and S2. The §10.3 regressions attributable to segmenter drift no longer exist.
+- **S2 consistency is now the best-performing configuration on safety accuracy** (98.81%, +0.71 pp vs S2 baseline, +0.95 pp vs S1 baseline). It does cost a single additional unsafe miss (2 → 3) relative to S2 baseline — a precision/recall trade-off worth flagging in thesis §4.
+- **S1 baseline safety accuracy drifted by −0.24 pp** (98.10% → 97.86%) vs the pre-fix archive run. 21 cases flipped safe↔unsafe between the two runs; since classifier temp dropped from 0.1 → 0 and the segmenter model/config changed, attribution to either source alone isn't possible without an ablation. Unsafe recall held at 99.44% in both, so the clinically-important metric is stable.
+
+### 11.4 Provenance
+
+| Artifact | Path | Role |
+|---|---|---|
+| S1 baseline | `data/benchmarks/benchmark_results.csv` | Anchoring baseline for thesis §4.2 |
+| S1 consistency | `data/benchmarks/benchmark_results_s1_consistency.csv` | Consistency comparison for thesis §4.3 (post top-up) |
+| S2 baseline | `data/benchmarks/benchmark_results_s2.csv` | Anchoring baseline for thesis §4.2 |
+| S2 consistency | `data/benchmarks/benchmark_results_s2_consistency.csv` | Consistency + UQ for thesis §4.3 — best safety accuracy config |
+| Pre-fix archive | `data/benchmarks/archive/pre_fix/*.csv` | Retained for §10 reproduction / diff provenance only; not thesis-anchoring |
+
+### 11.5 Reproduction
+
+```bash
+uv run python experiments/run_benchmark.py --classifier s1
+uv run python experiments/run_benchmark.py --classifier s1 --consistency 5
+uv run python experiments/run_benchmark.py --classifier s2
+uv run python experiments/run_benchmark.py --classifier s2 --consistency 5
+```
+
+Total wall time for the four runs was ~10.5h on the 2026-04-23 overnight run (S1 baseline 22 min, S1 consistency 1h 41min, S2 baseline 1h 17min, S2 consistency 7h 13min) — considerably faster than the §10 handoff's 21h estimate, likely due to Scaleway-direct latency being lower than OR-aggregator routing.

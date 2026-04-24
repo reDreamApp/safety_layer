@@ -158,7 +158,7 @@ class ClinicalClassifierCoT:
         self.agent = Agent(
             model_config=self.model_config,
             system_prompt=prompt,
-            temperature=0.1,  # Same as System 1
+            temperature=0,  # Deterministic baseline; consistency mode overrides to 0.7
             max_tokens=512,   # More tokens needed for reasoning
         )
 

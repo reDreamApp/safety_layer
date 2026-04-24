@@ -1,8 +1,9 @@
 import os
 import math
+import asyncio
 from typing import Literal, AsyncGenerator, Tuple, Optional, List
 from dataclasses import dataclass, field
-from openai import AsyncOpenAI
+from openai import AsyncOpenAI, APIConnectionError, APITimeoutError, InternalServerError, RateLimitError
 from groq import AsyncGroq
 import logging
 from .prompts import ROUTING_PROMPT
@@ -147,8 +148,23 @@ class Agent:
                         "provider": {"require_parameters": True}
                     }
 
-            response = await self.client.chat.completions.create(**request_kwargs)
-            
+            # Retry transient network/server errors with exponential backoff.
+            # Scaleway's endpoint occasionally drops connections under sustained
+            # sequential load (seen in consistency-mode benchmarks).
+            TRANSIENT_EXCS = (APIConnectionError, APITimeoutError, InternalServerError, RateLimitError)
+            max_attempts = 4
+            delay = 1.0
+            for attempt in range(max_attempts):
+                try:
+                    response = await self.client.chat.completions.create(**request_kwargs)
+                    break
+                except TRANSIENT_EXCS as e:
+                    if attempt == max_attempts - 1:
+                        raise
+                    logger.warning(f"Transient API error (attempt {attempt+1}/{max_attempts}): {e}. Retrying in {delay}s.")
+                    await asyncio.sleep(delay)
+                    delay *= 2
+
             usage = {
                 "input": response.usage.prompt_tokens,
                 "output": response.usage.completion_tokens,

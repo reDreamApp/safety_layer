@@ -204,7 +204,7 @@ class ClinicalClassifier:
         self.agent = Agent(
             model_config=self.model_config,
             system_prompt=prompt,
-            temperature=0.1  # Low temperature for consistent classification
+            temperature=0  # Deterministic baseline; consistency mode overrides to 0.7
         )
         
         # Load the graph to validate node IDs
