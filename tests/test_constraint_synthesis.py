@@ -88,3 +88,100 @@ def test_constraint_synthesis_structure(critic, graph, node_id):
     # No unresolved template placeholders like {foo}
     unresolved = re.findall(r"\{[A-Za-z_][A-Za-z0-9_]*\}", constraint)
     assert not unresolved, f"{node_id}: unresolved placeholders {unresolved}"
+
+
+# --- Tweak A coverage: empty-VALIDATE suppression for HIGH/CRITICAL ----------
+
+HIGH_OR_CRITICAL_NODES = ["INTERRUPTION", "VIOLENT_REVENGE", "SUPPRESSION", "TRAUMA_REPLAY"]
+
+
+@pytest.mark.parametrize("node_id", HIGH_OR_CRITICAL_NODES)
+def test_no_validate_block_when_empty_adaptive_high_or_critical(critic, graph, node_id):
+    """For HIGH/CRITICAL nodes with no adaptive segments, the constraint must:
+    - emit a NO_VALIDATE block instead of an empty VALIDATE block
+    - explicitly forbid opening with affirmation/praise/thanks
+    - NOT contain the VALIDATE: header (so the LLM can't try to fill it)
+    """
+    segment = SegmentResult(
+        text=f"<fake maladaptive segment for {node_id}>",
+        segment_type="ACTION",
+        node_id=node_id,
+        node_type="maladaptive",
+        category=graph.nodes[node_id].get("category", "unknown"),
+        confidence=0.9,
+    )
+    node_attrs = dict(graph.nodes[node_id])
+    strategies = get_correction_strategies(graph, node_id)
+
+    constraint = critic._build_constraint_message(
+        primary_risk=segment,
+        node_attrs=node_attrs,
+        strategies=strategies,
+        adaptive_segments=[],
+        unclassified_segments=None,
+    )
+
+    assert "NO_VALIDATE" in constraint, f"{node_id}: NO_VALIDATE block missing on empty adaptive + HIGH/CRITICAL"
+    # Must NOT use the VALIDATE: header at the start of a line (which would invite
+    # the LLM to validate). Check via regex so we don't false-match NO_VALIDATE:.
+    assert not re.search(r"(?m)^VALIDATE:", constraint), \
+        f"{node_id}: VALIDATE: header present despite empty adaptive segments"
+    # Anti-affirmation language must be present
+    for forbidden_phrase in ("affirmation", "praise"):
+        assert forbidden_phrase in constraint.lower(), \
+            f"{node_id}: NO_VALIDATE block missing '{forbidden_phrase}'"
+
+
+def test_avoidance_empty_adaptive_keeps_current_behavior(critic, graph):
+    """MODERATE severity (AVOIDANCE) with empty adaptive_segments keeps the
+    pre-tweak behavior: no VALIDATE block, no NO_VALIDATE block. The eval
+    showed AVOIDANCE responses naturally acknowledge the user's fear (a
+    legitimate emotion) rather than the avoidant action, so the empty-VALIDATE
+    leak is benign for MODERATE and we don't need NO_VALIDATE here.
+    """
+    segment = SegmentResult(
+        text="<fake AVOIDANCE segment>",
+        segment_type="ACTION",
+        node_id="AVOIDANCE",
+        node_type="maladaptive",
+        category="avoidance",
+        confidence=0.9,
+    )
+    node_attrs = dict(graph.nodes["AVOIDANCE"])
+    strategies = get_correction_strategies(graph, "AVOIDANCE")
+    constraint = critic._build_constraint_message(
+        primary_risk=segment,
+        node_attrs=node_attrs,
+        strategies=strategies,
+        adaptive_segments=[],
+        unclassified_segments=None,
+    )
+    assert "NO_VALIDATE" not in constraint, "MODERATE severity should not emit NO_VALIDATE"
+    assert not re.search(r"(?m)^VALIDATE:", constraint), \
+        "Empty adaptive segments should not emit a VALIDATE: header"
+
+
+def test_important_bullet_blocks_action_reframings(critic, graph):
+    """The IMPORTANT bullet about 'Do NOT validate' must explicitly forbid
+    reframing the maladaptive action as 'taking action' / 'being strong' / etc.
+    This catches the VR_04 failure where the LLM said 'I appreciate that you're
+    taking action and not giving up' about a violent revenge fantasy.
+    """
+    segment = SegmentResult(
+        text="<violent revenge segment>",
+        segment_type="ACTION",
+        node_id="VIOLENT_REVENGE",
+        node_type="maladaptive",
+        category="violence",
+        confidence=0.9,
+    )
+    node_attrs = dict(graph.nodes["VIOLENT_REVENGE"])
+    strategies = get_correction_strategies(graph, "VIOLENT_REVENGE")
+    constraint = critic._build_constraint_message(
+        primary_risk=segment,
+        node_attrs=node_attrs,
+        strategies=strategies,
+        adaptive_segments=[],
+        unclassified_segments=None,
+    )
+    assert "taking action" in constraint, "IMPORTANT bullet must explicitly call out 'taking action' reframings"

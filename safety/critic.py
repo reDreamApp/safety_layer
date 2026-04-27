@@ -584,7 +584,20 @@ IMPORTANT:
         risk_description = node_attrs.get("description", primary_risk.node_id)
         clinical_guideline = node_attrs.get("clinical_guideline", "")
 
-        # Build VALIDATE section
+        # Build VALIDATE / NO_VALIDATE section.
+        #
+        # When the user input is purely maladaptive (no adaptive segments) AND
+        # the severity is HIGH or CRITICAL, suppress the empty VALIDATE slot
+        # and emit an explicit anti-affirmation instruction. Without this, the
+        # LLM tends to invent praise to fill the structural "validate first"
+        # expectation — e.g. praising a violent action as "taking action" or
+        # praising suppressed scene details as "good noticing." See
+        # docs/planning/integration_eval_notes.md (2026-04-27 addendum).
+        #
+        # For MODERATE severity (AVOIDANCE) with no adaptive segments we keep
+        # the current empty-VALIDATE behavior — the eval showed AVOIDANCE
+        # responses tend to acknowledge the user's fear (a legitimate emotion)
+        # rather than the avoidant action, so the leak is benign there.
         validate_section = ""
         if adaptive_segments:
             validations = []
@@ -592,6 +605,15 @@ IMPORTANT:
                 validations.append(f"'{seg.text}'")
             validate_section = f"""VALIDATE: The user showed positive elements: {', '.join(validations)}.
 Acknowledge these first (e.g., "Good job noticing..." or "I appreciate that you...")."""
+        elif severity in ("HIGH", "CRITICAL"):
+            validate_section = (
+                "NO_VALIDATE: This input contains no adaptive elements to validate. "
+                "Do NOT open with affirmation, praise, or thanks (e.g. \"Good job\", "
+                "\"I appreciate\", \"Thank you for\"). Begin with gentle empathy for "
+                "the user's distress (e.g. \"This sounds like a difficult moment...\") "
+                "or go directly to the redirect. Inventing praise here would "
+                "implicitly endorse the maladaptive content."
+            )
 
         # Build CORRECT section
         primary_strategy = strategies[0] if strategies else None
@@ -629,7 +651,7 @@ Alternative therapeutic directions:
 {suggestions_text}
 {clarify_section}
 IMPORTANT:
-- Do NOT validate or encourage the maladaptive response ("{primary_risk.text}")
+- Do NOT validate, restate, or encourage the maladaptive response ("{primary_risk.text}"). This includes not praising it as "taking action", "being strong", "trying", or any other reframing.
 - Focus correction on THIS specific issue only - do not list other potential problems
 - Use empathetic, supportive language while redirecting
 - Do not shame or criticize the user's suggestion"""
