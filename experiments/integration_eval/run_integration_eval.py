@@ -111,6 +111,8 @@ async def generate_one(system_prompt: str, full_prompt: str) -> tuple[str, dict,
 CSV_COLUMNS = [
     "case_id",
     "tier",
+    "subtier",
+    "vr_subtype",
     "expected_node",
     "detected_node",
     "is_safe",
@@ -186,8 +188,13 @@ async def main() -> int:
                 )
 
                 # 3b. Treatment — same history, constraint appended to system prompt
-                # Mirror irt_app.py:346 exactly.
-                if critic_classified_unsafe and constraint:
+                # whenever the critic produced a constraint (production behavior in
+                # irt_app.py:180,345-346 appends constraint regardless of safe/unsafe;
+                # on safe inputs the constraint is a brief validation message). The
+                # pilot's `critic_classified_unsafe and` guard never fired because
+                # the pilot only had unsafe inputs — but the safe_regression tier
+                # needs it dropped to mirror production.
+                if constraint:
                     treatment_system_prompt = rewriting_prompt + "\n\n" + constraint
                 else:
                     treatment_system_prompt = rewriting_prompt
@@ -198,6 +205,8 @@ async def main() -> int:
                 shared = {
                     "case_id": case_id,
                     "tier": scenario.get("tier", "main"),
+                    "subtier": scenario.get("subtier", ""),
+                    "vr_subtype": scenario.get("vr_subtype", ""),
                     "expected_node": expected_node,
                     "detected_node": detected_node,
                     "is_safe": result.is_safe,

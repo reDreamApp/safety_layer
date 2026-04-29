@@ -73,20 +73,52 @@ def render_headline(counts) -> str:
     return "\n".join(lines)
 
 
-def render_per_node(rows) -> str:
+def render_per_node(rows, nodes=None) -> str:
     by_node = defaultdict(list)
     for r in rows:
         by_node[r["expected_node"]].append(r)
 
+    if nodes is None:
+        nodes = sorted(by_node.keys())
     lines = ["| Node | Cond | strong | partial | absent | echoes | N |", "|---|---|---|---|---|---|---|"]
-    for node in ["AVOIDANCE", "INTERRUPTION", "VIOLENT_REVENGE", "SUPPRESSION", "TRAUMA_REPLAY"]:
+    for node in nodes:
         node_rows = by_node.get(node, [])
+        if not node_rows:
+            continue
         counts = aggregate(node_rows)
         for cond_label, cond_key in [("ctrl", "control"), ("trt", "treatment")]:
             c = counts[cond_key]
             tot = c["total"]
             lines.append(
                 f"| {node} | {cond_label} | {pct(c['strong'], tot)} | {pct(c['partial'], tot)} | "
+                f"{pct(c['absent'], tot)} | {pct(c['echoes'], tot)} | {tot} |"
+            )
+    return "\n".join(lines)
+
+
+def render_vr_substrata(rows) -> str:
+    """Stratify VIOLENT_REVENGE rows by `vr_subtype` column (person/object targeting).
+
+    Returns "_No VR rows with vr_subtype field._" if the column is absent or empty.
+    """
+    vr_rows = [r for r in rows if (r.get("expected_node") or "").upper() == "VIOLENT_REVENGE"]
+    if not vr_rows:
+        return "_No VIOLENT_REVENGE rows in this slice._"
+    person = [r for r in vr_rows if (r.get("vr_subtype") or "") == "person_targeting"]
+    objct = [r for r in vr_rows if (r.get("vr_subtype") or "") == "object_targeting"]
+    if not person and not objct:
+        return "_VR rows do not carry `vr_subtype` field; substratum table skipped._"
+    lines = ["| Subtype | Cond | strong | partial | absent | echoes | N |",
+             "|---|---|---|---|---|---|---|"]
+    for label, subset in [("person_targeting", person), ("object_targeting", objct)]:
+        if not subset:
+            continue
+        counts = aggregate(subset)
+        for cond_label, cond_key in [("ctrl", "control"), ("trt", "treatment")]:
+            c = counts[cond_key]
+            tot = c["total"]
+            lines.append(
+                f"| {label} | {cond_label} | {pct(c['strong'], tot)} | {pct(c['partial'], tot)} | "
                 f"{pct(c['absent'], tot)} | {pct(c['echoes'], tot)} | {tot} |"
             )
     return "\n".join(lines)
@@ -166,51 +198,108 @@ def main() -> int:
 
     all_case_ids = sorted({r["case_id"] for r in rows})
     unsafe_rows = [r for r in rows if (r.get("critic_classified_unsafe") or "").lower() == "true"]
-    excluded_case_ids = sorted({
+    # "Unexpected critic-safe" — only flag cases on unsafe tiers (main, main_unsafe,
+    # multipart) where we expected the critic to fire but didn't. Safe rows on
+    # safe_regression and robustness false_negative tiers are EXPECTED to be
+    # critic-safe, so don't list them.
+    UNSAFE_TIERS = {"main", "main_unsafe", "multipart"}
+    unexpected_safe_case_ids = sorted({
         r["case_id"] for r in rows
-        if (r.get("critic_classified_unsafe") or "").lower() != "true"
+        if (r.get("tier") or "main") in UNSAFE_TIERS
+        and (r.get("critic_classified_unsafe") or "").lower() != "true"
     })
     off_label_case_ids = sorted({
         r["case_id"] for r in rows
         if (r.get("node_match") or "").lower() == "false"
         and (r.get("critic_classified_unsafe") or "").lower() == "true"
+        and (r.get("tier") or "main") in UNSAFE_TIERS
     })
 
-    main_rows = [r for r in unsafe_rows if (r.get("tier") or "main") == "main"]
+    # Tier slices. Backward-compatible: pilot used `tier="main"`; new test
+    # eval uses `tier="main_unsafe"` etc.
+    def by_tier(name):
+        return [r for r in rows if (r.get("tier") or "main") == name]
+
+    legacy_main_rows = [r for r in unsafe_rows if (r.get("tier") or "main") == "main"]
+    main_unsafe_rows = [r for r in unsafe_rows if (r.get("tier") or "main") == "main_unsafe"]
     multipart_rows = [r for r in unsafe_rows if (r.get("tier") or "main") == "multipart"]
+    safe_regression_rows = by_tier("safe_regression")  # not filtered to unsafe
+    robustness_rows = by_tier("robustness")            # mix of safe/unsafe by subtier
 
     md = []
     md.append("# Integration Eval Summary — Constraint-Redirect Validation\n")
     md.append(f"**Scenarios in set:** {len(all_case_ids)}  ")
-    md.append(f"**Critic classified unsafe (included in headline):** {len({r['case_id'] for r in unsafe_rows})}  ")
-    md.append(f"**Excluded (critic said safe):** {len(excluded_case_ids)}  ")
-    md.append(f"**Off-label (detected ≠ expected):** {len(off_label_case_ids)}  \n")
+    md.append(f"**Critic classified unsafe (included in unsafe-tier headlines):** {len({r['case_id'] for r in unsafe_rows})}  ")
+    md.append(f"**Unexpected critic-safe on unsafe tiers (main_unsafe/multipart):** {len(unexpected_safe_case_ids)}  ")
+    md.append(f"**Off-label on unsafe tiers (detected ≠ expected):** {len(off_label_case_ids)}  \n")
 
-    # Main tier — pure maladaptive (tests Correct)
-    md.append("## Main tier — A/B Headline (pure maladaptive inputs, tests Correct)\n")
-    md.append(render_headline(aggregate(main_rows)) + "\n")
-    md.append("### Per-Node Breakdown (main tier)\n")
-    md.append(render_per_node(main_rows) + "\n")
-    md.append("### Paired Examples (main tier)\n")
-    md.append(render_paired_examples(pick_paired_examples(main_rows)) + "\n")
+    # Pilot-era "main" tier kept for backward-compat with v1 / v2 CSVs.
+    if legacy_main_rows:
+        md.append("## Main tier — A/B Headline (pilot-era `tier=main`)\n")
+        md.append(render_headline(aggregate(legacy_main_rows)) + "\n")
+        md.append("### Per-Node Breakdown (main tier)\n")
+        md.append(render_per_node(legacy_main_rows) + "\n")
+        md.append("### Paired Examples (main tier)\n")
+        md.append(render_paired_examples(pick_paired_examples(legacy_main_rows)) + "\n")
 
-    # Supplementary tier — adaptive+maladaptive multipart (tests Validate+Correct)
+    # Phase 4 tier — pure maladaptive (tests Correct), held-out test set.
+    if main_unsafe_rows:
+        md.append("## main_unsafe — A/B Headline (held-out test set, pure maladaptive)\n")
+        md.append(render_headline(aggregate(main_unsafe_rows)) + "\n")
+        md.append("### Per-Node Breakdown (main_unsafe)\n")
+        md.append(render_per_node(main_unsafe_rows) + "\n")
+        md.append("### VR sub-stratum (person-targeting vs object-targeting)\n")
+        md.append(render_vr_substrata(main_unsafe_rows) + "\n")
+        md.append("### Paired Examples (main_unsafe)\n")
+        md.append(render_paired_examples(pick_paired_examples(main_unsafe_rows)) + "\n")
+
+    # Multipart tier — adaptive+maladaptive (tests Validate+Correct).
     if multipart_rows:
-        md.append("## Multipart tier — A/B Headline (adaptive + maladaptive inputs, tests Validate+Correct)\n")
-        md.append(
-            "_Smaller supplementary set (8 scenarios). Coverage is 0 for SUPPRESSION and "
-            "TRAUMA_REPLAY in the dev dataset's multipart slice — flagged as a dataset-gen gap._\n"
-        )
+        md.append("## multipart — A/B Headline (adaptive + maladaptive inputs)\n")
         md.append(render_headline(aggregate(multipart_rows)) + "\n")
-        md.append("### Per-Node Breakdown (multipart tier)\n")
+        md.append("### Per-Node Breakdown (multipart)\n")
         md.append(render_per_node(multipart_rows) + "\n")
-        md.append("### Paired Examples (multipart tier)\n")
+        md.append("### Paired Examples (multipart)\n")
         md.append(render_paired_examples(pick_paired_examples(multipart_rows)) + "\n")
-    if excluded_case_ids:
-        md.append("## Excluded cases (critic classified as SAFE)\n")
-        md.append(", ".join(excluded_case_ids) + "\n")
+
+    # Safe-regression tier — no-harm check on safe inputs.
+    if safe_regression_rows:
+        md.append("## safe_regression — No-Harm Check (vetted-safe inputs)\n")
+        md.append(
+            "_Δ should be ~zero. Both control and treatment receive the same "
+            "history; treatment additionally has the validation-style constraint "
+            "appended (no redirect on safe inputs). A non-zero Δ is a real finding._\n"
+        )
+        md.append(render_headline(aggregate(safe_regression_rows)) + "\n")
+        md.append("### Per-Node Breakdown (safe_regression)\n")
+        md.append(render_per_node(safe_regression_rows, nodes=None) + "\n")
+
+    # Robustness tier — broken out by subtier (false_positive / false_negative / wrong_node).
+    if robustness_rows:
+        md.append("## robustness — Behavior When Safety Layer Is Wrong\n")
+        md.append(
+            "_Case-study tier. Single-rater coverage planned; reported here as "
+            "qualitative breakdown by subtier rather than as a statistical claim._\n"
+        )
+        for subtier in ("false_positive", "false_negative", "wrong_node"):
+            sub_rows = [r for r in robustness_rows if (r.get("subtier") or "") == subtier]
+            if not sub_rows:
+                continue
+            md.append(f"### subtier = `{subtier}` (N={len({r['case_id'] for r in sub_rows})})\n")
+            md.append(render_headline(aggregate(sub_rows)) + "\n")
+            md.append("**Cases:** " + ", ".join(sorted({r["case_id"] for r in sub_rows})) + "\n")
+
+    if unexpected_safe_case_ids:
+        md.append("## Unexpected critic-safe on unsafe tiers\n")
+        md.append(
+            "These cases were selected for `main_unsafe` or `multipart` based on "
+            "the post-fix benchmark CSV, but the critic classified them as safe at "
+            "eval time (run-to-run variance). Their treatment row received no "
+            "constraint, so the A/B comparison degenerates to control vs control.\n\n"
+        )
+        md.append(", ".join(unexpected_safe_case_ids) + "\n")
     if off_label_case_ids:
-        md.append("## Off-label cases (detected_node ≠ expected_node)\n")
+        md.append("## Off-label cases on unsafe tiers (detected_node ≠ expected_node)\n")
         md.append(
             "These cases are kept in the CSV for transparency but their headline Δ "
             "reflects classifier disagreement rather than constraint-handling failure.\n\n"
