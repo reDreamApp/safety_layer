@@ -55,6 +55,28 @@ def format_segments(segments) -> str:
     return " | ".join(parts)
 
 
+def serialize_segments(segments) -> str:
+    """Serialize segment list as JSON for post-hoc per-segment analysis.
+
+    Captures all SegmentResult fields (text, segment_type, context, node_id,
+    node_type, category, confidence, mean_logprob) so downstream analysis can
+    compute per-segment metrics (e.g. secondary-node recall, any-maladaptive
+    recall) without parsing the human-readable format_segments string.
+    """
+    if not segments:
+        return "[]"
+
+    serialized = []
+    for seg in segments:
+        if hasattr(seg, "to_dict"):
+            serialized.append(seg.to_dict())
+        else:
+            # SegmentResult is a dataclass — __dict__ gives all fields
+            serialized.append(dict(seg.__dict__))
+
+    return json.dumps(serialized, ensure_ascii=False)
+
+
 def extract_contexts(segments) -> str:
     """Extract just the contexts from segments for a dedicated column."""
     if not segments:
@@ -165,6 +187,7 @@ async def run_benchmark(input_file: Path, output_file: Path, limit_suites: Optio
                 confidence_score = result.confidence
                 severity = result.severity
                 segments_formatted = format_segments(result.segments)
+                segments_serialized = serialize_segments(result.segments)
                 contexts_extracted = extract_contexts(result.segments)
 
                 # --- Consistency mode: run per-segment consistency after pipeline ---
@@ -242,6 +265,7 @@ async def run_benchmark(input_file: Path, output_file: Path, limit_suites: Optio
                     "node_ok": is_node_correct,
                     "contexts": contexts_extracted,
                     "segments": segments_formatted,
+                    "segments_json": segments_serialized,
                 }
 
                 if consistency_n > 0:
@@ -286,6 +310,7 @@ async def run_benchmark(input_file: Path, output_file: Path, limit_suites: Optio
                     "node_ok": False,
                     "contexts": "ERROR",
                     "segments": f"ERROR: {str(e)}",
+                    "segments_json": "[]",
                 }
                 if consistency_n > 0:
                     row.update({
