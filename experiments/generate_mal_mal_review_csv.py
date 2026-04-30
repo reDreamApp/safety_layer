@@ -31,6 +31,7 @@ REVIEW_CSV = REPO_ROOT / "data" / "benchmarks" / "dev_dataset_mal_mal_for_review
 
 COLUMNS = [
     "case_id",
+    "pair_id",
     "nightmare",
     "input",
     "gpt5_label_primary",
@@ -65,6 +66,7 @@ def main() -> None:
             case_id = f"{case_idx:03d}_{slug}_{pair_id}"
             rows.append({
                 "case_id": case_id,
+                "pair_id": pair_id,
                 "nightmare": nightmare,
                 "input": case["input"],
                 "gpt5_label_primary": case["expected_node"],
