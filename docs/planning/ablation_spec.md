@@ -246,3 +246,20 @@ Cell A is already done — reuse existing post-fix S1 baseline. **Verify the sou
 - `experiments/run_benchmark.py` — existing benchmark harness; extend with new flags for ablation conditions
 - `data/benchmarks/dev_dataset.json` — 480-case dev set
 - `docs/planning/project_postfix_unsafe_miss_decomposition.md` — S1 vs S2 error-profile differences (justifies S1-only scope)
+
+---
+
+## Addendum — 2026-05-19 (post-lock, non-modifying)
+
+**The locked spec body above is unchanged.** This addendum records one execution decision made after the lock; it does not redesign any condition, comparison, metric, or the primary dataset.
+
+**Decision:** In addition to the locked main run on the 480-case `dev_dataset.json`, each of the 4 conditions (Ablation A, Ablation B, Cell B, Cell C) is *also* run on the 35-case MAL+MAL composite-pattern slice (`data/benchmarks/dev_dataset_mal_mal.json`), reported as a **separate supplementary robustness table**.
+
+**Constraints (to preserve lock integrity):**
+- The MAL+MAL slice is **never pooled** with the 480-case set. Main §4.X numbers are computed on the locked 480 only; the supplementary table is reported and discussed separately.
+- All pre-registered comparisons (§"Pre-registered comparisons") apply **only** to the 480-case run. The MAL+MAL table is descriptive robustness signal, not a hypothesis test.
+- Cell A on the MAL+MAL slice reuses the existing post-fix S1 MAL+MAL baseline (`data/benchmarks/benchmark_results_mal_mal_s1.csv`), mirroring the Cell A reuse rule for the 480-case set.
+- Ablation B stratification (§B.3) does **not** apply to the MAL+MAL slice — those 35 cases are composite-pattern by construction, not split into single-part/multipart strata. Report the MAL+MAL Ablation B as a single number with a note that the dev-set stratified result is the load-bearing one.
+- Rationale for the supplementary table belongs in §4.X discussion, framed as: *"robustness of the ablation findings under a composite-pattern stressor,"* not as part of the architectural-contribution claim.
+
+This is the only post-lock decision. Same discipline as the body: documented, not retro-edited into the locked design.
