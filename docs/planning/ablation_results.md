@@ -11,6 +11,7 @@ only records outcomes. Started 2026-05-19.
 | Cell A — full pipeline (S1 baseline) | ✅ reused (verified post-fix Apr 23) | `data/benchmarks/benchmark_results.csv` |
 | Ablation B — no segmentation | ✅ run 2026-05-19 | `data/benchmarks/ablation_B_no_segment_s1_dev.csv` |
 | Cell B — LLM seg + META off | ⏳ pending | — |
+| Cell B — LLM seg + META off | ✅ run 2026-05-19 | `data/benchmarks/cell_B_meta_off_s1_dev.csv` |
 | Cell C — naive splitter + no META | ⏳ pending | — |
 | Ablation A — stage-merge | ⏳ pending | — |
 
@@ -130,4 +131,99 @@ specifically the prevention of a safe-looking clause masking a co-occurring
 maladaptive one; it is invisible on single-pattern inputs and large on
 genuinely composite ones.* Still pending the Cell B pre-registered comparator
 before this enters §4.X as a claim rather than an observation.
-</content>
+
+> **Update 2026-05-19:** Cell B is now run (below). The pre-registered
+> Cell B vs Ablation B comparison resolves this — see "Pre-registered
+> comparisons resolved" in the Cell B section. Short version: on the dev
+> set, segmentation is **not independently beneficial** — its value is
+> conditional on META filtering being on.
+
+---
+
+## Cell B — LLM segmenter + META filter OFF (2026-05-19)
+
+CSV: `data/benchmarks/cell_B_meta_off_s1_dev.csv` (480 rows, integrity OK:
+gt_safe 240T/180F/60∅, no empty preds). MAL+MAL: `cell_B_meta_off_s1_mal_mal.csv`.
+"META off" disables filtering **and** the sanity check (documented coupling,
+spec §"Cell B").
+
+### Three-way dev table (480, scored 420; joined on `user_input`)
+
+| Condition | stratum | safety acc | unsafe recall | FP | mal-node |
+|---|---|---|---|---|---|
+| **Cell A** (full) | ALL | 97.86% | 99.44% | 8/240 | 93.3% |
+| | clean (360) | 97.50% | 99.33% | 8 | 92.7% |
+| | multipart (60) | 100.00% | 100.00% | 0 | 96.7% |
+| **Cell B** (seg, META off) | ALL | 95.48% | 99.44% | 18/240 | 89.4% |
+| | clean (360) | 97.50% | 99.33% | 8 | 93.3% |
+| | multipart (60) | **83.33%** | 100.00% | **10** | **70.0%** |
+| **Ablation B** (no seg) | ALL | 98.33% | 96.11% | 0/240 | 95.6% |
+| | clean (360) | 98.06% | 95.33% | 0 | 95.3% |
+| | multipart (60) | 100.00% | 100.00% | 0 | 96.7% |
+
+### Pre-registered comparisons resolved
+
+**Cell A vs Cell B — "Does META filtering contribute?"** (held: LLM seg,
+structured classifier, graph triage)
+→ **Yes, and its entire contribution is on multi-part inputs.**
+single-part is *identical* (97.50% / 99.33% / FP 8) — META filtering is a no-op
+when the segmenter produces no META segments. On multi-part, removing the
+filter drops safety 100% → **83.33%** (−16.7 pp), explodes false positives
+0 → **10**, and craters node accuracy 96.7% → **70.0%**. Mechanism: multi-part
+inputs contain conversational asides the segmenter labels META; unfiltered,
+those segments get classified and bucketed — often as maladaptive — producing
+false alarms. **META filtering exists to neutralise a cost the segmenter itself
+introduces.**
+
+**Cell B vs Ablation B — "Does *any* segmentation matter?"** (PRE-REGISTERED
+Ablation B comparator; held: no META filter, structured classifier, triage)
+→ **On the dev set, segmentation is NOT independently beneficial — and on
+multi-part it is actively harmful without META filtering.** With META off in
+both arms: multi-part safety is **Ablation B 100% vs Cell B 83.33%** (no
+segmentation *beats* segmentation), node 96.7% vs 70.0%. single-part is a
+recall↔precision wash (Cell B 99.33% recall / FP 8 vs Ablation B 95.33% / FP 0).
+So the segmenter's clause-splitting benefit does not stand alone; its
+META-segment by-product makes seg-without-filter worse than no-seg.
+
+### Synthesis (dev + MAL+MAL together)
+
+The two components are **synergistic, not independently additive**:
+
+- **Segmentation's value** = correctly splitting composite maladaptive content.
+  Proven on MAL+MAL: Cell A & Cell B both 100% recall / 100% node, Ablation B
+  88.6% / 71.4% — there segmentation *is* independently decisive (+11.4 pp
+  recall) because MAL+MAL has no META noise to confound it.
+- **Segmentation's cost** = it emits META segments that, unfiltered, cause
+  false positives on conversational multi-part inputs (dev Cell B multipart
+  83% vs Ablation B 100%).
+- **META filtering's job** = neutralise exactly that cost (Cell A multipart
+  back to 100%).
+- **Neither ablation improves on Cell A.** Drop META filter → multi-part
+  collapses; drop segmentation → MAL+MAL recall collapses. The architecture's
+  performance is the *pair* (segment-then-META-filter) operating together.
+
+Honest §4.X claim this supports: *"Segmentation and META filtering are not
+separable contributors; the safety pipeline's multi-part / composite-input
+performance comes from their conjunction. Segmentation alone (META off) does
+not beat no-segmentation on the dev set; it is independently decisive only on
+composite maladaptive content free of conversational noise (MAL+MAL: +11.4 pp
+unsafe recall). META filtering alone contributes +16.7 pp safety accuracy on
+multi-part inputs, zero on single-part."* Narrow, mechanistic, quantified.
+
+### MAL+MAL supplementary (35, all unsafe)
+
+| | unsafe recall | node acc |
+|---|---|---|
+| Cell A | 100% (35/35) | 100% |
+| **Cell B** | **100% (35/35)** | **100%** |
+| Ablation B | 88.6% (31/35) | 71.4% |
+
+Cell A == Cell B on MAL+MAL (META off costs nothing — no META content in pure
+composite inputs), confirming the dev-set mechanism.
+
+### Caveats
+
+- Cell C (naive splitter vs LLM segmenter, META off) still pending — needed for
+  the "Cell B vs Cell C" pre-registered comparison and to separate
+  *LLM-segmentation quality* from *segmentation-existence*.
+- Single-shot S1 only. Boundary cases unscored in all arms (no confound).
