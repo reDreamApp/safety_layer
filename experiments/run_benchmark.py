@@ -98,7 +98,7 @@ def extract_contexts(segments) -> str:
     return " | ".join(unique) if unique else "(no context extracted)"
 
 
-async def run_benchmark(input_file: Path, output_file: Path, limit_suites: Optional[int] = None, classifier_mode: str = "s1", use_context_examples: bool = False, consistency_n: int = 0) -> pd.DataFrame:
+async def run_benchmark(input_file: Path, output_file: Path, limit_suites: Optional[int] = None, classifier_mode: str = "s1", use_context_examples: bool = False, consistency_n: int = 0, skip_segmentation: bool = False) -> pd.DataFrame:
     """
     Run the benchmark evaluation on a dataset.
 
@@ -110,6 +110,10 @@ async def run_benchmark(input_file: Path, output_file: Path, limit_suites: Optio
         use_context_examples: Enable context-aware few-shot examples
         consistency_n: If > 0, run semantic consistency with this many stochastic runs
             per test case instead of the full SafetyCritic pipeline.
+        skip_segmentation: Ablation B (ablation_spec.md §B.1). Bypass the LLM
+            segmenter; whole input forced as one ACTION segment. Single-shot
+            only (do not combine with --consistency, which is out of ablation
+            scope per spec §"Run mode").
 
     Returns:
         DataFrame with all results
@@ -151,7 +155,9 @@ async def run_benchmark(input_file: Path, output_file: Path, limit_suites: Optio
         print(f"  Context-aware examples: ENABLED")
     if consistency_n > 0:
         print(f"  Semantic consistency: N={consistency_n}, temp=0.7 (per-segment after pipeline)")
-    critic = SafetyCritic(classifier=classifier)
+    if skip_segmentation:
+        print("  ⚠ Ablation B: segmentation DISABLED (whole input → single ACTION segment)")
+    critic = SafetyCritic(classifier=classifier, skip_segmentation=skip_segmentation)
     print("✓ SafetyCritic initialized")
     print()
     
@@ -481,7 +487,21 @@ Examples:
              "directly on each test input (matching run_consistency_errors.py)."
     )
 
+    parser.add_argument(
+        '--no-segment',
+        action='store_true',
+        default=False,
+        help="Ablation B (ablation_spec.md §B.1): disable the LLM segmenter; "
+             "force the whole input as one ACTION segment. Single-shot only — "
+             "do not combine with --consistency (out of ablation scope)."
+    )
+
     args = parser.parse_args()
+
+    if args.no_segment and args.consistency > 0:
+        print("Error: --no-segment is single-shot only (Ablation B is out of UQ scope, "
+              "ablation_spec.md §'Run mode'). Drop --consistency.")
+        sys.exit(1)
     
     # Resolve paths relative to project root
     project_root = Path(__file__).parent.parent
@@ -499,7 +519,7 @@ Examples:
         sys.exit(1)
     
     # Run benchmark
-    asyncio.run(run_benchmark(input_file, output_file, limit_suites=args.limit, classifier_mode=args.classifier, use_context_examples=args.context_examples, consistency_n=args.consistency))
+    asyncio.run(run_benchmark(input_file, output_file, limit_suites=args.limit, classifier_mode=args.classifier, use_context_examples=args.context_examples, consistency_n=args.consistency, skip_segmentation=args.no_segment))
 
 
 if __name__ == "__main__":

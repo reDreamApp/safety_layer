@@ -181,16 +181,24 @@ class SafetyCritic:
     5. Constraint Synthesis: Generate Validate + Correct instructions
     """
     
-    def __init__(self, classifier: Optional[ClinicalClassifier] = None):
+    def __init__(self, classifier: Optional[ClinicalClassifier] = None,
+                 skip_segmentation: bool = False):
         """
         Initialize the SafetyCritic.
-        
+
         Args:
             classifier: Optional pre-initialized classifier. Creates one if not provided.
+            skip_segmentation: Ablation B (docs/planning/ablation_spec.md §B.1).
+                When True, the LLM segmenter is bypassed and the whole user
+                input is forced through as a single ACTION segment. Triage and
+                constraint synthesis run unchanged. Default False (production).
         """
         # Load the knowledge graph
         self.graph = build_clinical_graph()
-        
+
+        # Ablation B flag — see evaluate_intervention Step 1.
+        self.skip_segmentation = skip_segmentation
+
         # Initialize or use provided classifier
         self.classifier = classifier or ClinicalClassifier()
         
@@ -290,7 +298,17 @@ class SafetyCritic:
         
         try:
             # Step 1: Segment the input (pass nightmare context for context extraction)
-            segments = await self.segment_input(user_input, nightmare_context=nightmare_context)
+            if self.skip_segmentation:
+                # Ablation B (ablation_spec.md §B.1): bypass the LLM segmenter,
+                # force the whole input as a single ACTION segment. Everything
+                # downstream (META filter, classify, triage, constrain) runs
+                # unchanged. The META sanity check never fires here (it only
+                # fires when dream_segments is empty) — controlled for by
+                # comparing against Cell B, not Cell A (see spec §B.1).
+                segments = [SegmentResult(text=user_input, segment_type="ACTION",
+                                          context=nightmare_context)]
+            else:
+                segments = await self.segment_input(user_input, nightmare_context=nightmare_context)
             
             # Step 2: Filter out META segments
             dream_segments = [s for s in segments if s.segment_type != "META"]
