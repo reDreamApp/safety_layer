@@ -182,7 +182,8 @@ class SafetyCritic:
     """
     
     def __init__(self, classifier: Optional[ClinicalClassifier] = None,
-                 skip_segmentation: bool = False):
+                 skip_segmentation: bool = False,
+                 skip_meta_filter: bool = False):
         """
         Initialize the SafetyCritic.
 
@@ -192,12 +193,20 @@ class SafetyCritic:
                 When True, the LLM segmenter is bypassed and the whole user
                 input is forced through as a single ACTION segment. Triage and
                 constraint synthesis run unchanged. Default False (production).
+            skip_meta_filter: Cell B (ablation_spec.md §"Cell B"). When True,
+                the META filter (Step 2) is bypassed: META-typed segments are
+                NOT dropped and are classified/bucketed alongside dream content.
+                Coupling (per spec): this also implicitly disables the META
+                sanity check, since it only fires when dream_segments is empty
+                and dream_segments == segments here. "META off" therefore means
+                both filtering AND the sanity check are inactive. Default False.
         """
         # Load the knowledge graph
         self.graph = build_clinical_graph()
 
-        # Ablation B flag — see evaluate_intervention Step 1.
+        # Ablation flags — see evaluate_intervention Steps 1 & 2.
         self.skip_segmentation = skip_segmentation
+        self.skip_meta_filter = skip_meta_filter
 
         # Initialize or use provided classifier
         self.classifier = classifier or ClinicalClassifier()
@@ -311,7 +320,15 @@ class SafetyCritic:
                 segments = await self.segment_input(user_input, nightmare_context=nightmare_context)
             
             # Step 2: Filter out META segments
-            dream_segments = [s for s in segments if s.segment_type != "META"]
+            if self.skip_meta_filter:
+                # Cell B (ablation_spec.md §"Cell B"): META filter bypassed —
+                # META-typed segments are kept and classified/bucketed alongside
+                # dream content. Implicitly disables the META sanity check too
+                # (it only fires when dream_segments is empty; here it equals
+                # `segments`, non-empty for any real input). Documented coupling.
+                dream_segments = list(segments)
+            else:
+                dream_segments = [s for s in segments if s.segment_type != "META"]
             
             # If no dream segments remain, check for hidden maladaptive content
             if not dream_segments:
