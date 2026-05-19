@@ -12,7 +12,7 @@ only records outcomes. Started 2026-05-19.
 | Ablation B — no segmentation | ✅ run 2026-05-19 | `data/benchmarks/ablation_B_no_segment_s1_dev.csv` |
 | Cell B — LLM seg + META off | ⏳ pending | — |
 | Cell B — LLM seg + META off | ✅ run 2026-05-19 | `data/benchmarks/cell_B_meta_off_s1_dev.csv` |
-| Cell C — naive splitter + no META | ⏳ pending | — |
+| Cell C — naive splitter + no META | ✅ run 2026-05-19 | `data/benchmarks/cell_C_naive_s1_dev.csv` |
 | Ablation A — stage-merge | ⏳ pending | — |
 
 Cell A integrity re-verified: 480 rows, reproduces CLAUDE.md headline exactly
@@ -227,3 +227,101 @@ composite inputs), confirming the dev-set mechanism.
   the "Cell B vs Cell C" pre-registered comparison and to separate
   *LLM-segmentation quality* from *segmentation-existence*.
 - Single-shot S1 only. Boundary cases unscored in all arms (no confound).
+
+---
+
+## Cell C — Naive sentence-splitter + no META (2026-05-19)
+
+CSV: `data/benchmarks/cell_C_naive_s1_dev.csv` (480 rows, integrity OK).
+MAL+MAL: `cell_C_naive_s1_mal_mal.csv`. Sentence-level split only (`re` on
+`[.!?]+ws`), all-ACTION, META inert by absence (spec §"Cell C"; clause/comma
+splitting deliberately excluded — locked, see §"Don'ts").
+
+### Dataset artifact (must be reported in §4.X — drives the Cell C reading)
+
+Applying the naive splitter to all 480 dev inputs:
+
+| Stratum | Naive split result |
+|---|---|
+| `clean` (360) | **always exactly 2 sentences** (splits every case) |
+| `multipart` (60) | **always 1 sentence** (never splits) |
+| `boundary` (60) | 48× 2-sent, 12× 1-sent (unscored) |
+| MAL+MAL (35) | **always 1 sentence** (never splits) |
+
+The dataset's multi-part / composite content is **comma/conjunction-joined
+within a single sentence** (e.g. *"…instead of freezing I yell for my mom,
+grab the fire extinguisher, and back him out…"*). A sentence-level splitter
+therefore returns one segment = whole input on exactly those cases →
+**Cell C ≡ Ablation B on `multipart` and MAL+MAL by construction** (verified:
+0/60 multipart pred disagreements vs Ablation B; 16/360 on `clean`, where naive
+does split). Consequence: on this dataset, sentence-level segmentation cannot
+exercise on the inputs where segmentation matters. This is a property of the
+dataset's writing style, not a bug — reported as a limitation.
+
+### Four-way dev table (480, scored 420)
+
+| Condition | stratum | safety | unsafe recall | FP | mal-node |
+|---|---|---|---|---|---|
+| Cell A (full) | ALL | 97.86% | 99.44% | 8 | 93.3% |
+| | clean | 97.50% | 99.33% | 8 | 92.7% |
+| | multipart | 100.00% | 100.00% | 0 | 96.7% |
+| Cell B (seg, META off) | ALL | 95.48% | 99.44% | 18 | 89.4% |
+| | clean | 97.50% | 99.33% | 8 | 93.3% |
+| | multipart | 83.33% | 100.00% | 10 | 70.0% |
+| **Cell C** (naive split) | ALL | 97.38% | 98.89% | 9 | 93.9% |
+| | clean | 96.94% | 98.67% | 9 | 93.3% |
+| | multipart | 100.00% | 100.00% | 0 | 96.7% |
+| Ablation B (no seg) | ALL | 98.33% | 96.11% | 0 | 95.6% |
+| | clean | 98.06% | 95.33% | 0 | 95.3% |
+| | multipart | 100.00% | 100.00% | 0 | 96.7% |
+
+### Pre-registered comparison resolved — Cell B vs Cell C
+
+**"Does the LLM segmenter beat sentence-level splitting?"** (held: no META
+filter, structured classifier, triage). Cleanly answerable **only on `clean`**
+(the only stratum where naive actually splits):
+
+- `clean`: Cell B (LLM seg) **97.50% / 99.33% recall / node 93.3%** vs Cell C
+  (naive) **96.94% / 98.67% / 93.3%**. The LLM segmenter's edge over a regex
+  sentence-splitter is **~0.5 pp safety, ~0.7 pp recall, identical node
+  accuracy**. On single-action clean inputs, **sentence-level splitting
+  captures essentially all the value the LLM segmenter provides.**
+- `multipart`: comparison is *confounded and uninformative* — Cell B's 83.33%
+  reflects the META-off artifact (LLM segmenter emits META segments that, with
+  the filter off, cause FPs), not segmentation quality; and Cell C ≡ no-seg
+  here by construction. Do not read "Cell C 100% > Cell B 83%" as "naive beats
+  LLM segmenter."
+- Aggregate ALL (Cell C 97.38% > Cell B 95.48%) is likewise dragged by Cell B's
+  multipart META artifact — not a real Cell C advantage. Report the `clean`
+  stratum as the load-bearing Cell B vs Cell C number.
+
+### MAL+MAL supplementary (35, all unsafe)
+
+| | unsafe recall | node acc |
+|---|---|---|
+| Cell A | 100% (35/35) | 100% |
+| Cell B | 100% (35/35) | 100% |
+| **Cell C** | **88.6% (31/35)** | **71.4%** |
+| Ablation B | 88.6% (31/35) | 71.4% |
+
+Cell C misses the **identical 4 cases** as Ablation B (composite VIOLENT_REVENGE
+clauses comma-joined inside one sentence — naive never splits them; the LLM
+segmenter splits at the "but"/"," clause boundary and isolates the revenge
+clause). **This is where "LLM segmenter > naive splitting" is actually
+demonstrable: +11.4 pp recall, +28.6 pp node** — and the mechanism is
+specifically clause-level (sub-sentence) splitting.
+
+### Synthesis update (segmentation-quality axis)
+
+- **Single-action clean inputs:** LLM segmenter ≈ naive sentence-split
+  (~0.5 pp). Segmentation *granularity* is near-irrelevant when each input is
+  one action.
+- **Composite / multi-part inputs:** the LLM segmenter's advantage is
+  **clause-level splitting**, which no sentence-level rule can replicate on
+  this dataset (multi-part is intra-sentence). Demonstrated on MAL+MAL
+  (100% vs 88.6% recall); invisible on dev `multipart` because there
+  naive ≡ no-seg *and* the dominant-signal effect lifts even no-seg to 100%.
+- **Dev-set whole:** the LLM segmenter buys ~0.5 pp over a regex splitter
+  (Cell C ALL 97.38% vs Cell A 97.86%). The architectural case for the LLM
+  segmenter rests on composite content (MAL+MAL), not the dev set headline —
+  consistent with the Ablation B / Cell B findings.
