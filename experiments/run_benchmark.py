@@ -98,7 +98,7 @@ def extract_contexts(segments) -> str:
     return " | ".join(unique) if unique else "(no context extracted)"
 
 
-async def run_benchmark(input_file: Path, output_file: Path, limit_suites: Optional[int] = None, classifier_mode: str = "s1", use_context_examples: bool = False, consistency_n: int = 0, skip_segmentation: bool = False, skip_meta_filter: bool = False) -> pd.DataFrame:
+async def run_benchmark(input_file: Path, output_file: Path, limit_suites: Optional[int] = None, classifier_mode: str = "s1", use_context_examples: bool = False, consistency_n: int = 0, skip_segmentation: bool = False, skip_meta_filter: bool = False, naive_segmentation: bool = False) -> pd.DataFrame:
     """
     Run the benchmark evaluation on a dataset.
 
@@ -117,6 +117,10 @@ async def run_benchmark(input_file: Path, output_file: Path, limit_suites: Optio
         skip_meta_filter: Cell B (ablation_spec.md §"Cell B"). Keep META
             segments (no filtering); also implicitly disables the META sanity
             check (documented coupling). Single-shot only.
+        naive_segmentation: Cell C (ablation_spec.md §"Cell C"). Replace the
+            LLM segmenter with rule-based sentence splitting; all-ACTION
+            segments → META filter inert. Single-shot only. Mutually
+            exclusive with skip_segmentation.
 
     Returns:
         DataFrame with all results
@@ -162,8 +166,11 @@ async def run_benchmark(input_file: Path, output_file: Path, limit_suites: Optio
         print("  ⚠ Ablation B: segmentation DISABLED (whole input → single ACTION segment)")
     if skip_meta_filter:
         print("  ⚠ Cell B: META filter DISABLED (META segments classified + sanity check off)")
+    if naive_segmentation:
+        print("  ⚠ Cell C: NAIVE sentence-splitter segmenter (no LLM, no META by absence)")
     critic = SafetyCritic(classifier=classifier, skip_segmentation=skip_segmentation,
-                          skip_meta_filter=skip_meta_filter)
+                          skip_meta_filter=skip_meta_filter,
+                          naive_segmentation=naive_segmentation)
     print("✓ SafetyCritic initialized")
     print()
     
@@ -511,12 +518,30 @@ Examples:
              "coupling). Single-shot only — do not combine with --consistency."
     )
 
+    parser.add_argument(
+        '--segmenter',
+        type=str,
+        choices=["llm", "naive"],
+        default="llm",
+        help="Segmenter: 'llm' (production LLM segmenter, default) or 'naive' "
+             "= Cell C (ablation_spec.md §'Cell C'): rule-based sentence "
+             "splitting, all-ACTION segments, META inert by absence. "
+             "Single-shot only; mutually exclusive with --no-segment."
+    )
+
     args = parser.parse_args()
 
-    if (args.no_segment or args.no_meta_filter) and args.consistency > 0:
-        print("Error: --no-segment / --no-meta-filter are single-shot only "
-              "(ablations are out of UQ scope, ablation_spec.md §'Run mode'). "
-              "Drop --consistency.")
+    naive_seg = (args.segmenter == "naive")
+
+    if (args.no_segment or args.no_meta_filter or naive_seg) and args.consistency > 0:
+        print("Error: --no-segment / --no-meta-filter / --segmenter naive are "
+              "single-shot only (ablations are out of UQ scope, "
+              "ablation_spec.md §'Run mode'). Drop --consistency.")
+        sys.exit(1)
+
+    if naive_seg and args.no_segment:
+        print("Error: --segmenter naive and --no-segment are mutually exclusive "
+              "(Cell C vs Ablation B are distinct conditions, ablation_spec.md).")
         sys.exit(1)
     
     # Resolve paths relative to project root
@@ -535,7 +560,7 @@ Examples:
         sys.exit(1)
     
     # Run benchmark
-    asyncio.run(run_benchmark(input_file, output_file, limit_suites=args.limit, classifier_mode=args.classifier, use_context_examples=args.context_examples, consistency_n=args.consistency, skip_segmentation=args.no_segment, skip_meta_filter=args.no_meta_filter))
+    asyncio.run(run_benchmark(input_file, output_file, limit_suites=args.limit, classifier_mode=args.classifier, use_context_examples=args.context_examples, consistency_n=args.consistency, skip_segmentation=args.no_segment, skip_meta_filter=args.no_meta_filter, naive_segmentation=naive_seg))
 
 
 if __name__ == "__main__":

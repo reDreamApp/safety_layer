@@ -15,6 +15,7 @@ Orchestrates the safety check by combining:
 import logging
 import json
 import os
+import re
 import sys
 from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, field
@@ -107,6 +108,27 @@ class SegmentResult:
     mean_logprob: Optional[float] = None  # Mean log probability of classification tokens
 
 
+def naive_segment(text: str, nightmare_context: Optional[str]) -> List["SegmentResult"]:
+    """
+    Cell C (docs/planning/ablation_spec.md §"Cell C"): rule-based
+    sentence-level segmentation replacing the LLM segmenter.
+
+    Sentence-level only — NO clause-level splitting on conjunctions
+    (but/and/so); that would muddy the contrast with the LLM segmenter's
+    clause-level granularity (spec §"Don'ts"). All segments labeled
+    ACTION (no META detection by design — Option A); the META filter is
+    therefore "off by absence" — no META-typed segments exist to drop.
+    """
+    parts = re.split(r'(?<=[.!?])\s+', text.strip())
+    parts = [p.strip() for p in parts if p.strip()]
+    if not parts:
+        parts = [text.strip() or text]
+    return [
+        SegmentResult(text=p, segment_type="ACTION", context=nightmare_context)
+        for p in parts
+    ]
+
+
 @dataclass
 class SafetyResult:
     """
@@ -183,7 +205,8 @@ class SafetyCritic:
     
     def __init__(self, classifier: Optional[ClinicalClassifier] = None,
                  skip_segmentation: bool = False,
-                 skip_meta_filter: bool = False):
+                 skip_meta_filter: bool = False,
+                 naive_segmentation: bool = False):
         """
         Initialize the SafetyCritic.
 
@@ -200,13 +223,24 @@ class SafetyCritic:
                 sanity check, since it only fires when dream_segments is empty
                 and dream_segments == segments here. "META off" therefore means
                 both filtering AND the sanity check are inactive. Default False.
+            naive_segmentation: Cell C (ablation_spec.md §"Cell C"). When True,
+                the LLM segmenter is replaced by rule-based sentence splitting
+                (naive_segment). All segments are ACTION, so the META filter is
+                inert "by absence" and the sanity check never fires. Mutually
+                exclusive with skip_segmentation. Default False.
         """
+        if naive_segmentation and skip_segmentation:
+            raise ValueError(
+                "naive_segmentation and skip_segmentation are mutually exclusive "
+                "(Cell C vs Ablation B are distinct conditions; ablation_spec.md)."
+            )
         # Load the knowledge graph
         self.graph = build_clinical_graph()
 
         # Ablation flags — see evaluate_intervention Steps 1 & 2.
         self.skip_segmentation = skip_segmentation
         self.skip_meta_filter = skip_meta_filter
+        self.naive_segmentation = naive_segmentation
 
         # Initialize or use provided classifier
         self.classifier = classifier or ClinicalClassifier()
@@ -316,6 +350,12 @@ class SafetyCritic:
                 # comparing against Cell B, not Cell A (see spec §B.1).
                 segments = [SegmentResult(text=user_input, segment_type="ACTION",
                                           context=nightmare_context)]
+            elif self.naive_segmentation:
+                # Cell C (ablation_spec.md §"Cell C"): rule-based sentence
+                # splitter instead of the LLM segmenter. All-ACTION segments →
+                # META filter inert, sanity check never fires. Triage +
+                # constraint synthesis run unchanged.
+                segments = naive_segment(user_input, nightmare_context)
             else:
                 segments = await self.segment_input(user_input, nightmare_context=nightmare_context)
             
