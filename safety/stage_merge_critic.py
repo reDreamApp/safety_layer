@@ -7,19 +7,27 @@ is_safe / primary_node verdict are derived post-hoc in code, identically
 to the structured pipeline — the LLM does NOT do constraint synthesis or
 correction generation (those are not scored on the dev benchmark).
 
-Parity (spec §A.3 + Addendum 2, 2026-05-19): the system prompt is the
+Parity (spec §A.3 + Addenda 2 & 3): the system prompt is the
 CLINICAL_CODER_PROMPT clinical body VERBATIM (intro + 12 definitions +
-7 rules + examples) — byte-identical clinical knowledge to what the
-structured S1 classifier sees. Only the trailing "## RESPONSE FORMAT"
-section is replaced with the stage-merge JSON schema. The LLM emits the
-native short codes (HIDE…FEEL, or META) it is actually taught; this
-class maps code -> node_id via the SAME CODE_MAP the structured pipeline
-uses. No CoT, no severity priorities, no correction edges in the prompt
-(spec §A.3 / §"Don'ts").
+7 rules + examples), then a segmentation + context-extraction section
+ported from SEGMENTER_PROMPT (verbatim guidance + 5 verbatim Inputs from
+its examples, adapted to the merged schema). Both knowledge sources are
+the merged LLM's structurally-equivalent counterparts.
 
-Fail-closed JSON policy (spec §A.4): two attempts at temperature=0; on
-double failure record is_safe=False, node_id="PARSE_FAILURE",
-parse_failure=True, segments=[].
+Schema (Addendum 3): {"segments": [{"text", "context", "code"}, ...]} —
+three fields, each matching something a structured component already
+emits (text + context from segmenter, code from classifier). `type` is
+DROPPED (the structured classifier never emits it; node_type/category
+are derived deterministically from code via the SAME CODE_MAP the
+structured pipeline uses). No CoT, no severity priorities, no correction
+edges in the prompt (§A.3 / §"Don'ts").
+
+Fail-closed JSON policy (spec §A.4, adapted): two attempts at
+temperature=0; validation = JSON object with non-empty segments array,
+each segment has text (non-empty str) + code (str in CODE_MAP ∪ {META})
++ context (str|null, optional defaulting to null). On double failure
+record is_safe=False, node_id="PARSE_FAILURE", parse_failure=True,
+segments=[].
 """
 
 import json
@@ -33,38 +41,85 @@ from AI.agent import Agent, MODELS
 
 logger = logging.getLogger(__name__)
 
-VALID_TYPES = {"maladaptive", "adaptive", "neutral", "meta"}
-
 # Spec §A.3: reuse the CLINICAL_CODER_PROMPT *body* verbatim; replace only
 # the response-format section. Splitting on the heading keeps the intro +
 # CODES + CRITICAL RULES + EXAMPLES byte-identical (no fragile renaming).
 _CLINICAL_BODY = CLINICAL_CODER_PROMPT.split("## RESPONSE FORMAT")[0].rstrip()
 
+# Addendum 3 (2026-05-21): segmentation + context-extraction guidance,
+# verbatim adaptations from SEGMENTER_PROMPT (safety/critic.py:49-95).
+# Examples 1, 2, 4, 5, 6 — verbatim Inputs from the segmenter examples,
+# adapted to the merged schema {text, context, code}. Example 3 dropped
+# (its classification depends on CONTEXT_AWARE_EXAMPLES, not in the base
+# parity prompt). Codes are directly derivable from CLINICAL_CODER_PROMPT
+# above: "I feel scared" → FEEL (line 144), "punch / fight" → CONFRONT
+# (line 138), "This is dumb" / "I hate" → META (rules for meta content).
 _STAGE_MERGE_RESPONSE_FORMAT = """
 
-## TASK (segment + classify in one pass)
+## SEGMENTATION
 
-Split the user's Input into consecutive segments. A segment is a single
-action, feeling, or conversational remark. For EVERY segment output its
-verbatim `text`, its `code`, and its `type`.
+Split the user's Input into consecutive segments. Split based on
+**meaning**, not just punctuation — one segment per discrete action,
+feeling, or remark. If the entire Input is a single action/feeling,
+return a single-element segments array. Preserve the original text
+verbatim in each segment.
 
-- `code`: ONE of the 12 codes above
-  (HIDE, ESCAPE, DESTROY, DENY, REPLAY, CONFRONT, HELP, CHANGE, RELAX,
-  LOOK, FEEL, POWER) for dream content.
-- For conversational / meta content (e.g. "this is dumb", "I hate this
-  therapy", questions about the therapy itself) use `code: "META"` and
-  `type: "meta"`. Do NOT omit any segments — label meta, don't drop it.
-- `type` MUST be consistent with the code's category:
-  - maladaptive: HIDE, ESCAPE, DESTROY, DENY, REPLAY
-  - adaptive:    CONFRONT, HELP, CHANGE, RELAX, POWER
-  - neutral:     LOOK, FEEL
-  - meta:        META
+Conversational / meta content (e.g. "this is dumb", "I hate this
+therapy", questions about the therapy itself — not part of the dream
+narrative) is labelled, never dropped, with `code: "META"`.
+
+## CONTEXT EXTRACTION (per segment)
+
+For each segment, identify the **Immediate Threat** or **Situation** the
+user is responding to.
+- Use the provided Nightmare Context (if any) and the User Input.
+- Example: if a segment is "I punch it", context might be "facing the monster".
+- Example: if a segment is "I hide", context might be "being chased".
+- If no clear context applies (e.g. for META or pure feeling expressions),
+  use null.
+
+## CLASSIFICATION (per segment)
+
+Assign `code` using the CODES and CRITICAL RULES above. One of:
+HIDE, ESCAPE, DESTROY, DENY, REPLAY, CONFRONT, HELP, CHANGE, RELAX,
+POWER, LOOK, FEEL  — or META for conversational/meta content.
+
+## EXAMPLES (segment + classify with context)
+
+Context: "Being chased by a dragon in a cave."
+Input: "I hate this therapy, but I guess I turn and fight it."
+Output: {"segments": [
+  {"text": "I hate this therapy", "context": null, "code": "META"},
+  {"text": "but I guess I turn and fight it", "context": "being chased by dragon", "code": "CONFRONT"}
+]}
+
+Input: "I feel scared but I stand my ground"
+Output: {"segments": [
+  {"text": "I feel scared", "context": null, "code": "FEEL"},
+  {"text": "but I stand my ground", "context": "facing the threat", "code": "CONFRONT"}
+]}
+
+Input: "This is dumb"
+Output: {"segments": [
+  {"text": "This is dumb", "context": null, "code": "META"}
+]}
+
+Input: "I'm terrified"
+Output: {"segments": [
+  {"text": "I'm terrified", "context": null, "code": "FEEL"}
+]}
+
+Input: "Why do I have to do this? Fine, I'll punch the monster I guess"
+Output: {"segments": [
+  {"text": "Why do I have to do this?", "context": null, "code": "META"},
+  {"text": "Fine, I'll punch the monster I guess", "context": "confronting the monster", "code": "CONFRONT"}
+]}
 
 ## RESPONSE FORMAT
 
 Respond with ONLY a JSON object, no markdown, no explanation:
 
-{"segments": [{"text": "...", "code": "...", "type": "..."}, ...]}
+{"segments": [{"text": "...", "context": "..."|null, "code": "..."}, ...]}
 
 The segments array must be non-empty (every input has at least one
 segment, even if it is pure meta). No other keys. Just the JSON.
@@ -109,7 +164,15 @@ class StageMergeCritic:
         return cleaned
 
     def _parse_and_validate(self, raw: str) -> Optional[List[SegmentResult]]:
-        """Return validated SegmentResult list, or None if invalid."""
+        """Return validated SegmentResult list, or None if invalid.
+
+        Schema (Addendum 3): each segment has `text` (non-empty str),
+        `code` (str ∈ CODE_MAP ∪ {"META"}), and optionally `context`
+        (str | null; defaults to None if missing). `node_type` and
+        `category` are derived deterministically from `code` via
+        CODE_MAP + graph lookup — the SAME path the structured
+        classifier uses post-hoc. No `type` field check (Addendum 3).
+        """
         try:
             obj = json.loads(self._extract_json(raw))
         except (json.JSONDecodeError, ValueError):
@@ -124,33 +187,34 @@ class StageMergeCritic:
         for s in seg_data:
             if not isinstance(s, dict):
                 return None
-            text, code, stype = s.get("text"), s.get("code"), s.get("type")
+            text, code = s.get("text"), s.get("code")
             if not isinstance(text, str) or not text.strip():
                 return None
-            if not isinstance(code, str) or not isinstance(stype, str):
+            if not isinstance(code, str):
                 return None
             code = code.strip().upper()
-            stype = stype.strip().lower()
-            if stype not in VALID_TYPES:
+            # context: optional; if present must be str or null (any
+            # other type -> invalid). Empty string normalised to None.
+            context = s.get("context", None)
+            if context is not None and not isinstance(context, str):
                 return None
-            if stype == "meta":
-                if code != "META":
-                    return None  # meta must use the META sentinel
+            if context == "":
+                context = None
+
+            if code == "META":
                 out.append(SegmentResult(text=text, segment_type="META",
-                                         node_id="META", node_type="meta",
-                                         category="meta"))
+                                         context=context, node_id="META",
+                                         node_type="meta", category="meta"))
                 continue
-            # clinical content: code must map, and type must match the
-            # mapped node's graph category bucket (spec §A.4).
+            # Clinical content: code must map (post-hoc, mirrors structured
+            # classifier's CODE_MAP lookup — no separate type check).
             node_id = CODE_MAP.get(code)
             if node_id is None or node_id not in self.graph:
                 return None
-            graph_type = self.graph.nodes[node_id].get("type")
-            if graph_type != stype:
-                return None  # internal label/type inconsistency -> retry
             out.append(SegmentResult(
-                text=text, segment_type="ACTION", node_id=node_id,
-                node_type=graph_type,
+                text=text, segment_type="ACTION", context=context,
+                node_id=node_id,
+                node_type=self.graph.nodes[node_id].get("type"),
                 category=self.graph.nodes[node_id].get("category", "unknown"),
             ))
         return out

@@ -1,12 +1,19 @@
 """
 Ablation A — StageMergeCritic unit tests.
 
-Spec: docs/planning/ablation_spec.md §"Ablation A" + Addendum 2.
+Spec: docs/planning/ablation_spec.md §"Ablation A" + Addenda 2 & 3.
+
+Schema under test (Addendum 3): per-segment {text, context, code} — no
+`type` field (derived deterministically from code post-hoc, mirroring
+the structured classifier's CODE_MAP lookup).
+
 Covers: valid parse + post-hoc derivation (§A.5), META filtering,
 severity-priority primary selection, all-meta -> META_ONLY safe,
 single-retry-then-success, fail-closed PARSE_FAILURE (§A.4), schema
-validation (type/code consistency, meta sentinel, empty array), and
-prompt-parity guards (§A.3: no severity/correction/CoT leakage).
+validation (text/code required, invalid code, optional context,
+markdown-fenced JSON recovery), and prompt-parity guards (§A.3 +
+Addendum 3: clinical body verbatim, segmenter guidance + examples,
+no severity/correction/CoT leakage).
 
 Hermetic: safety.stage_merge_critic.Agent patched (no API key/network);
 critic.agent.generate stubbed with canned LLM responses.
@@ -37,33 +44,36 @@ def _run(c, text, ctx="ctx"):
 
 def test_valid_mixed_segments_derives_unsafe_and_filters_meta():
     payload = json.dumps({"segments": [
-        {"text": "this exercise is dumb", "code": "META", "type": "meta"},
-        {"text": "I hide under the bed", "code": "HIDE", "type": "maladaptive"},
-        {"text": "then I call for help", "code": "HELP", "type": "adaptive"},
+        {"text": "this exercise is dumb", "context": None, "code": "META"},
+        {"text": "I hide under the bed", "context": "being chased", "code": "HIDE"},
+        {"text": "then I call for help", "context": "facing the threat", "code": "HELP"},
     ]})
     r = _run(_critic([payload]), "x")
     assert r.is_safe is False
-    assert r.node_id == "AVOIDANCE"          # HIDE -> AVOIDANCE
+    assert r.node_id == "AVOIDANCE"             # HIDE -> AVOIDANCE
+    assert r.node_type == "maladaptive"         # derived deterministically
     assert r.parse_failure is False
     # META labelled, not dropped from the segment list
     assert any(s.segment_type == "META" for s in r.segments)
     assert len(r.segments) == 3
+    # context preserved
+    assert r.segments[1].context == "being chased"
 
 
 def test_severity_priority_picks_most_critical_maladaptive():
     payload = json.dumps({"segments": [
-        {"text": "I hide", "code": "HIDE", "type": "maladaptive"},          # AVOIDANCE prio 4
-        {"text": "I butcher him", "code": "DESTROY", "type": "maladaptive"}, # VIOLENT_REVENGE prio 1
+        {"text": "I hide", "context": "fear", "code": "HIDE"},          # AVOIDANCE prio 4
+        {"text": "I butcher him", "context": "rage", "code": "DESTROY"}, # VIOLENT_REVENGE prio 1
     ]})
     r = _run(_critic([payload]), "x")
     assert r.is_safe is False
-    assert r.node_id == "VIOLENT_REVENGE"     # highest severity wins
+    assert r.node_id == "VIOLENT_REVENGE"       # highest severity wins
     assert r.severity == "CRITICAL"
 
 
 def test_all_meta_is_safe_meta_only():
     payload = json.dumps({"segments": [
-        {"text": "I hate this therapy", "code": "META", "type": "meta"},
+        {"text": "I hate this therapy", "context": None, "code": "META"},
     ]})
     r = _run(_critic([payload]), "x")
     assert r.is_safe is True
@@ -72,7 +82,7 @@ def test_all_meta_is_safe_meta_only():
 
 def test_all_adaptive_is_safe():
     payload = json.dumps({"segments": [
-        {"text": "I fight back", "code": "CONFRONT", "type": "adaptive"},
+        {"text": "I fight back", "context": "facing the threat", "code": "CONFRONT"},
     ]})
     r = _run(_critic([payload]), "x")
     assert r.is_safe is True
@@ -83,7 +93,9 @@ def test_all_adaptive_is_safe():
 
 def test_single_retry_then_success():
     bad = "sorry, here is the analysis: the user hides."
-    good = json.dumps({"segments": [{"text": "I hide", "code": "HIDE", "type": "maladaptive"}]})
+    good = json.dumps({"segments": [
+        {"text": "I hide", "context": "fear", "code": "HIDE"}
+    ]})
     c = _critic([bad, good])
     r = _run(c, "x")
     assert c.agent.generate.await_count == 2
@@ -99,19 +111,12 @@ def test_double_failure_is_parse_failure():
     assert r.segments == []
 
 
-def test_type_code_inconsistency_triggers_retry_then_fails():
-    # HIDE is maladaptive; declaring it adaptive is internal inconsistency
-    bad = json.dumps({"segments": [{"text": "I hide", "code": "HIDE", "type": "adaptive"}]})
+def test_invalid_code_triggers_retry_then_fails():
+    bad = json.dumps({"segments": [{"text": "I hide", "context": None, "code": "BOGUS"}]})
     c = _critic([bad, bad])
     r = _run(c, "x")
     assert c.agent.generate.await_count == 2
     assert r.parse_failure is True
-
-
-def test_meta_without_sentinel_is_invalid():
-    bad = json.dumps({"segments": [{"text": "hi", "code": "HIDE", "type": "meta"}]})
-    c = _critic([bad, bad])
-    assert _run(c, "x").parse_failure is True
 
 
 def test_empty_segments_array_is_invalid():
@@ -121,19 +126,44 @@ def test_empty_segments_array_is_invalid():
 
 def test_markdown_fenced_json_is_recovered():
     payload = "```json\n" + json.dumps(
-        {"segments": [{"text": "I wake myself up", "code": "ESCAPE", "type": "maladaptive"}]}
+        {"segments": [{"text": "I wake myself up", "context": "panic", "code": "ESCAPE"}]}
     ) + "\n```"
     r = _run(_critic([payload]), "x")
     assert r.parse_failure is False and r.node_id == "INTERRUPTION"
 
 
-# ---- prompt parity guards (§A.3 / §"Don'ts") -------------------------
+# ---- context field handling (Addendum 3) ------------------------------
 
-def test_prompt_has_clinical_body_and_schema():
+def test_context_optional_when_missing_defaults_to_none():
+    payload = json.dumps({"segments": [
+        {"text": "I fight back", "code": "CONFRONT"}  # no context key
+    ]})
+    r = _run(_critic([payload]), "x")
+    assert r.parse_failure is False
+    assert r.segments[0].context is None
+
+
+def test_context_must_be_string_or_null():
+    bad = json.dumps({"segments": [
+        {"text": "I fight back", "context": 42, "code": "CONFRONT"}  # int — invalid
+    ]})
+    c = _critic([bad, bad])
+    assert _run(c, "x").parse_failure is True
+
+
+# ---- prompt parity guards (§A.3 / §"Don'ts" + Addendum 3) ------------
+
+def test_prompt_has_clinical_body_segmentation_and_schema():
+    # CLINICAL_CODER_PROMPT body verbatim
     assert "Clinical Coder for Imagery Rehearsal Therapy" in STAGE_MERGE_PROMPT
-    assert "Violence Threshold" in STAGE_MERGE_PROMPT          # rules retained
-    assert '"segments"' in STAGE_MERGE_PROMPT                  # JSON schema
-    assert "META" in STAGE_MERGE_PROMPT
+    assert "Violence Threshold" in STAGE_MERGE_PROMPT
+    # Addendum 3: segmentation + context guidance from SEGMENTER_PROMPT
+    assert "## SEGMENTATION" in STAGE_MERGE_PROMPT
+    assert "## CONTEXT EXTRACTION" in STAGE_MERGE_PROMPT
+    # Schema (Addendum 3): text + context + code, no `type` field
+    assert '"context"' in STAGE_MERGE_PROMPT
+    assert '"code"' in STAGE_MERGE_PROMPT
+    assert '"type"' not in STAGE_MERGE_PROMPT  # dropped (Addendum 3)
 
 
 def test_prompt_excludes_severity_correction_and_cot():
