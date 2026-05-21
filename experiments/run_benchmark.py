@@ -30,6 +30,7 @@ load_dotenv()
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from safety.critic import SafetyCritic
+from safety.stage_merge_critic import StageMergeCritic
 from safety.classifier import ClinicalClassifier
 from safety.classifier_cot import ClinicalClassifierCoT
 from safety.semantic_consistency import evaluate_semantic_consistency
@@ -98,7 +99,7 @@ def extract_contexts(segments) -> str:
     return " | ".join(unique) if unique else "(no context extracted)"
 
 
-async def run_benchmark(input_file: Path, output_file: Path, limit_suites: Optional[int] = None, classifier_mode: str = "s1", use_context_examples: bool = False, consistency_n: int = 0, skip_segmentation: bool = False, skip_meta_filter: bool = False, naive_segmentation: bool = False) -> pd.DataFrame:
+async def run_benchmark(input_file: Path, output_file: Path, limit_suites: Optional[int] = None, classifier_mode: str = "s1", use_context_examples: bool = False, consistency_n: int = 0, skip_segmentation: bool = False, skip_meta_filter: bool = False, naive_segmentation: bool = False, critic_mode: str = "structured") -> pd.DataFrame:
     """
     Run the benchmark evaluation on a dataset.
 
@@ -121,6 +122,11 @@ async def run_benchmark(input_file: Path, output_file: Path, limit_suites: Optio
             LLM segmenter with rule-based sentence splitting; all-ACTION
             segments → META filter inert. Single-shot only. Mutually
             exclusive with skip_segmentation.
+        critic_mode: "structured" (production SafetyCritic, default) or
+            "merged" = Ablation A (ablation_spec.md §"Ablation A"):
+            StageMergeCritic — one LLM call segments+classifies, post-hoc
+            triage. Single-shot S1 only; ignores the other ablation flags
+            (it has no separate segmenter/META filter).
 
     Returns:
         DataFrame with all results
@@ -168,10 +174,15 @@ async def run_benchmark(input_file: Path, output_file: Path, limit_suites: Optio
         print("  ⚠ Cell B: META filter DISABLED (META segments classified + sanity check off)")
     if naive_segmentation:
         print("  ⚠ Cell C: NAIVE sentence-splitter segmenter (no LLM, no META by absence)")
-    critic = SafetyCritic(classifier=classifier, skip_segmentation=skip_segmentation,
-                          skip_meta_filter=skip_meta_filter,
-                          naive_segmentation=naive_segmentation)
-    print("✓ SafetyCritic initialized")
+    if critic_mode == "merged":
+        print("  ⚠ Ablation A: STAGE-MERGE critic (1 LLM call segments+classifies; "
+              "post-hoc triage; fail-closed JSON)")
+        critic = StageMergeCritic()
+    else:
+        critic = SafetyCritic(classifier=classifier, skip_segmentation=skip_segmentation,
+                              skip_meta_filter=skip_meta_filter,
+                              naive_segmentation=naive_segmentation)
+    print("✓ Critic initialized")
     print()
     
     # Run evaluation
@@ -285,6 +296,7 @@ async def run_benchmark(input_file: Path, output_file: Path, limit_suites: Optio
                     "contexts": contexts_extracted,
                     "segments": segments_formatted,
                     "segments_json": segments_serialized,
+                    "parse_failure": getattr(result, "parse_failure", False),
                 }
 
                 if consistency_n > 0:
@@ -330,6 +342,7 @@ async def run_benchmark(input_file: Path, output_file: Path, limit_suites: Optio
                     "contexts": "ERROR",
                     "segments": f"ERROR: {str(e)}",
                     "segments_json": "[]",
+                    "parse_failure": False,
                 }
                 if consistency_n > 0:
                     row.update({
@@ -529,19 +542,42 @@ Examples:
              "Single-shot only; mutually exclusive with --no-segment."
     )
 
+    parser.add_argument(
+        '--critic',
+        type=str,
+        choices=["structured", "merged"],
+        default="structured",
+        help="Critic: 'structured' (production SafetyCritic, default) or "
+             "'merged' = Ablation A (ablation_spec.md §'Ablation A'): "
+             "StageMergeCritic, one LLM call segments+classifies, post-hoc "
+             "triage, fail-closed JSON. Single-shot S1 only; not combinable "
+             "with the other ablation flags or --classifier s2."
+    )
+
     args = parser.parse_args()
 
     naive_seg = (args.segmenter == "naive")
+    merged = (args.critic == "merged")
 
-    if (args.no_segment or args.no_meta_filter or naive_seg) and args.consistency > 0:
-        print("Error: --no-segment / --no-meta-filter / --segmenter naive are "
-              "single-shot only (ablations are out of UQ scope, "
-              "ablation_spec.md §'Run mode'). Drop --consistency.")
+    if (args.no_segment or args.no_meta_filter or naive_seg or merged) and args.consistency > 0:
+        print("Error: ablation conditions are single-shot only (out of UQ "
+              "scope, ablation_spec.md §'Run mode'). Drop --consistency.")
         sys.exit(1)
 
     if naive_seg and args.no_segment:
         print("Error: --segmenter naive and --no-segment are mutually exclusive "
               "(Cell C vs Ablation B are distinct conditions, ablation_spec.md).")
+        sys.exit(1)
+
+    if merged and (args.no_segment or args.no_meta_filter or naive_seg):
+        print("Error: --critic merged (Ablation A) is a self-contained critic; "
+              "it cannot be combined with --no-segment/--no-meta-filter/"
+              "--segmenter naive (those are SafetyCritic flags).")
+        sys.exit(1)
+
+    if merged and args.classifier != "s1":
+        print("Error: Ablation A is locked to S1 (ablation_spec.md "
+              "§'Configuration'). Use --classifier s1 (default).")
         sys.exit(1)
     
     # Resolve paths relative to project root
@@ -560,7 +596,7 @@ Examples:
         sys.exit(1)
     
     # Run benchmark
-    asyncio.run(run_benchmark(input_file, output_file, limit_suites=args.limit, classifier_mode=args.classifier, use_context_examples=args.context_examples, consistency_n=args.consistency, skip_segmentation=args.no_segment, skip_meta_filter=args.no_meta_filter, naive_segmentation=naive_seg))
+    asyncio.run(run_benchmark(input_file, output_file, limit_suites=args.limit, classifier_mode=args.classifier, use_context_examples=args.context_examples, consistency_n=args.consistency, skip_segmentation=args.no_segment, skip_meta_filter=args.no_meta_filter, naive_segmentation=naive_seg, critic_mode=args.critic))
 
 
 if __name__ == "__main__":

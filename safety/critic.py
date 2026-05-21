@@ -162,7 +162,10 @@ class SafetyResult:
     severity: Optional[str] = None
     confidence: Optional[float] = None
     mean_logprob: Optional[float] = None
-    
+    parse_failure: bool = False  # Ablation A only: True if stage-merge LLM
+    # output failed JSON/schema validation on both attempts (spec §A.4).
+    # Always False for the structured pipeline.
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         return {

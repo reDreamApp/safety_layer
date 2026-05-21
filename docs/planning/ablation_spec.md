@@ -262,4 +262,16 @@ Cell A is already done — reuse existing post-fix S1 baseline. **Verify the sou
 - Ablation B stratification (§B.3) does **not** apply to the MAL+MAL slice — those 35 cases are composite-pattern by construction, not split into single-part/multipart strata. Report the MAL+MAL Ablation B as a single number with a note that the dev-set stratified result is the load-bearing one.
 - Rationale for the supplementary table belongs in §4.X discussion, framed as: *"robustness of the ablation findings under a composite-pattern stressor,"* not as part of the architectural-contribution claim.
 
-This is the only post-lock decision. Same discipline as the body: documented, not retro-edited into the locked design.
+~~This is the only post-lock decision.~~ Same discipline as the body: documented, not retro-edited into the locked design.
+
+## Addendum 2 — 2026-05-19 (post-lock, non-modifying): Ablation A label-vocabulary bridge
+
+**Tension in the locked spec.** §A.2/§A.4 specify the LLM output `label` ∈ the 12 **node-ID** codes (`AVOIDANCE`, `BEHAVIORAL_MASTERY`, …) plus `META`. §A.3 mandates strict parity by reusing the **body of `CLINICAL_CODER_PROMPT`**, which teaches the 12 classes as **short codes** (`HIDE`, `CONFRONT`, …) and is mapped to node IDs *post-hoc in code* via `safety/classifier.py::CODE_MAP`. The structured classifier never emits node-ID labels directly; it emits a short code and the pipeline maps it. So §A.2's node-ID `label` and §A.3's verbatim-short-code prompt cannot both be satisfied literally at the LLM-output layer.
+
+**Decision (parity-strict reading).** The stage-merge LLM is given the `CLINICAL_CODER_PROMPT` clinical body **verbatim** (intro + 12 definitions + 7 rules + examples — byte-identical clinical knowledge to what the structured S1 classifier sees); only the trailing `## RESPONSE FORMAT` section is replaced with the stage-merge JSON schema. The LLM emits, per segment, the **short `code`** it is actually taught (`HIDE…FEEL`, or `META` for conversational content) plus `type`. `StageMergeCritic` then maps `code → node_id` via the **same `CODE_MAP`** the structured pipeline uses, and §A.4 validation + §A.5 derivation operate on the mapped node ID and the graph category.
+
+**Why this over emitting node-ID labels directly.** Making the LLM emit `AVOIDANCE` would require rewriting the codes/rules/examples in `CLINICAL_CODER_PROMPT` (renaming throughout) — a larger, riskier divergence from "reuse the body" and a potential source of subtle clinical drift, which is exactly what §A.3 forbids. Emitting the native short-code vocabulary and mapping post-hoc via the production `CODE_MAP` keeps the clinical knowledge **byte-identical** across arms; the only intentional divergences are the two the ablation is designed to test — (a) one merged call instead of segmenter→classifier, (b) added segmentation + type labelling. No CoT, no severity, no correction edges (per §A.3/§"Don'ts").
+
+**Consequence for §A.4.** "Label must be one of the 12 valid codes and `type` must match the label's graph category" is enforced **after** `code → node_id` mapping: the segment's `code` must be in `CODE_MAP` (or be `META`), and `type` must equal the mapped node's graph category bucket (`maladaptive`/`adaptive`/`neutral`, or `meta` for `META`). Internal inconsistency still triggers the single retry, then `PARSE_FAILURE`, exactly as locked.
+
+Documented, not retro-edited. The two addenda are the only post-lock decisions.
