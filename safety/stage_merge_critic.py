@@ -275,7 +275,7 @@ class StageMergeCritic:
         if not is_safe and node_id != "UNCLASSIFIED":
             sev_rank = SEVERITY_PRIORITY.get(node_id)
             severity = {1: "CRITICAL", 2: "HIGH", 3: "HIGH",
-                        4: "MODERATE"}.get(sev_rank, "MODERATE")
+                        4: "HIGH"}.get(sev_rank, "HIGH")
         elif node_id == "UNCLASSIFIED":
             severity = "UNCERTAIN"
 

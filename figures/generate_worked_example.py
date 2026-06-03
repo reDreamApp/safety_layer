@@ -180,7 +180,7 @@ digraph worked_example {
                BGCOLOR="#FFF3E0" COLOR="#E65100" STYLE="ROUNDED">
             <TR><TD ALIGN="CENTER">
                 <FONT POINT-SIZE="9" COLOR="#E65100">
-                <B>Primary risk:</B> AVOIDANCE (severity: MODERATE)<BR/>
+                <B>Primary risk:</B> AVOIDANCE (severity: HIGH)<BR/>
                 <B>Also present:</B> ENV_MASTERY (adaptive) — will be validated
                 </FONT>
             </TD></TR>

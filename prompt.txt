@@ -1,0 +1,9 @@
+Please continue helping me write my thesis. First read:
+- docs/thesis/latex_writing_guide.md
+- docs/thesis/thesis_status.md
+- thesis/main.tex
+- thesis/chapters/03-safety-layer.tex
+
+Then help me continue from the current state.
+
+Keep the writing readable, direct, and not overly technical. Before editing LaTeX, propose wording briefly unless I ask you to edit directly. After edits, rebuild the PDF with `cd thesis && make pdf`.

@@ -1,0 +1,207 @@
+% !TEX root = ../main.tex
+
+\chapter{Evaluation}
+\label{chap:evaluation}
+
+\section{Evaluation Design and Dataset Rationale}
+
+\todo{Introduce evaluation goals and explain the use of synthetic benchmark data. Synthetic scenarios provide controlled coverage of safety categories where real IRT rescripting transcripts are unavailable or ethically difficult to collect.}
+
+\subsection{Evaluation Goals}
+
+\todo{Draft subsection.}
+
+\subsection{Rationale for Synthetic Benchmarking}
+
+\todo{Draft subsection.}
+
+\subsection{Dataset Construction}
+
+\todo{Draft subsection.}
+
+\subsection{Scenario and Category Coverage}
+
+\todo{Draft subsection.}
+
+\subsection{Human / Expert Annotation Material}
+
+\todo{Draft subsection.}
+
+\begin{figure}
+  \centering
+  \fbox{\parbox{0.85\linewidth}{\centering Figure placeholder: dataset composition.}}
+  \caption{Dataset composition by category, node type, theme, and/or difficulty.}
+  \label{fig:dataset-composition}
+\end{figure}
+
+\section{Experimental Conditions and Metrics}
+
+\todo{Define evaluated variants and metrics, including classifier variants, semantic consistency, ablations, and system-level comparison.}
+
+\subsection{Classifier Variants: System 1 and System 2}
+
+\todo{Draft subsection.}
+
+\subsection{Pipeline Variants and Ablations}
+
+\todo{Draft subsection.}
+
+\subsection{Uncertainty Methods: Log-Probabilities and Semantic Consistency}
+
+\todo{Draft subsection.}
+
+\subsection{Evaluation Metrics}
+
+\todo{Draft subsection.}
+
+\subsection{Reproducibility and Implementation Details}
+
+\todo{Document model configurations, prompts, decoding parameters, repeated-run settings, dataset splits, and retry handling.}
+
+\begin{figure}
+  \centering
+  \fbox{\parbox{0.85\linewidth}{\centering Figure placeholder: experimental design overview.}}
+  \caption{Experimental design overview showing classifier variants, ablations, uncertainty methods, and system-level comparison.}
+  \label{fig:experimental-design}
+\end{figure}
+
+\section{Component-Level Classification Results}
+
+\todo{Report main benchmark results: overall safety classification, node-level performance, System 1/System 2 comparison, and semantic consistency effects.}
+
+\subsection{Overall Safety Classification Performance}
+
+\todo{Draft subsection.}
+
+\subsection{Node-Level Classification Performance}
+
+\todo{Draft subsection.}
+
+\subsection{System 1 vs. System 2 Comparison}
+
+\todo{Draft subsection.}
+
+\subsection{Effect of Semantic Consistency}
+
+\todo{Draft subsection.}
+
+\begin{figure}
+  \centering
+  \fbox{\parbox{0.85\linewidth}{\centering Figure placeholder: overall classification performance.}}
+  \caption{Overall classification performance across System 1/System 2 and baseline/consistency variants.}
+  \label{fig:overall-classification-performance}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \fbox{\parbox{0.85\linewidth}{\centering Figure placeholder: node-level performance.}}
+  \caption{Node-level performance by clinical safety category.}
+  \label{fig:node-level-performance}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \fbox{\parbox{0.85\linewidth}{\centering Figure placeholder: confusion matrix.}}
+  \caption{Confusion matrix showing category-level error patterns.}
+  \label{fig:confusion-matrix}
+\end{figure}
+
+\section{Ablation and Pipeline Analysis}
+
+\todo{Evaluate the contribution of individual pipeline components. Preprocessing is analyzed through its downstream effect on safety decisions rather than as a separately validated segmentation model.}
+
+\subsection{Contribution of Pipeline Components}
+
+\todo{Draft subsection.}
+
+\subsection{Effect of Preprocessing and Input Structuring}
+
+\todo{Draft subsection.}
+
+\subsection{Error Patterns Introduced or Resolved by Pipeline Variants}
+
+\todo{Draft subsection.}
+
+\begin{figure}
+  \centering
+  \fbox{\parbox{0.85\linewidth}{\centering Figure placeholder: ablation results.}}
+  \caption{Ablation results showing the effect of pipeline variants/components.}
+  \label{fig:ablation-results}
+\end{figure}
+
+\section{Failure Analysis and Edge Cases}
+
+\todo{Analyze common misclassification patterns, boundary cases, and clinically relevant failure modes.}
+
+\subsection{Common Misclassification Patterns}
+
+\todo{Draft subsection.}
+
+\subsection{Boundary Cases Between Adaptive and Maladaptive Categories}
+
+\todo{Draft subsection.}
+
+\subsection{Clinically Relevant Failure Modes}
+
+\todo{Draft subsection.}
+
+\subsection{Implications for System Safety}
+
+\todo{Draft subsection.}
+
+\begin{table}
+  \centering
+  \caption{Representative failure cases with input, expected label, predicted label, failure explanation, and clinical implication.}
+  \label{tab:representative-failure-cases}
+  \fbox{\parbox{0.85\linewidth}{\centering Table placeholder.}}
+\end{table}
+
+\section{Uncertainty Quantification Results}
+
+\todo{Building on the failure analysis, evaluate whether uncertainty estimates can identify unreliable classifications.}
+
+\subsection{Log-Probability as Error Signal}
+
+\todo{Draft subsection.}
+
+\subsection{Semantic Consistency as Error Signal}
+
+\todo{Draft subsection.}
+
+\subsection{Comparison of Uncertainty Methods}
+
+\todo{Draft subsection.}
+
+\begin{figure}
+  \centering
+  \fbox{\parbox{0.85\linewidth}{\centering Figure placeholder: uncertainty comparison.}}
+  \caption{Uncertainty comparison showing log-probability vs. semantic consistency as error signals.}
+  \label{fig:uncertainty-comparison}
+\end{figure}
+
+\section{System-Level and Expert Evaluation}
+
+\todo{Evaluate the full safety-augmented chatbot against a baseline system without the safety layer. Report expert ratings and qualitative feedback where available.}
+
+\subsection{Baseline vs. Safety-Augmented Outputs}
+
+\todo{Draft subsection.}
+
+\subsection{Expert Rating Protocol}
+
+\todo{Draft subsection.}
+
+\subsection{Analysis of Expert Ratings and Qualitative Feedback}
+
+\todo{Draft subsection.}
+
+\subsection{System-Level Findings and Limitations}
+
+\todo{Draft subsection.}
+
+\begin{table}
+  \centering
+  \caption{Expert evaluation summary comparing baseline and safety-augmented outputs.}
+  \label{tab:expert-evaluation-summary}
+  \fbox{\parbox{0.85\linewidth}{\centering Table placeholder.}}
+\end{table}

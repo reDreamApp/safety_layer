@@ -30,13 +30,15 @@ from AI.agent import Agent, MODELS
 logger = logging.getLogger(__name__)
 
 
-# Severity levels for triage (lower number = higher priority)
+# Triage order for maladaptive findings (lower number = selected first).
+# All maladaptive categories are clinically unsafe; this order only decides
+# which finding becomes the primary correction when several are present.
 SEVERITY_PRIORITY = {
     "VIOLENT_REVENGE": 1,               # CRITICAL - Violence
     "TRAUMA_REPLAY": 1,                 # CRITICAL - Trauma re-experiencing
     "INTERRUPTION": 2,                  # HIGH - Waking Up/Escape
     "SUPPRESSION": 3,                   # HIGH - Emotional denial
-    "AVOIDANCE": 4,                     # MODERATE - Avoidance
+    "AVOIDANCE": 4,                     # HIGH - Avoidance
 }
 
 # Confidence threshold for classification reliability.
@@ -593,8 +595,10 @@ IMPORTANT:
         
         Priority order:
         1. CRITICAL: VIOLENT_REVENGE (Violence)
-        2. HIGH: INTERRUPTION (Waking Up)
-        3. MODERATE: AVOIDANCE (Avoidance)
+        2. CRITICAL: TRAUMA_REPLAY (Trauma re-experiencing)
+        3. HIGH: INTERRUPTION (Waking Up)
+        4. HIGH: SUPPRESSION (Emotional denial)
+        5. HIGH: AVOIDANCE (Avoidance)
         
         Tie-breaker: First chronological occurrence (original order)
         
@@ -617,10 +621,8 @@ IMPORTANT:
         priority = SEVERITY_PRIORITY.get(node_id, 99)
         if priority == 1:
             return "CRITICAL"
-        elif priority <= 3:
+        elif priority <= 4:
             return "HIGH"
-        elif priority == 4:
-            return "MODERATE"
         return "UNKNOWN"
     
     def _build_validation_message(self, adaptive_segments: List[SegmentResult]) -> str:
@@ -672,10 +674,6 @@ IMPORTANT:
         # praising suppressed scene details as "good noticing." See
         # docs/planning/integration_eval_notes.md (2026-04-27 addendum).
         #
-        # For MODERATE severity (AVOIDANCE) with no adaptive segments we keep
-        # the current empty-VALIDATE behavior — the eval showed AVOIDANCE
-        # responses tend to acknowledge the user's fear (a legitimate emotion)
-        # rather than the avoidant action, so the leak is benign there.
         validate_section = ""
         if adaptive_segments:
             validations = []

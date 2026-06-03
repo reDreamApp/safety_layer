@@ -37,3 +37,17 @@ misc/
 *.pdf
 *.gif
 
+# LaTeX
+thesis/build/
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.lot
+*.out
+*.run.xml
+*.toc
+*.synctex.gz

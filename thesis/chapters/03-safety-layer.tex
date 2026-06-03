@@ -1,0 +1,285 @@
+% !TEX root = ../main.tex
+
+\chapter{Neuro-Symbolic Safety Layer}
+
+\section{A Safety Ontology for IRT Rescripting}
+
+The safety layer needs a clear way to decide which rewriting actions support the goals of Imagery Rehearsal Therapy (IRT) and which may work against them. In this thesis, a \emph{rewriting action} refers to an action, reaction, or change that the client introduces while rewriting the nightmare. For example, the client may decide to confront a pursuer, call for help, make the room safer, wake up from the dream, or replay the event exactly as before. These actions are the main object of the safety layer: it identifies and classifies them, and provides redirection signals when they point away from therapeutic mastery.
+
+Importantly, the ontology does not classify a dream as unsafe simply because it is frightening or distressing. Distressing content is expected in IRT. A client may describe fear, danger, helplessness, or traumatic imagery without proposing a maladaptive rewriting action. The relevant question is more specific: does the client's proposed action help them gain mastery over the nightmare, or does it encourage a pattern that avoids, suppresses, repeats, or escalates the distressing content?
+
+This distinction follows the clinical logic of IRT. \textcite[196]{germain2004mastery} describe increased mastery over negative dream elements as a key process associated with nightmare reduction. In this thesis, that idea is translated into explicit safety categories. Adaptive categories describe rewriting actions that support mastery, such as taking action, seeking help, changing the environment, regulating emotion, or using imaginative resources. Maladaptive categories describe rewriting actions that may undermine rescripting, such as avoidance, forced awakening, violent revenge, emotional suppression, or trauma replay.
+
+The ontology is implemented with a graph representation. This is a modelling choice rather than a strict requirement: the same categories and correction rules could also be encoded as a table. In the graph, nodes represent clinically meaningful types of rewriting actions or contextual statements, and correction links connect maladaptive actions to adaptive alternatives. This representation reflects the way the safety layer was designed and provides a clear way to visualize how unsafe rewriting actions can be redirected toward safer forms of mastery.
+
+\subsection{Ontology Category Set}
+
+The ontology represents the clinical safety patterns introduced in \Cref{tab:clinical-safety-categories} as 12 computational categories: five adaptive mastery categories, five maladaptive rescripting patterns, and two neutral categories. The adaptive nodes are \texttt{BEHAVIORAL\_MASTERY}, \texttt{SOCIAL\_MASTERY}, \texttt{ENVIRONMENTAL\_MASTERY}, \texttt{EMOTIONAL\_MASTERY}, and \texttt{MYTHICAL\_MASTERY}.
+
+The maladaptive nodes are \texttt{AVOIDANCE}, \texttt{INTERRUPTION}, \texttt{VIOLENT\_REVENGE}, \texttt{SUPPRESSION}, and \texttt{TRAUMA\_REPLAY}.
+
+The neutral nodes, \texttt{NARRATIVE\_SETTING} and \texttt{AFFECT\_EXPRESSION}, capture statements that are not rewriting actions. They describe either the dream context or the client's emotional response, without yet specifying how the client wants to change or respond to the nightmare.
+
+This distinction helps the system avoid treating every distressing statement as unsafe. Fear, helplessness, or a threatening dream setting may be clinically important, but they are not treated as maladaptive rewriting actions unless the client also proposes a problematic way of responding to or changing the nightmare. The ontology also includes a fallback node, \texttt{UNCLASSIFIED}, for inputs that cannot be mapped reliably to a clinical category. Unlike the 12 clinical nodes, this node does not describe a rescripting pattern. It instructs the chatbot to seek clarification rather than make an unsupported assumption.
+
+\subsection{Category Attributes and Severity Levels}
+
+Each ontology category is stored as a node in the knowledge graph. The node name, such as \texttt{AVOIDANCE} or \texttt{BEHAVIORAL\_MASTERY}, acts as the stable identifier used by the classifier and the critic pipeline. The remaining node attributes explain what the category means and how the safety layer should use it.
+
+Some attributes are shared by all clinical categories. Each node has a type, for example adaptive, maladaptive, or neutral, and a short description. These fields make the categories usable by the safety layer and readable for later human inspection. Other attributes depend on the kind of category. Adaptive nodes include their MMS subscale and scoring criteria, because they describe forms of mastery the client can move toward. Maladaptive nodes include behavioral markers, a short redirection rationale, and a severity label, because they describe rewriting actions that may need correction.
+
+Severity is used as a coarse risk label, not as a diagnosis. In the current implementation, maladaptive rewriting actions are marked as either high or critical. High-severity categories indicate actions that can undermine the IRT rescripting process and should be redirected. Critical categories indicate actions that are treated as especially risky within the safety layer because they may involve destructive escalation or unchanged traumatic repetition. When several maladaptive findings appear in one input, the critic also uses an internal priority order to decide which finding becomes the primary correction. The clinical rationale for these severity assignments is discussed in \Cref{sec:clinical-rationale-boundaries}.
+
+Neutral nodes are handled differently because they are not rewriting actions. Their \texttt{system\_action} attribute tells the safety layer how to treat contextual or emotional statements. Here, neutral refers only to the safety decision, not to the emotional intensity of the statement. A client may describe an upsetting setting or express intense fear without proposing either an adaptive or maladaptive rewriting action. Such statements may be important for the conversation, but they do not trigger corrective redirection on their own.
+
+\Cref{tab:ontology-node-attributes} summarizes the main attributes used by the safety layer.
+
+\begin{table}
+  \centering
+  \caption{Ontology node attributes used by the safety layer.}
+  \label{tab:ontology-node-attributes}
+  \renewcommand{\arraystretch}{1.18}
+  \begin{tabular}{>{\ttfamily}p{0.27\linewidth}p{0.63\linewidth}}
+    \toprule
+    Attribute & Purpose \\
+    \midrule
+    \multicolumn{2}{l}{\textit{Shared clinical attributes}} \\
+    \midrule
+    node\_id & Stable graph key and classifier target. \\
+    type & Marks the category as adaptive, maladaptive, neutral, or unclassified. \\
+    description & Short category definition for prompts, documentation, and inspection. \\
+    \midrule
+    \multicolumn{2}{l}{\textit{Adaptive-node attributes}} \\
+    \midrule
+    mms\_subscale & Links the category to its mastery dimension. \\
+    scoring\_criteria & Describes what counts as evidence for this form of mastery. \\
+    \midrule
+    \multicolumn{2}{l}{\textit{Maladaptive-node attributes}} \\
+    \midrule
+    behavioral\_markers & Lists cues that indicate a maladaptive rewriting action. \\
+    clinical\_guideline & States the reason and direction for redirecting the maladaptive action. \\
+    severity & Marks the coarse risk label shown for maladaptive findings. \\
+    \midrule
+    \multicolumn{2}{l}{\textit{Neutral-node attributes}} \\
+    \midrule
+    system\_action & Describes how non-action context or affect should be handled. \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Corrective Mappings Between Maladaptive and Adaptive Categories}
+
+The ontology does not treat maladaptive categories as isolated labels. Each maladaptive rewriting action is connected to one or more adaptive mastery categories that can serve as adaptive alternatives for the rewrite. These connections are represented as corrective mappings. They define the direction of therapeutic redirection: when the client proposes a rewriting action that may undermine IRT, the safety layer can identify which kind of mastery would better support the rescripting process.
+
+For example, avoidance is primarily redirected toward behavioral mastery. If the client proposes hiding, freezing, or disappearing from the nightmare, the system encourages a more active response within the dream. Depending on the context, avoidance may also be redirected toward social mastery, such as asking for help, or mythical mastery, such as imagining a protective ability. The goal is not to force one fixed response, but to move the client from passive avoidance toward some form of agency.
+
+Each corrective mapping also has a priority. The primary mapping represents the most direct therapeutic alternative, while secondary and tertiary mappings provide additional options when the primary strategy does not fit the client's dream scenario. The mappings in \Cref{tab:corrective-mappings} should therefore be read as practical response directions rather than as fixed dream endings: they pair each problematic action with adaptive categories that counter the problem in the proposed rewrite, such as replacing escape with engagement, destructive escalation with controlled action, or unchanged replay with meaningful change.
+
+\begin{table}
+  \centering
+  \caption{Corrective mappings from maladaptive rewriting actions to adaptive mastery categories.}
+  \label{tab:corrective-mappings}
+  \renewcommand{\arraystretch}{1.25}
+  \begin{tabular}{p{0.22\linewidth}p{0.28\linewidth}p{0.38\linewidth}}
+    \toprule
+    Maladaptive category & Primary redirection & Additional options \\
+    \midrule
+    Avoidance & Behavioral mastery & Social mastery; mythical mastery \\
+    Interruption & Emotional mastery & Environmental mastery; mythical mastery \\
+    Violent revenge & Behavioral mastery & Social mastery; emotional mastery \\
+    Suppression & Emotional mastery & Social mastery; behavioral mastery \\
+    Trauma replay & Behavioral mastery & Environmental mastery; mythical mastery \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Graph Representation of the Ontology}
+
+The graph representation should be understood as a modelling and communication aid. It does not make the safety decision different from an equivalent tabular implementation; for an ontology of this size, the critic could retrieve the same correction rules from a table or dictionary. The graph was chosen because it matched the way the system was conceptualized: categories appear as nodes, and possible corrections appear as links between maladaptive rewriting actions and adaptive mastery categories. The link from \texttt{AVOIDANCE} to \texttt{BEHAVIORAL\_MASTERY}, for example, means that avoidance can be addressed by encouraging a more active form of engagement.
+
+During execution, the graph mainly functions as a structured lookup. The classifier first maps a client utterance to a node. If the node is adaptive, neutral, or unclassified, the critic can handle it according to the node type. If the node is maladaptive, the critic retrieves the linked adaptive categories as possible alternatives. The same ontology therefore defines both the classification target and the safer responses the system can encourage.
+
+Each correction link stores additional information beyond its source and target. In the implementation, links include a priority, a short rationale, a clinical reference, and a therapeutic direction. The priority determines which alternative is considered first. The therapeutic direction provides the basis for the constraint later passed back to the chatbot. This keeps the correction step explicit: the system can record why a rewriting action was classified as maladaptive and which adaptive alternative was selected.
+
+\Cref{fig:clinical-safety-ontology} shows the ontology as a graph. Maladaptive rewriting actions are shown separately from adaptive mastery categories, while neutral and unclassified categories are kept apart from the correction links. Severity levels are marked visually, and edge styles distinguish primary corrections from additional options.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{../figures/clinical_ontology_graph.pdf}
+  \caption{Graph representation of the clinical safety ontology, showing maladaptive rewriting actions, adaptive mastery categories, neutral and unclassified categories, severity levels, and prioritized correction links.}
+  \label{fig:clinical-safety-ontology}
+\end{figure}
+
+\section{Ontology Development and Expert Review}
+
+The ontology was developed before the safety layer was implemented. Its role was to make the relevant IRT safety concerns explicit enough for a classifier and critic pipeline to use. The goal was not to discover new clinical categories from model behavior. Instead, the ontology translates existing ideas from Imagery Rehearsal Therapy, dream mastery coding, and trauma-related nightmare literature into a small set of categories, severity labels, and correction relationships.
+
+The development process followed three steps. First, the adaptive categories were grounded in the Multidimensional Mastery Scale (MMS), which describes different forms of mastery in changed dream content. Second, the maladaptive categories were defined from IRT protocol concerns and trauma-related nightmare concepts: avoidance or waking to escape the dream, unchanged nightmare rehearsal, disproportionate violent revenge, and emotional disengagement from distressing material. Third, the resulting category set and its boundaries were reviewed for clinical plausibility by Dr. Annika Gieselmann. Her review was used to check whether the category set and ontology boundaries were clinically plausible. The reliability and system-level effects of the implemented safety layer are evaluated separately in \Cref{chap:evaluation}.
+\subsection{Literature-Based Construction}
+
+The adaptive categories were the most direct part of the ontology to construct. The MMS was developed to measure changes in dream content after IRT and describes several ways in which a dreamer may gain mastery over distressing dream elements \parencite{germain2004mastery}. Five MMS dimensions were used as adaptive ontology categories: behavioral, social, environmental, emotional, and mythical mastery. These categories map naturally onto the kinds of rewriting actions a client may propose during rescripting. A client may act differently, seek help, change the setting, regulate their emotional response, or introduce an imaginative protective element.
+
+Although Germain et al. include avoidance as an MMS subscale, it differs from the other mastery dimensions because it describes escape from, or non-engagement with, unpleasant dream material rather than transformation of that material. The avoidance subscale includes cases in which the dreamer wakes from the dream to escape a perceived threat or avoids unpleasant dream scenes without changing them \parencite[199]{germain2004mastery}. In their study, avoidance was also less frequent in the changed dreams produced during IRT than in the original nightmares \parencite[202--203]{germain2004mastery}. For the present ontology, avoidance was therefore not treated as an adaptive target, but as a pattern the safety layer redirects when it prevents engagement with or transformation of the nightmare.
+
+The remaining maladaptive categories were added because avoidance alone did not cover the main safety risks relevant to AI-assisted rescripting. IRT asks the client to change the nightmare and rehearse the new dream rather than the original nightmare \parencite{krakow2001imagery,krakow2006clinical}. This motivated separate categories for interruption and trauma replay. Interruption captures attempts to end the dream or wake up instead of continuing the rescripting process. Trauma replay captures cases where the client repeats the traumatic nightmare without introducing a meaningful change. These categories are closely related to avoidance, but they create different safety needs in the critic pipeline: interruption calls for support to remain within the dream, while trauma replay calls for a non-escalatory transformation that breaks exact repetition.
+
+Two additional maladaptive categories were included to cover boundary cases that are important for a safety layer. Violent revenge distinguishes adaptive self-protection from destructive escalation. Behavioral mastery may include fighting back \parencite[199]{germain2004mastery}, but in this ontology it is treated as adaptive only when the action is purposeful and proportionate. Suppression distinguishes emotional regulation from emotional disengagement. Germain et al. define emotional mastery as a change in the dreamer's affect or emotional reaction \parencite[199]{germain2004mastery}; by contrast, claiming to feel nothing in the face of clearly distressing content may indicate emotional avoidance rather than regulation. This category is deliberately context-dependent: calmness can be adaptive emotional mastery, but emotional denial or numbing should not automatically be validated as mastery.
+
+The literature did not provide a ready-made computational safety ontology for IRT. The category set was therefore constructed for this thesis by combining two sources of guidance. The adaptive categories follow the MMS mastery dimensions. The maladaptive categories capture rewriting actions that would be problematic for an IRT-style rescripting task: escaping the scene, ending the dream, repeating it unchanged, escalating into destructive revenge, or denying the emotional impact of distressing material. These categories are not presented as the only possible ontology, but as a concrete and reviewable formalization that can be implemented, tested, and revised.
+
+\subsection{Clinical Rationale and Ontology Boundaries}
+\label{sec:clinical-rationale-boundaries}
+
+The central boundary of the ontology is that it classifies rewriting actions, not nightmare content in general. A frightening image, threatening character, or intense feeling is not automatically unsafe. Such material is often the reason IRT is being used in the first place. The safety question is narrower: what does the client propose to do with the nightmare during rescripting? A statement such as ``there is a dark figure in the room'' is narrative context. A statement such as ``I feel terrified'' is affect expression. Neither should trigger corrective redirection by itself.
+
+This boundary is especially important for avoiding false safety interventions. If the safety layer treated all distressing content as unsafe, it would interrupt exactly the material that the client needs to work with. The neutral categories in the ontology were added for this reason. \texttt{NARRATIVE\_SETTING} and \texttt{AFFECT\_EXPRESSION} allow the critic to acknowledge context and emotion without forcing the conversation toward correction. They help the system distinguish ``this dream is frightening'' from ``my proposed rewriting action avoids, suppresses, repeats, or escalates the frightening content.''
+
+The severity labels on maladaptive categories are also bounded. They are coarse risk labels used in the critic output and constraint message, not clinical diagnoses. High-severity categories indicate rewriting actions that may undermine the IRT process and should generally be redirected. Critical categories indicate actions that are treated as more urgent within the safety layer because they may intensify destructive affect or reinforce unchanged traumatic repetition. In the current ontology, avoidance, interruption, and suppression are marked as high severity, while violent revenge and trauma replay are marked as critical.
+
+The difference between high and critical severity is a design decision for the safety layer. It does not mean that one client is clinically ``more severe'' than another. The implementation also uses a more detailed priority order to select the primary finding when several maladaptive rewriting actions appear in the same input. For example, if a client proposes both hiding and destroying everyone in the dream, the critic treats violent revenge as the primary finding because the response should first redirect the destructive escalation. If a client proposes only avoidance, avoidance is still treated as unsafe and should not be validated.
+
+The corrective mappings have a similar boundary. They are not prescriptions for how a client must rewrite a nightmare. They are possible therapeutic directions that the chatbot can use when a maladaptive rewriting action appears. Avoidance can be redirected toward active engagement, social support, or imaginative empowerment. Interruption can be redirected toward emotional regulation or safety within the dream. Trauma replay can be redirected toward a meaningful, non-escalatory transformation of the dream scenario. In each case, the mapping defines a safer direction for the conversation while leaving the concrete rescripting choice to the client.
+
+This distinction matters because the safety layer is intended to constrain the chatbot, not to replace the therapeutic process. It does not generate the final rescript on behalf of the client, and it does not decide what the dream ``should'' become. Its role is to prevent the chatbot from validating patterns that conflict with the rescripting goal and to provide a clinically grounded prompt for adaptive alternatives.
+
+\subsection{Expert Review Process}
+
+The ontology was prepared as a reviewable clinical artifact before being used as the basis for the benchmark and critic pipeline. The review material summarized the adaptive categories, maladaptive categories, neutral categories, severity assignments, and corrective mappings. It also described the intended boundary of the system: the ontology evaluates rewriting actions during IRT-style rescripting and does not diagnose clients, assess treatment need, or evaluate the overall clinical appropriateness of IRT for a particular person.
+
+Dr. Annika Gieselmann reviewed the ontology for clinical plausibility and alignment with the IRT framing. This review is treated in the thesis as validation of the category set and its use as a safety-classification framework. It supported the decision to proceed with the ontology as the symbolic component of the safety layer. The review did not validate the full AI system as a clinical intervention, and it did not establish that safety-layer outputs are therapeutically effective. Those are stronger claims and remain outside the scope of this thesis.
+
+The expert review shaped the way the ontology is presented and evaluated. In particular, the thesis keeps a clear distinction between clinical concepts and implementation behavior. The graph can encode categories, severity labels, and correction links, but those structures still require empirical evaluation when used with an LLM classifier. For this reason, clinical review and benchmark evaluation play different roles: the review checks whether the ontology is a plausible formalization of IRT safety concerns, while the evaluation in \Cref{chap:evaluation} tests whether the implemented classifier and critic pipeline can apply that formalization reliably.
+
+\todo{Add concrete details from the final expert feedback once available, including whether any categories, severity assignments, or boundaries were revised after review.}
+
+\section{System Overview and Integration Point}
+
+\todo{Place the safety layer within the existing IRT chatbot and explain why it is applied during the rescripting stage. Unsafe content produces corrective constraints rather than direct replacement of user content.}
+
+\subsection{Baseline IRT Chatbot Flow}
+
+\todo{Draft subsection.}
+
+\subsection{Safety Layer Placement in the Rescripting Stage}
+
+\todo{Draft subsection.}
+
+\subsection{Safety Layer Inputs and Outputs}
+
+\todo{Draft subsection.}
+
+\subsection{Constraint-Based Integration}
+
+\todo{Draft subsection.}
+
+\begin{figure}
+  \centering
+  \fbox{\parbox{0.85\linewidth}{\centering Figure placeholder: system overview and safety-layer feedback loop.}}
+  \caption{System overview showing the baseline IRT chatbot, the rescripting-stage integration point, and the safety layer feedback loop.}
+  \label{fig:system-overview}
+\end{figure}
+
+\section{LLM-Based Clinical Classification}
+
+\todo{Describe classification as entity linking from free-form user text to ontology categories. Compare direct classification with structured clinical reasoning.}
+
+\subsection{Classification as Entity Linking to Ontology Categories}
+
+\todo{Draft subsection.}
+
+\subsection{System 1: Direct Classification}
+
+\todo{Draft subsection.}
+
+\subsection{System 2: Structured Clinical Reasoning}
+
+\todo{Draft subsection.}
+
+\subsection{Prompt Rules, Labels, and Ambiguity Handling}
+
+\todo{Draft subsection.}
+
+\begin{figure}
+  \centering
+  \fbox{\parbox{0.85\linewidth}{\centering Optional figure placeholder: System 1 vs. System 2 classifier comparison.}}
+  \caption{System 1 and System 2 classifier comparison.}
+  \label{fig:s1-s2-classifier-comparison}
+\end{figure}
+
+\section{Safety Critic Pipeline}
+
+\todo{Describe the full pipeline: segmentation, meta-statement filtering, segment-level classification, finding aggregation, severity triage, and constraint synthesis.}
+
+\subsection{Intelligent Segmentation}
+
+\todo{Draft subsection.}
+
+\subsection{Meta-Statement Filtering}
+
+\todo{Draft subsection.}
+
+\subsection{Segment-Level Classification}
+
+\todo{Draft subsection.}
+
+\subsection{Finding Aggregation and Severity Triage}
+
+\todo{Draft subsection.}
+
+\subsection{Constraint Synthesis}
+
+\todo{Draft subsection.}
+
+\subsection{Worked End-to-End Example}
+
+\todo{Draft subsection.}
+
+\begin{figure}
+  \centering
+  \fbox{\parbox{0.85\linewidth}{\centering Figure placeholder: safety critic pipeline architecture.}}
+  \caption{Safety critic pipeline architecture.}
+  \label{fig:safety-critic-pipeline}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \fbox{\parbox{0.85\linewidth}{\centering Figure placeholder: worked end-to-end example.}}
+  \caption{Worked end-to-end example.}
+  \label{fig:worked-end-to-end-example}
+\end{figure}
+
+\section{Uncertainty Estimation and Risk Signaling}
+
+\todo{Introduce token log-probability confidence and semantic consistency as candidate signals for identifying unreliable classifications. Distinguish uncertainty from clinical severity.}
+
+\subsection{Token Log-Probability Confidence}
+
+\todo{Draft subsection.}
+
+\subsection{Semantic Consistency}
+
+\todo{Draft subsection.}
+
+\subsection{Uncertainty Signals and Severity-Based Risk Flags}
+
+\todo{Draft subsection.}
+
+\section{Design Decisions and Trade-offs}
+
+\todo{Summarize key design decisions and implementation limits.}
+
+\subsection{Clinical Ontology vs. Prompting Alone}
+
+\todo{Draft subsection.}
+
+\subsection{Rationale for LLM-Based Classification}
+
+\todo{Draft subsection.}
+
+\subsection{Pipeline Modularity and Preprocessing Trade-offs}
+
+\todo{Draft subsection.}
+
+\subsection{Limitations of the Implemented Design}
+
+\todo{Draft subsection.}

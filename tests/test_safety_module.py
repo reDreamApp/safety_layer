@@ -74,6 +74,9 @@ def test_knowledge_graph():
     assert "SUPPRESSION" in maladaptive, "Should have SUPPRESSION node"
     assert "TRAUMA_REPLAY" in maladaptive, "Should have TRAUMA_REPLAY node"
 
+    # Verify graph metadata matches the clinically validated severity labels
+    assert maladaptive["AVOIDANCE"]["severity"] == "high", "AVOIDANCE should have high severity"
+
     # Verify SUPPRESSION has correct attributes
     supp_attrs = maladaptive["SUPPRESSION"]
     assert supp_attrs["severity"] == "high", "SUPPRESSION should have high severity"
@@ -319,4 +322,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
