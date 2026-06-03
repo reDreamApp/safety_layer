@@ -1,7 +1,7 @@
 """
 Ablation A — StageMergeCritic unit tests.
 
-Spec: docs/planning/ablation_spec.md §"Ablation A" + Addenda 2 & 3.
+Spec: docs/planning/ablation_spec.md §"Ablation A" + Addenda 2, 3 & 4.
 
 Schema under test (Addendum 3): per-segment {text, context, code} — no
 `type` field (derived deterministically from code post-hoc, mirroring
@@ -12,8 +12,8 @@ severity-priority primary selection, all-meta -> META_ONLY safe,
 single-retry-then-success, fail-closed PARSE_FAILURE (§A.4), schema
 validation (text/code required, invalid code, optional context,
 markdown-fenced JSON recovery), and prompt-parity guards (§A.3 +
-Addendum 3: clinical body verbatim, segmenter guidance + examples,
-no severity/correction/CoT leakage).
+Addendum 3/4: clinical body verbatim, segmenter guidance + examples,
+UNCLASSIFIED parity, no severity/correction/CoT leakage).
 
 Hermetic: safety.stage_merge_critic.Agent patched (no API key/network);
 critic.agent.generate stubbed with canned LLM responses.
@@ -111,12 +111,15 @@ def test_double_failure_is_parse_failure():
     assert r.segments == []
 
 
-def test_invalid_code_triggers_retry_then_fails():
+def test_unknown_code_routes_to_unclassified_without_retry():
     bad = json.dumps({"segments": [{"text": "I hide", "context": None, "code": "BOGUS"}]})
-    c = _critic([bad, bad])
+    c = _critic([bad])
     r = _run(c, "x")
-    assert c.agent.generate.await_count == 2
-    assert r.parse_failure is True
+    assert c.agent.generate.await_count == 1
+    assert r.parse_failure is False
+    assert r.is_safe is False
+    assert r.node_id == "UNCLASSIFIED"
+    assert r.severity == "UNCERTAIN"
 
 
 def test_empty_segments_array_is_invalid():
@@ -130,6 +133,47 @@ def test_markdown_fenced_json_is_recovered():
     ) + "\n```"
     r = _run(_critic([payload]), "x")
     assert r.parse_failure is False and r.node_id == "INTERRUPTION"
+
+
+# ---- UNCLASSIFIED parity (Addendum 4) --------------------------------
+
+def test_unclassified_segment_fails_closed_to_unsafe():
+    """Mirrors safety/critic.py:520-531: no maladaptive but UNCLASSIFIED
+    present -> is_safe=False, primary_node='UNCLASSIFIED'."""
+    payload = json.dumps({"segments": [
+        {"text": "I do something weird", "context": None, "code": "UNCLASSIFIED"},
+        {"text": "then I fight back", "context": "facing the threat", "code": "CONFRONT"},
+    ]})
+    r = _run(_critic([payload]), "x")
+    assert r.is_safe is False                    # fail-closed
+    assert r.node_id == "UNCLASSIFIED"
+    assert r.severity == "UNCERTAIN"
+    # The CONFRONT segment is still tracked as adaptive (for clarification messages)
+    assert any(s.node_id == "BEHAVIORAL_MASTERY" for s in r.adaptive_segments)
+
+
+def test_unclassified_does_not_override_maladaptive():
+    """Maladaptive present -> still the primary, even with UNCLASSIFIED in mix."""
+    payload = json.dumps({"segments": [
+        {"text": "ambiguous bit", "context": None, "code": "UNCLASSIFIED"},
+        {"text": "I butcher him", "context": "rage", "code": "DESTROY"},
+    ]})
+    r = _run(_critic([payload]), "x")
+    assert r.is_safe is False
+    assert r.node_id == "VIOLENT_REVENGE"        # maladaptive wins
+    assert r.severity == "CRITICAL"
+
+
+def test_unclassified_does_not_count_as_maladaptive():
+    """All-UNCLASSIFIED (no maladaptive) -> unsafe via fail-closed, NOT via
+    treating UNCLASSIFIED as maladaptive."""
+    payload = json.dumps({"segments": [
+        {"text": "ambiguous", "context": None, "code": "UNCLASSIFIED"},
+    ]})
+    r = _run(_critic([payload]), "x")
+    assert r.is_safe is False
+    assert r.node_id == "UNCLASSIFIED"
+    assert r.node_type == "unclassified"          # not "maladaptive"
 
 
 # ---- context field handling (Addendum 3) ------------------------------
@@ -164,6 +208,8 @@ def test_prompt_has_clinical_body_segmentation_and_schema():
     assert '"context"' in STAGE_MERGE_PROMPT
     assert '"code"' in STAGE_MERGE_PROMPT
     assert '"type"' not in STAGE_MERGE_PROMPT  # dropped (Addendum 3)
+    # Addendum 4: UNCLASSIFIED is a code-level fallback, not a prompted option.
+    assert "UNCLASSIFIED" not in STAGE_MERGE_PROMPT
 
 
 def test_prompt_excludes_severity_correction_and_cot():

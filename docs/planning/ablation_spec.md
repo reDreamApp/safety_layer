@@ -289,3 +289,28 @@ While auditing the initial `StageMergeCritic` build, three §A.3 parity gaps in 
 **Final merged schema:** `{"segments": [{"text": str, "context": str|null, "code": str}, ...]}` — three fields per segment, all corresponding to something the structured pipeline component does explicitly (text from segmenter, context from segmenter, code from classifier). The merged arm now adds *zero* responsibilities the structured pipeline doesn't have; the only intentional structural delta is "one call instead of two."
 
 Discipline: documented, not retro-edited into the locked body. These corrections were caught during pre-run audit (no results invalidated).
+
+## Addendum 4 — 2026-05-25 (post-lock, non-modifying): Ablation A `UNCLASSIFIED` fallback parity
+
+**Gap.** The structured pipeline supports per-segment `UNCLASSIFIED` routing (`safety/critic.py:480-490`) — segments whose classification cannot be mapped to a known graph node are tracked separately and trigger a **fail-closed** verdict (`is_safe=False`, `primary_node="UNCLASSIFIED"`, clarification-seeking constraint at `safety/critic.py:520-531`). With `CONFIDENCE_THRESHOLD = 0.0`, this is not a prompt-level uncertainty mechanism in practice; the classifier prompt still forces one of the 12 clinical codes. `UNCLASSIFIED` fires only as a code-level fallback (unknown LLM output + fuzzy-match failure, or total confidence failure). The initial merged-arm build had no per-segment analog: an unknown code → JSON parse failure → `PARSE_FAILURE` (whole-response, not per-segment). That's a structural-feature parity gap distinct from the schema gaps in Addendum 3.
+
+**Fix.** Keep `UNCLASSIFIED` out of the merged prompt's advertised code list. The merged LLM is prompted to emit the same clinical codes as the structured classifier (`HIDE`...`FEEL`) plus `META` for conversational content. Parser-level fallback now maps any unknown per-segment code to `SegmentResult(node_id="UNCLASSIFIED", node_type="unclassified", category="unknown")` instead of failing the whole response. Post-hoc derivation uses the same three-bucket triage as the structured pipeline (`safety/critic.py:494-531`):
+
+```
+if any maladaptive segment:
+    is_safe = False; primary = highest-severity maladaptive   # unchanged
+elif any UNCLASSIFIED segment (no maladaptive):
+    is_safe = False; primary = "UNCLASSIFIED"                  # NEW: fail-closed
+elif any dream segment (no maladaptive, no UNCLASSIFIED):
+    is_safe = True; primary = first dream segment              # unchanged
+else (all META):
+    is_safe = True; primary = "META_ONLY"                      # unchanged
+```
+
+**Note on calibration asymmetry.** In both arms `UNCLASSIFIED` is a *backstop*, not a normal prompted choice. The structured classifier reaches it through unknown-code/fuzzy-match failure or the currently inactive low-confidence route (`CONFIDENCE_THRESHOLD = 0.0`). The merged arm now mirrors that at the parser level by converting unknown per-segment codes to `UNCLASSIFIED`. This closes the mechanism gap without inviting the merged LLM to self-declare uncertainty.
+
+**Caveat on UQ → clarification.** The neighbouring UQ work (semantic consistency, logprobs) was scoped as analytical in this thesis, not a production clarification trigger (per `Changes_2026-03-19.md` §9 and the ensemble proposal in `System2_CoT_Findings.md` §6.5 being documented as future work). So this addendum mirrors the *currently-deployed* `UNCLASSIFIED` pathway, not a hypothetical UQ-driven one.
+
+**Audit note.** An intermediate 2026-05-25 version explicitly prompted the merged LLM to use `UNCLASSIFIED` for ambiguous segments. That closed the mechanism gap but introduced a prompt-behaviour gap: the structured classifier is not invited to self-declare uncertainty. That run was rejected for the thesis analysis and archived as `*_prompted_unclassified.csv`.
+
+**Result reuse.** The final deterministic-fallback implementation does not change the May 21 Ablation A outputs: the May 21 dev and MAL+MAL CSVs had 0 parse failures, 0 `UNCLASSIFIED` predictions, and 0 `UNCLASSIFIED` segments. Therefore the May 21 results are reused as the final strict-parity Ablation A numbers; no extra model run is needed.

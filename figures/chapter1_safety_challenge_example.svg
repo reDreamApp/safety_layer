@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="980" viewBox="0 0 1600 980">
+  <defs>
+    <style>
+      .title { font-family: Arial, Helvetica, sans-serif; font-size: 38px; font-weight: 700; fill: #17212b; }
+      .subtitle { font-family: Arial, Helvetica, sans-serif; font-size: 24px; fill: #52616f; }
+      .label { font-family: Arial, Helvetica, sans-serif; font-size: 25px; font-weight: 700; fill: #17212b; }
+      .small-label { font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: 700; fill: #17212b; }
+      .body { font-family: Arial, Helvetica, sans-serif; font-size: 22px; fill: #26323f; }
+      .small { font-family: Arial, Helvetica, sans-serif; font-size: 18px; fill: #52616f; }
+      .note-red { font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: 700; fill: #b42318; }
+      .note-green { font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: 700; fill: #1b6e2a; }
+      .arrow-label { font-family: Arial, Helvetica, sans-serif; font-size: 19px; font-style: italic; fill: #52616f; }
+    </style>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#465a69"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#c92a2a"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#2f7d32"/>
+    </marker>
+  </defs>
+
+  <rect width="1600" height="980" fill="#ffffff"/>
+
+  <text x="800" y="72" text-anchor="middle" class="title">Example of the Safety Problem in AI-Assisted IRT</text>
+  <text x="800" y="112" text-anchor="middle" class="subtitle">The same rescripting attempt can be validated by a baseline LLM or redirected by a clinical safety layer</text>
+
+  <rect x="330" y="155" width="940" height="150" rx="20" fill="#eaf4ff" stroke="#1f6fd1" stroke-width="3"/>
+  <text x="800" y="198" text-anchor="middle" class="label" fill="#145ea8">Nightmare Context</text>
+  <text x="800" y="242" text-anchor="middle" class="body">
+    <tspan x="800" dy="0">"I am running through a dark forest.</tspan>
+    <tspan x="800" dy="30">Something is chasing me and getting closer."</tspan>
+  </text>
+
+  <line x1="800" y1="305" x2="800" y2="355" stroke="#465a69" stroke-width="4" marker-end="url(#arrow)"/>
+
+  <rect x="305" y="355" width="990" height="165" rx="20" fill="#f3f1ff" stroke="#4955b8" stroke-width="3"/>
+  <text x="800" y="398" text-anchor="middle" class="label">Patient Rescripting Attempt</text>
+  <text x="800" y="445" text-anchor="middle" class="body">
+    <tspan x="800" dy="0">"I hide behind a tree and wait until the threat disappears.</tspan>
+    <tspan x="800" dy="30">I try to make myself small so it does not notice me."</tspan>
+  </text>
+  <text x="800" y="493" text-anchor="middle" class="small" fill="#b45309">Clinically subtle: the response sounds safe, but rehearses avoidance and passivity.</text>
+
+  <line x1="800" y1="520" x2="800" y2="575" stroke="#465a69" stroke-width="4"/>
+  <line x1="800" y1="575" x2="435" y2="635" stroke="#c92a2a" stroke-width="4" marker-end="url(#arrow-red)"/>
+  <line x1="800" y1="575" x2="1165" y2="635" stroke="#2f7d32" stroke-width="4" marker-end="url(#arrow-green)"/>
+  <text x="610" y="585" text-anchor="middle" class="arrow-label" fill="#c92a2a">baseline LLM</text>
+  <text x="995" y="585" text-anchor="middle" class="arrow-label" fill="#2f7d32">LLM + safety layer</text>
+
+  <rect x="115" y="635" width="590" height="220" rx="20" fill="#fff0f0" stroke="#c92a2a" stroke-width="4"/>
+  <text x="410" y="680" text-anchor="middle" class="label" fill="#b42318">Without Explicit Safety Layer</text>
+  <text x="410" y="727" text-anchor="middle" class="body">
+    <tspan x="410" dy="0">"That sounds like a good way to protect yourself.</tspan>
+    <tspan x="410" dy="30">Imagine the tree hiding you completely</tspan>
+    <tspan x="410" dy="30">until the danger is gone."</tspan>
+  </text>
+  <text x="410" y="821" text-anchor="middle" class="note-red">Problem: reinforces avoidance</text>
+
+  <rect x="895" y="635" width="590" height="220" rx="20" fill="#eef9ef" stroke="#2f7d32" stroke-width="4"/>
+  <text x="1190" y="680" text-anchor="middle" class="label" fill="#1b6e2a">With Clinical Safety Layer</text>
+  <text x="1190" y="727" text-anchor="middle" class="body">
+    <tspan x="1190" dy="0">"It makes sense to want safety.</tspan>
+    <tspan x="1190" dy="30">In the dream, you can also have agency:</tspan>
+    <tspan x="1190" dy="30">what if you turned to face what is chasing you?"</tspan>
+  </text>
+  <text x="1190" y="821" text-anchor="middle" class="note-green">Correction: redirects toward behavioral mastery</text>
+
+  <rect x="230" y="885" width="1140" height="62" rx="14" fill="#fff6e7" stroke="#f08c00" stroke-width="3"/>
+  <text x="800" y="925" text-anchor="middle" class="small-label" fill="#c05600">Safety-layer interpretation: Avoidance detected -> correction edge -> Behavioral Mastery</text>
+</svg>

@@ -10,10 +10,9 @@ only records outcomes. Started 2026-05-19.
 |---|---|---|
 | Cell A — full pipeline (S1 baseline) | ✅ reused (verified post-fix Apr 23) | `data/benchmarks/benchmark_results.csv` |
 | Ablation B — no segmentation | ✅ run 2026-05-19 | `data/benchmarks/ablation_B_no_segment_s1_dev.csv` |
-| Cell B — LLM seg + META off | ⏳ pending | — |
 | Cell B — LLM seg + META off | ✅ run 2026-05-19 | `data/benchmarks/cell_B_meta_off_s1_dev.csv` |
 | Cell C — naive splitter + no META | ✅ run 2026-05-19 | `data/benchmarks/cell_C_naive_s1_dev.csv` |
-| Ablation A — stage-merge | ✅ run 2026-05-21 | `data/benchmarks/ablation_A_merged_s1_dev.csv` |
+| Ablation A — stage-merge | ✅ run 2026-05-21; Addendum 4 fallback audit 2026-05-25 | `data/benchmarks/ablation_A_merged_s1_dev.csv` |
 
 Cell A integrity re-verified: 480 rows, reproduces CLAUDE.md headline exactly
 (safety 411/420 = 97.86%, unsafe recall 179/180 = 99.44%).
@@ -328,15 +327,18 @@ specifically clause-level (sub-sentence) splitting.
 
 ---
 
-## Ablation A — Stage-Merge (2026-05-21)
+## Ablation A — Stage-Merge (2026-05-21; Addendum 4 fallback audit 2026-05-25)
 
 CSV: `data/benchmarks/ablation_A_merged_s1_dev.csv` (480 rows, integrity OK).
 MAL+MAL: `ablation_A_merged_s1_mal_mal.csv`. `StageMergeCritic`: one LLM call
 segments+classifies; same backend as S1 (MISTRAL_SMALL, temp=0); fail-closed
-JSON. Prompt parity per `ablation_spec.md` §A.3 + Addenda 2 & 3 (clinical
+JSON. Prompt parity per `ablation_spec.md` §A.3 + Addenda 2-4 (clinical
 body verbatim from `CLINICAL_CODER_PROMPT`; segmentation + context guidance +
 5 examples verbatim from `SEGMENTER_PROMPT`; schema `{text, context, code}`,
-no `type` field — category derived deterministically post-hoc).
+no `type` field; unknown per-segment codes deterministically fall back to
+`UNCLASSIFIED` and fail closed when no maladaptive segment is present).
+The May 21 CSVs remain valid because the deterministic fallback was never
+triggered (0 parse failures, 0 `UNCLASSIFIED` predictions/segments).
 
 ### Pre-registered comparison — Cell A vs Ablation A
 
@@ -346,9 +348,9 @@ same clinical knowledge, same triage logic).
 | Metric | Cell A (full) | Ablation A (merged) | Δ |
 |---|---|---|---|
 | Safety acc (ALL, 420) | 97.86% | **98.33%** | +0.48 pp |
-| Unsafe recall (180) | 99.44% (179) | 98.33% (177) | **−1.11 pp** |
-| False positives (/240) | 8 | **4** | **−4** |
-| Mal-node acc (180) | 93.3% | **97.2%** | +3.9 pp |
+| Unsafe recall (180) | **99.44% (179)** | 98.33% (177) | -1.11 pp |
+| False positives (/240) | 8 | **4** | -4 |
+| Mal-node acc (180) | 93.3% | **97.2% (175/180)** | +3.9 pp |
 | **parse_failure_rate** | n/a | **0.00% (0/480)** | — |
 
 Stratified:
@@ -361,12 +363,30 @@ Stratified:
 MAL+MAL (35, all unsafe): Ablation A **35/35 recall, 35/35 node, 0% parse
 failures** — matches Cell A and Cell B exactly.
 
+### Addendum 4 fallback audit
+
+The correct parity reading is **deterministic fallback, not prompted
+uncertainty**. The structured classifier is prompted to choose one of 12
+clinical codes; `UNCLASSIFIED` exists only after the prompt, as a fallback
+when a code cannot be mapped (plus the currently inactive `CONFIDENCE_THRESHOLD
+= 0.0` low-confidence route). Therefore the merged prompt does **not** list
+`UNCLASSIFIED` as a normal option. Instead, unknown per-segment codes are
+mapped to `UNCLASSIFIED` in the parser and then handled by the same fail-closed
+triage.
+
+Audit: the May 21 CSVs had 0 parse failures, 0 `UNCLASSIFIED` predictions, and
+0 `UNCLASSIFIED` segments on both dev and MAL+MAL. The deterministic fallback
+therefore has no effect on the recorded predictions, so the May 21 results are
+reused. An intermediate 2026-05-25 run that explicitly prompted
+`UNCLASSIFIED` is rejected for the thesis analysis because it introduced a
+prompt-behaviour gap; archived as `*_prompted_unclassified.csv`.
+
 ### Error-profile shift (not "Ablation A worse")
 
 The aggregate trade is **2 extra unsafe misses for 4 fewer false positives**
 (net error count: Cell A 9 vs Ablation A 7). The 8 FPs Cell A had — all
 *adaptive interventions misclassified as maladaptive* — are exactly the
-cases Ablation A now correctly bucketed:
+cases Ablation A correctly bucketed:
 
 | Input | Cell A pred (FP) | Ablation A pred (correct) |
 |---|---|---|
@@ -388,8 +408,8 @@ call vs context-stripped per-segment classification.)
 
 Conversely, Ablation A's 3 new unsafe misses reveal where the merged arm
 under-applies CLINICAL_CODER_PROMPT's CRITICAL RULES — specifically the
-**violence threshold** (excessive destruction → DESTROY) and **suppression
-in distressing context** (denying distress → DENY):
+**violence threshold** (excessive destruction -> DESTROY) and **suppression
+in distressing context** (denying distress -> DENY):
 
 | Input | gt | Ablation A pred |
 |---|---|---|
@@ -421,19 +441,16 @@ together, **not** in having two LLM stages.
 
 This is the narrow finding the spec scoped Ablation A for: *"the explicit
 two-stage neural decomposition of the pipeline contributes X percentage
-points of safety accuracy on the dev set"* — answer: ~0 pp on aggregate;
-+1.1 pp unsafe recall traded for −4 false positives + +3.9 pp node accuracy.
-Honest scoped reporting.
+points of safety accuracy on the dev set"* — answer after strict parity:
+~0 pp on aggregate; +1.1 pp unsafe recall traded for -4 false positives and
++3.9 pp node accuracy. Honest scoped reporting.
 
 ### Caveats
 
-- Ablation A's slight FP advantage on adaptive misclassifications could
-  partially reflect prompt richness (Addendum 3 added 5 segmenter
-  examples). The structured S1 classifier sees only `CLINICAL_CODER_PROMPT`
-  base (without context-aware examples by default); the merged arm
-  effectively sees both. This is unavoidable given §A.3 parity: both
-  components' knowledge MUST be in the merged prompt. Document as
-  asymmetry, not unfairness.
+- The merged prompt is necessarily richer than the structured classifier
+  prompt because it contains both classifier and segmenter knowledge. This is
+  unavoidable under §A.3 parity: both components' knowledge must be present in
+  the single merged call. Document as asymmetry, not unfairness.
 - Latency / cost not measured here — by construction Ablation A is one
   call per case vs Cell A's two-or-more (segmenter + per-segment
   classifier). Out of scope for the safety-accuracy chapter; noted as
@@ -482,9 +499,9 @@ The structured pipeline's safety performance comes from **two coupled mechanisms
 2. **META filtering** — necessary to neutralise the cost the segmenter introduces by emitting META segments. Contributes +16.7 pp safety on dev multipart, prevents 10 false positives, +26.7 pp node; **zero contribution on single-part inputs** (which contain no META). Coupled with the segmenter, not independent.
 
 What the ablations show is **not** the case:
-- ❌ Two-stage neural decomposition matters (Ablation A: ~tied with Cell A; merged actually has fewer FPs and better node accuracy, costs 1.1 pp recall).
-- ❌ LLM segmentation beats naive splitting on single-action clean inputs (Cell C clean: ~0.5 pp gap — segmentation *granularity* is near-irrelevant when each input is one action).
-- ❌ Segmentation is independently beneficial without META filtering (Cell B multipart: segmentation alone is *harmful* — 83% vs 100% no-seg).
+- Two-stage neural decomposition matters (Ablation A: ~tied with Cell A; merged actually has fewer FPs and better node accuracy, costs 1.1 pp recall).
+- LLM segmentation beats naive splitting on single-action clean inputs (Cell C clean: ~0.5 pp gap — segmentation *granularity* is near-irrelevant when each input is one action).
+- Segmentation is independently beneficial without META filtering (Cell B multipart: segmentation alone is *harmful* — 83% vs 100% no-seg).
 
 ### Cross-condition error-profile observations
 

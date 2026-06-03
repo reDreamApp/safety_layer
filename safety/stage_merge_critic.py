@@ -7,7 +7,7 @@ is_safe / primary_node verdict are derived post-hoc in code, identically
 to the structured pipeline — the LLM does NOT do constraint synthesis or
 correction generation (those are not scored on the dev benchmark).
 
-Parity (spec §A.3 + Addenda 2 & 3): the system prompt is the
+Parity (spec §A.3 + Addenda 2, 3 & 4): the system prompt is the
 CLINICAL_CODER_PROMPT clinical body VERBATIM (intro + 12 definitions +
 7 rules + examples), then a segmentation + context-extraction section
 ported from SEGMENTER_PROMPT (verbatim guidance + 5 verbatim Inputs from
@@ -24,10 +24,11 @@ edges in the prompt (§A.3 / §"Don'ts").
 
 Fail-closed JSON policy (spec §A.4, adapted): two attempts at
 temperature=0; validation = JSON object with non-empty segments array,
-each segment has text (non-empty str) + code (str in CODE_MAP ∪ {META})
-+ context (str|null, optional defaulting to null). On double failure
-record is_safe=False, node_id="PARSE_FAILURE", parse_failure=True,
-segments=[].
+each segment has text (non-empty str) + code (str) + context (str|null,
+optional defaulting to null). Unknown per-segment codes route to
+UNCLASSIFIED, matching the structured classifier's post-prompt fallback.
+On double JSON/schema failure record is_safe=False, node_id="PARSE_FAILURE",
+parse_failure=True, segments=[].
 """
 
 import json
@@ -167,11 +168,12 @@ class StageMergeCritic:
         """Return validated SegmentResult list, or None if invalid.
 
         Schema (Addendum 3): each segment has `text` (non-empty str),
-        `code` (str ∈ CODE_MAP ∪ {"META"}), and optionally `context`
-        (str | null; defaults to None if missing). `node_type` and
-        `category` are derived deterministically from `code` via
-        CODE_MAP + graph lookup — the SAME path the structured
-        classifier uses post-hoc. No `type` field check (Addendum 3).
+        `code` (str), and optionally `context` (str | null; defaults to
+        None if missing). `node_type` and `category` are derived
+        deterministically from `code` via CODE_MAP + graph lookup — the
+        SAME path the structured classifier uses post-hoc. Unknown
+        per-segment codes route to UNCLASSIFIED as a deterministic
+        backstop (Addendum 4). No `type` field check (Addendum 3).
         """
         try:
             obj = json.loads(self._extract_json(raw))
@@ -206,11 +208,28 @@ class StageMergeCritic:
                                          context=context, node_id="META",
                                          node_type="meta", category="meta"))
                 continue
-            # Clinical content: code must map (post-hoc, mirrors structured
-            # classifier's CODE_MAP lookup — no separate type check).
+            if code == "UNCLASSIFIED":
+                # Addendum 4 (2026-05-21): parity with structured pipeline's
+                # per-segment UNCLASSIFIED routing (safety/critic.py:480-490).
+                out.append(SegmentResult(
+                    text=text, segment_type="ACTION", context=context,
+                    node_id="UNCLASSIFIED", node_type="unclassified",
+                    category="unknown",
+                ))
+                continue
+            # Clinical content: code maps post-hoc, mirroring the structured
+            # classifier's CODE_MAP lookup. Unknown per-segment codes are not
+            # whole-response parse failures; they route to UNCLASSIFIED, the
+            # structured classifier's deterministic backstop after parse/fuzzy
+            # matching failure.
             node_id = CODE_MAP.get(code)
             if node_id is None or node_id not in self.graph:
-                return None
+                out.append(SegmentResult(
+                    text=text, segment_type="ACTION", context=context,
+                    node_id="UNCLASSIFIED", node_type="unclassified",
+                    category="unknown",
+                ))
+                continue
             out.append(SegmentResult(
                 text=text, segment_type="ACTION", context=context,
                 node_id=node_id,
@@ -224,33 +243,52 @@ class StageMergeCritic:
     def _derive(self, segments: List[SegmentResult], user_input: str) -> SafetyResult:
         # Step 1: mirror the structured META filter (critic.py:296)
         dream = [s for s in segments if s.node_type != "meta"]
-        # Step 2: is_safe from non-META segments
-        is_safe = not any(s.node_type == "maladaptive" for s in dream)
-        # Step 3: primary node — highest-severity maladaptive, else first
-        # dream segment, else META_ONLY (all-meta -> safe).
+        # Step 2: three-bucket triage IDENTICAL to structured pipeline
+        # (safety/critic.py:494-531; Addendum 4):
+        #   maladaptive > UNCLASSIFIED (fail-closed) > adaptive/neutral.
         maladaptive = [s for s in dream if s.node_type == "maladaptive"]
+        unclassified = [s for s in dream if s.node_type == "unclassified"]
+        adaptive_segments = [s for s in dream
+                             if s.node_type in ("adaptive", "neutral")]
+
         if maladaptive:
             primary = min(maladaptive,
                           key=lambda s: SEVERITY_PRIORITY.get(s.node_id, 99))
             node_id, node_type = primary.node_id, "maladaptive"
             category = primary.category
+            is_safe = False
+        elif unclassified:
+            # Fail-closed: no clear risk but uncertain segments present.
+            # Mirrors safety/critic.py:520-531 exactly (is_safe=False,
+            # primary="UNCLASSIFIED" — clarification-seeking verdict).
+            node_id, node_type, category = "UNCLASSIFIED", "unclassified", "unknown"
+            is_safe = False
         elif dream:
             p = dream[0]
             node_id, node_type, category = p.node_id, p.node_type, p.category
+            is_safe = True
         else:
             node_id, node_type, category = "META_ONLY", "neutral", "meta"
             is_safe = True
 
         severity = None
-        if not is_safe:
+        if not is_safe and node_id != "UNCLASSIFIED":
             sev_rank = SEVERITY_PRIORITY.get(node_id)
             severity = {1: "CRITICAL", 2: "HIGH", 3: "HIGH",
                         4: "MODERATE"}.get(sev_rank, "MODERATE")
+        elif node_id == "UNCLASSIFIED":
+            severity = "UNCERTAIN"
 
+        # NB SafetyResult has no `unclassified_segments` field — the
+        # structured pipeline tracks unclassified locally and lets them
+        # live in `segments[]` (each carrying node_id="UNCLASSIFIED"). We
+        # do the same: unclassified info is preserved per-segment.
         return SafetyResult(
             is_safe=is_safe, node_id=node_id, node_type=node_type,
             category=category, input_text=user_input,
-            segments=segments, severity=severity,
+            segments=segments,
+            adaptive_segments=adaptive_segments,
+            severity=severity,
         )
 
     # ---- public interface (matches SafetyCritic) ---------------------
