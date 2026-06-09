@@ -7,3 +7,36 @@ Please continue helping me write my thesis. First read:
 Then help me continue from the current state.
 
 Keep the writing readable, direct, and not overly technical. Before editing LaTeX, propose wording briefly unless I ask you to edit directly. After edits, rebuild the PDF with `cd thesis && make pdf`.
+
+
+
+
+
+also i feel like this paragraph kinda repeats and is kinda akward after already explaining the categories
+
+The literature did not provide a ready-made computational safety ontology for IRT.
+The category set was therefore constructed for this thesis by combining two sources
+of guidance. The adaptive categories follow the MMS mastery dimensions. The
+maladaptive categories capture rewriting actions that would be problematic for an IRT-
+style rescripting task: escaping the scene, ending the dream, repeating it unchanged,
+escalating into destructive revenge, or denying the emotional impact of distressing
+material. These categories are not presented as the only possible ontology, but as a
+concrete and reviewable formalization that can be implemented, tested, and revised.
+
+
+
+
+also here i feel like we dont need to justify that much that trauma replay and interruption are separate categories. i mean they are obviously pretty different concepts
+
+ This
+motivated separate categories for interruption and trauma replay. Interruption captures
+attempts to end the dream or wake up instead of continuing the rescripting process.
+Trauma replay captures cases where the client repeats the traumatic nightmare without
+introducing a meaningful change. In this ontology, trauma replay is therefore treated
+as an operational safety category for AI-assisted rescripting: the claim is not that
+16
+trauma-related nightmare content is inherently unsafe, but that unchanged rehearsal
+of the original scene conflicts with the rescripting goal. Treating these as separate
+categories preserves their different safety needs in the critic pipeline: interruption calls
+for support to remain within the dream, while trauma replay calls for a non-escalatory
+transformation that breaks exact repetition.

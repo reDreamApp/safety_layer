@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Generate Figure 9 (simplified v2): Worked End-to-End Pipeline Example.
+Generate worked end-to-end safety critic example for Chapter 3.
 
-Clean, minimal version. No redundant labels, no bold sub-labels.
-Colors do the work. Text stays readable.
+The figure shows a mixed rewriting-stage turn where adaptive content is
+validated and maladaptive content is redirected.
 """
 
 import subprocess
@@ -16,13 +16,15 @@ digraph worked_example_simple {
         fontname="Helvetica,sans-Serif"
         fontsize=12
         bgcolor="white"
-        pad=0.5
-        nodesep=0.5
-        ranksep=0.55
+        pad=0.4
+        nodesep=0.45
+        ranksep=0.45
         label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0">
-            <TR><TD><B><FONT POINT-SIZE="16" COLOR="#1a1a1a">How the Safety Layer Processes a Patient Response</FONT></B></TD></TR>
+            <TR><TD><B><FONT POINT-SIZE="15" COLOR="#1a1a1a">Worked Safety Critic Example</FONT></B></TD></TR>
+            <TR><TD><FONT POINT-SIZE="9.5" COLOR="#888888">Mixed content: validate adaptive material, redirect maladaptive material</FONT></TD></TR>
         </TABLE>>
         labelloc=t
+        labeljust=c
     ]
     node [fontname="Helvetica,sans-Serif" fontsize=10]
     edge [fontname="Helvetica,sans-Serif" fontsize=9 color="#455A64" penwidth=1.3]
@@ -31,107 +33,114 @@ digraph worked_example_simple {
     input [
         shape=none margin=0
         label=<
-        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"
+        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"
                BGCOLOR="#E3F2FD" COLOR="#1565C0" STYLE="ROUNDED">
-            <TR><TD ALIGN="CENTER"><B><FONT COLOR="#1565C0" POINT-SIZE="11">What the patient says</FONT></B></TD></TR>
-            <TR><TD ALIGN="LEFT" BALIGN="LEFT" WIDTH="440">
-                <FONT POINT-SIZE="10.5">
-                "This exercise is weird, but okay — I find a heavy branch<BR/>
-                on the ground and pick it up. Then I just hide behind<BR/>
-                a tree and hope it goes away."
-                </FONT>
-            </TD></TR>
-        </TABLE>>
-    ]
-
-    // ── Step 1: Split into parts ──
-    step1 [
-        shape=none margin=0
-        label=<
-        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"
-               BGCOLOR="#FAFAFA" COLOR="#BDBDBD" STYLE="ROUNDED">
-            <TR><TD ALIGN="LEFT" COLSPAN="2"><FONT COLOR="#455A64" POINT-SIZE="10"><B>①  Split into parts</B></FONT></TD></TR>
-            <TR><TD HEIGHT="4" COLSPAN="2"></TD></TR>
-            <TR><TD BGCOLOR="#FFF9C4" CELLPADDING="8" STYLE="ROUNDED" ALIGN="LEFT" WIDTH="440">
-                <FONT POINT-SIZE="10" COLOR="#F57F17">"This exercise is weird, but okay"</FONT>
-            </TD></TR>
-            <TR><TD HEIGHT="6" COLSPAN="2"></TD></TR>
-            <TR><TD BGCOLOR="#E8F5E9" CELLPADDING="8" STYLE="ROUNDED" ALIGN="LEFT" WIDTH="440">
-                <FONT POINT-SIZE="10" COLOR="#1a1a1a">"I find a heavy branch and pick it up"</FONT>
-            </TD></TR>
-            <TR><TD HEIGHT="6" COLSPAN="2"></TD></TR>
-            <TR><TD BGCOLOR="#FFEBEE" CELLPADDING="8" STYLE="ROUNDED" ALIGN="LEFT" WIDTH="440">
-                <FONT POINT-SIZE="10" COLOR="#1a1a1a">"I hide behind a tree and hope it goes away"</FONT>
-            </TD></TR>
-        </TABLE>>
-    ]
-
-    // ── Step 2: Evaluate ──
-    step2 [
-        shape=none margin=0
-        label=<
-        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"
-               BGCOLOR="#FAFAFA" COLOR="#BDBDBD" STYLE="ROUNDED">
-            <TR><TD ALIGN="LEFT"><FONT COLOR="#455A64" POINT-SIZE="10"><B>②  Evaluate each part</B></FONT></TD></TR>
-            <TR><TD HEIGHT="4"></TD></TR>
-            <TR><TD ALIGN="LEFT">
-                <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="8" CELLPADDING="0">
+            <TR><TD ALIGN="CENTER"><B><FONT COLOR="#1565C0" POINT-SIZE="11">User Rewriting Turn</FONT></B></TD></TR>
+            <TR><TD ALIGN="CENTER" WIDTH="440">
+                <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
                     <TR>
-                        <TD ALIGN="LEFT" WIDTH="260"><FONT POINT-SIZE="10" COLOR="#9E9E9E"><S>"This exercise is weird"</S></FONT></TD>
-                        <TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#9E9E9E">skipped — not part of dream</FONT></TD>
-                    </TR>
-                    <TR>
-                        <TD ALIGN="LEFT"><FONT POINT-SIZE="10">"find a heavy branch"</FONT></TD>
-                        <TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#2E7D32">✓  Using tools (adaptive)</FONT></TD>
-                    </TR>
-                    <TR>
-                        <TD ALIGN="LEFT"><FONT POINT-SIZE="10">"hide behind a tree"</FONT></TD>
-                        <TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#C62828">✗  Avoidance (maladaptive)</FONT></TD>
+                        <TD WIDTH="65"></TD>
+                        <TD ALIGN="LEFT" WIDTH="310">
+                            <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+                                <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10.5">"I call my brother for help, then I burn</FONT></TD></TR>
+                                <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10.5">the whole city down."</FONT></TD></TR>
+                            </TABLE>
+                        </TD>
+                        <TD WIDTH="65"></TD>
                     </TR>
                 </TABLE>
             </TD></TR>
         </TABLE>>
     ]
 
-    // ── Step 3: Detection ──
-    step3 [
+    // ── Step 1: Segment and classify ──
+    step1 [
+        shape=none margin=0
+        label=<
+        <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7"
+               BGCOLOR="#FAFAFA" COLOR="#BDBDBD" STYLE="ROUNDED">
+            <TR><TD ALIGN="CENTER" COLSPAN="3" BGCOLOR="#FAFAFA" COLOR="#FAFAFA">
+                <FONT COLOR="#455A64" POINT-SIZE="10"><B>Segment and classify dream-relevant parts</B></FONT>
+            </TD></TR>
+            <TR>
+                <TD BGCOLOR="#E8F5E9" COLOR="#E8F5E9" ALIGN="CENTER" WIDTH="250">
+                    <FONT POINT-SIZE="10">"I call my brother for help"</FONT>
+                </TD>
+                <TD BGCOLOR="#E8F5E9" COLOR="#E8F5E9" ALIGN="CENTER" WIDTH="160">
+                    <FONT POINT-SIZE="9.5" COLOR="#2E7D32"><B>SOCIAL_MASTERY</B></FONT>
+                </TD>
+                <TD BGCOLOR="#E8F5E9" COLOR="#E8F5E9" ALIGN="CENTER" WIDTH="95">
+                    <FONT POINT-SIZE="9" COLOR="#2E7D32">validate</FONT>
+                </TD>
+            </TR>
+            <TR>
+                <TD BGCOLOR="#FFEBEE" COLOR="#FFEBEE" ALIGN="CENTER" WIDTH="250">
+                    <FONT POINT-SIZE="10">"I burn the whole city down"</FONT>
+                </TD>
+                <TD BGCOLOR="#FFEBEE" COLOR="#FFEBEE" ALIGN="CENTER" WIDTH="160">
+                    <FONT POINT-SIZE="9.5" COLOR="#C62828"><B>VIOLENT_REVENGE</B></FONT>
+                </TD>
+                <TD BGCOLOR="#FFEBEE" COLOR="#FFEBEE" ALIGN="CENTER" WIDTH="95">
+                    <FONT POINT-SIZE="9" COLOR="#C62828">redirect</FONT>
+                </TD>
+            </TR>
+        </TABLE>>
+    ]
+
+    // ── Triage ──
+    triage [
         shape=none margin=0
         label=<
         <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"
                BGCOLOR="#FFF3E0" COLOR="#E65100" STYLE="ROUNDED">
-            <TR><TD ALIGN="LEFT"><FONT COLOR="#E65100" POINT-SIZE="10"><B>③  Maladaptive pattern detected</B></FONT></TD></TR>
-            <TR><TD ALIGN="LEFT" WIDTH="440">
-                <FONT POINT-SIZE="10" COLOR="#333333">
-                The patient picked up a tool (good!) but then fell back<BR/>
-                into hiding and waiting — an avoidance pattern.
-                </FONT>
+            <TR><TD ALIGN="CENTER"><FONT COLOR="#E65100" POINT-SIZE="10"><B>Aggregation and triage</B></FONT></TD></TR>
+            <TR><TD ALIGN="CENTER" WIDTH="440">
+                <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+                    <TR>
+                        <TD WIDTH="45"></TD>
+                        <TD ALIGN="LEFT" WIDTH="350">
+                            <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+                                <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#333333">The turn contains one adaptive segment</FONT></TD></TR>
+                                <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#333333">and one maladaptive segment.</FONT></TD></TR>
+                                <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#333333">The critic selects <B>VIOLENT_REVENGE</B> as the primary risk.</FONT></TD></TR>
+                            </TABLE>
+                        </TD>
+                        <TD WIDTH="45"></TD>
+                    </TR>
+                </TABLE>
             </TD></TR>
         </TABLE>>
     ]
 
-    // ── Step 4: Guidance ──
-    step4 [
+    // ── Constraint ──
+    constraint [
         shape=none margin=0
         label=<
         <TABLE BORDER="2" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"
                BGCOLOR="#E8F5E9" COLOR="#2E7D32" STYLE="ROUNDED">
-            <TR><TD ALIGN="LEFT"><FONT COLOR="#2E7D32" POINT-SIZE="10"><B>④  Guide the chatbot's response</B></FONT></TD></TR>
-            <TR><TD ALIGN="LEFT" BALIGN="LEFT" WIDTH="440">
-                <FONT POINT-SIZE="10" COLOR="#1a1a1a">
-                Acknowledge the positive step (picking up the branch).<BR/>
-                Redirect away from hiding — encourage the patient to<BR/>
-                use the branch actively, e.g. confronting the threat<BR/>
-                or creating a barrier.
-                </FONT>
+            <TR><TD ALIGN="CENTER"><FONT COLOR="#2E7D32" POINT-SIZE="10"><B>Constraint for response generation</B></FONT></TD></TR>
+            <TR><TD ALIGN="CENTER" WIDTH="440">
+                <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+                    <TR>
+                        <TD WIDTH="45"></TD>
+                        <TD ALIGN="LEFT" WIDTH="350">
+                            <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+                                <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1a1a1a">Validate the help-seeking element.</FONT></TD></TR>
+                                <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1a1a1a">Do not praise or restate the destructive retaliation.</FONT></TD></TR>
+                                <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1a1a1a">Redirect toward controlled action, support, or regulation.</FONT></TD></TR>
+                            </TABLE>
+                        </TD>
+                        <TD WIDTH="45"></TD>
+                    </TR>
+                </TABLE>
             </TD></TR>
         </TABLE>>
     ]
 
     // ── Edges ──
     input -> step1
-    step1 -> step2
-    step2 -> step3
-    step3 -> step4
+    step1 -> triage
+    triage -> constraint
 }
 '''
 

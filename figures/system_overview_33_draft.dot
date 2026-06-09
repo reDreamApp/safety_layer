@@ -1,0 +1,155 @@
+digraph system_overview_33 {
+    graph [
+        rankdir=TB
+        fontname="Helvetica,sans-Serif"
+        fontsize=12
+        bgcolor="white"
+        pad=0.35
+        nodesep=0.65
+        ranksep=0.75
+        splines=true
+    ]
+
+    node [fontname="Helvetica,sans-Serif" fontsize=9 shape=box style="rounded,filled" penwidth=1.2]
+    edge [fontname="Helvetica,sans-Serif" fontsize=8 color="#455A64" arrowsize=0.75]
+
+    title [
+        shape=none
+        style=""
+        margin=0
+        label=<
+        <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="2">
+            <TR><TD><B><FONT POINT-SIZE="15" COLOR="#1a1a1a">System Overview and Integration Point</FONT></B></TD></TR>
+            <TR><TD><FONT POINT-SIZE="10" COLOR="#666666">The safety layer is active only during rewriting</FONT></TD></TR>
+        </TABLE>>
+    ]
+
+    client [
+        label=<
+        <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8">
+            <TR><TD><B><FONT COLOR="#1565C0">Client</FONT></B></TD></TR>
+            <TR><TD><FONT POINT-SIZE="8" COLOR="#555555">describes and rewrites<BR/>the nightmare</FONT></TD></TR>
+        </TABLE>>
+        fillcolor="#E3F2FD"
+        color="#1565C0"
+    ]
+
+    chatbot [
+        shape=none
+        margin=0
+        label=<
+        <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9" COLOR="#455A64">
+            <TR>
+                <TD COLSPAN="7" BGCOLOR="#ECEFF1">
+                    <B><FONT COLOR="#455A64" POINT-SIZE="12">IRT Chatbot</FONT></B>
+                </TD>
+            </TR>
+            <TR>
+                <TD COLSPAN="7">
+                    <FONT POINT-SIZE="8" COLOR="#555555"><B>1. Stage router selects the current phase</B></FONT>
+                </TD>
+            </TR>
+            <TR>
+                <TD PORT="recording" BGCOLOR="#F5F5F5" BORDER="1" COLOR="#B0BEC5" WIDTH="110" HEIGHT="60">
+                    <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="1">
+                        <TR><TD ALIGN="CENTER"><B>Recording</B></TD></TR>
+                        <TR><TD ALIGN="CENTER"><FONT POINT-SIZE="8" COLOR="#666666">nightmare</FONT></TD></TR>
+                        <TR><TD ALIGN="CENTER"><FONT POINT-SIZE="8" COLOR="#666666">description</FONT></TD></TR>
+                    </TABLE>
+                </TD>
+                <TD BGCOLOR="white"><FONT POINT-SIZE="13" COLOR="#78909C">&#8594;</FONT></TD>
+                <TD PORT="rewriting" BGCOLOR="#FBE9E7" BORDER="2" COLOR="#C62828" WIDTH="110" HEIGHT="60">
+                    <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="1">
+                        <TR><TD ALIGN="CENTER"><B><FONT COLOR="#C62828">Rewriting</FONT></B></TD></TR>
+                        <TR><TD ALIGN="CENTER"><FONT POINT-SIZE="8" COLOR="#555555">proposed dream</FONT></TD></TR>
+                        <TR><TD ALIGN="CENTER"><FONT POINT-SIZE="8" COLOR="#555555">modification</FONT></TD></TR>
+                    </TABLE>
+                </TD>
+                <TD BGCOLOR="white"><FONT POINT-SIZE="13" COLOR="#78909C">&#8594;</FONT></TD>
+                <TD PORT="summary" BGCOLOR="#F5F5F5" BORDER="1" COLOR="#B0BEC5" WIDTH="110" HEIGHT="60">
+                    <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="1">
+                        <TR><TD ALIGN="CENTER"><B>Summary</B></TD></TR>
+                        <TR><TD ALIGN="CENTER"><FONT POINT-SIZE="8" COLOR="#666666">dream</FONT></TD></TR>
+                        <TR><TD ALIGN="CENTER"><FONT POINT-SIZE="8" COLOR="#666666">summary</FONT></TD></TR>
+                    </TABLE>
+                </TD>
+                <TD BGCOLOR="white"><FONT POINT-SIZE="13" COLOR="#78909C">&#8594;</FONT></TD>
+                <TD PORT="final" BGCOLOR="#F5F5F5" BORDER="1" COLOR="#B0BEC5" WIDTH="110" HEIGHT="60">
+                    <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="1">
+                        <TR><TD ALIGN="CENTER"><B>Final</B></TD></TR>
+                        <TR><TD ALIGN="CENTER"><FONT POINT-SIZE="8" COLOR="#666666">closing</FONT></TD></TR>
+                        <TR><TD ALIGN="CENTER"><FONT POINT-SIZE="8" COLOR="#666666">message</FONT></TD></TR>
+                    </TABLE>
+                </TD>
+            </TR>
+            <TR>
+                <TD COLSPAN="7" PORT="generator" BGCOLOR="#ECEFF1" BORDER="1" COLOR="#455A64">
+                    <B><FONT COLOR="#455A64">2. Response generator</FONT></B><BR/>
+                    <FONT POINT-SIZE="8" COLOR="#555555">use selected phase prompt + optional constraint message</FONT>
+                </TD>
+            </TR>
+        </TABLE>>
+    ]
+
+    safety [
+        label=<
+        <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8">
+            <TR><TD><B><FONT COLOR="#C62828">Safety Layer</FONT></B></TD></TR>
+            <TR><TD><FONT POINT-SIZE="8" COLOR="#555555">classifies the rewriting action<BR/>against the ontology</FONT></TD></TR>
+        </TABLE>>
+        fillcolor="#FFEBEE"
+        color="#C62828"
+        penwidth=2.0
+    ]
+
+    result [
+        label=<
+        <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8">
+            <TR><TD><B><FONT COLOR="#2E7D32">Safety Result</FONT></B></TD></TR>
+            <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="8" COLOR="#555555">
+                safe: proceed<BR ALIGN="LEFT"/>
+                uncertain: ask clarification<BR ALIGN="LEFT"/>
+                unsafe: add constraint message
+            </FONT></TD></TR>
+        </TABLE>>
+        fillcolor="#E8F5E9"
+        color="#2E7D32"
+    ]
+
+    response [
+        label=<
+        <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8">
+            <TR><TD><B><FONT COLOR="#1565C0">Assistant Response</FONT></B></TD></TR>
+            <TR><TD><FONT POINT-SIZE="8" COLOR="#555555">supportive IRT<BR/>dialogue</FONT></TD></TR>
+        </TABLE>>
+        fillcolor="#E3F2FD"
+        color="#1565C0"
+    ]
+
+    title -> chatbot [style=invis weight=10]
+
+    { rank=same; client; chatbot; response }
+    { rank=same; safety; result }
+
+    client -> chatbot [label=<user message> penwidth=1.2]
+
+    chatbot:generator -> response [label=<assistant reply> penwidth=1.2]
+
+    chatbot:rewriting -> safety [
+        label=<rewriting message<BR/>+ nightmare summary>
+        color="#C62828"
+        fontcolor="#C62828"
+        style=dashed
+        penwidth=1.5
+    ]
+
+    safety -> result [color="#C62828" penwidth=1.3]
+
+    result -> chatbot:generator [
+        label=<pass, clarify,<BR/>or constrain>
+        color="#2E7D32"
+        fontcolor="#2E7D32"
+        style=dashed
+        penwidth=1.5
+    ]
+}

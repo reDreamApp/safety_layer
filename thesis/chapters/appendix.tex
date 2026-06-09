@@ -1,8 +1,126 @@
+% !TEX root = ../main.tex
+
 \chapter{Additional Materials}
 
 \section{Ontology Definitions}
 
 \todo{Add node definitions, correction edges, and clinical grounding tables if they are too large for the main text.}
+
+\section{Classifier Prompts and Label Mapping}
+\label{app:classifier-prompts}
+
+This appendix documents the model-facing labels and prompt structure used by the ontology classifier described in \Cref{sec:safety-layer-classification}. The evaluated default classifier used the prompts below without the optional context-aware few-shot examples implemented for later ablations.
+
+\subsection{Code-to-Node Mapping}
+
+\begin{longtable}{>{\ttfamily}p{0.28\linewidth}>{\ttfamily}p{0.58\linewidth}}
+  \caption{Classifier codes and corresponding ontology nodes. Category meanings are given in the prompt excerpt below.}
+  \label{tab:classifier-code-map}\\
+  \toprule
+  Code & Ontology node \\
+  \midrule
+  \endfirsthead
+  \toprule
+  Code & Ontology node \\
+  \midrule
+  \endhead
+  HIDE & AVOIDANCE \\
+  ESCAPE & INTERRUPTION \\
+  DESTROY & VIOLENT\_REVENGE \\
+  DENY & SUPPRESSION \\
+  REPLAY & TRAUMA\_REPLAY \\
+  CONFRONT & BEHAVIORAL\_MASTERY \\
+  HELP & SOCIAL\_MASTERY \\
+  CHANGE & ENVIRONMENTAL\_MASTERY \\
+  RELAX & EMOTIONAL\_MASTERY \\
+  POWER & MYTHICAL\_MASTERY \\
+  LOOK & NARRATIVE\_SETTING \\
+  FEEL & AFFECT\_EXPRESSION \\
+  \bottomrule
+\end{longtable}
+
+\subsection{System 1 Direct Classifier Prompt}
+
+System 1 asks the model to return exactly one code. The production prompt contains the following category definitions, boundary rules, examples, and response constraint.
+
+\begin{quote}
+\small
+You are a Clinical Coder for Imagery Rehearsal Therapy (IRT). Classify dream actions into one of 12 codes.
+
+\textbf{Maladaptive codes:}
+\texttt{HIDE} for avoidance, hiding, freezing by choice, looking away, passive observation, or choosing to do nothing;
+\texttt{ESCAPE} for forcing awake, waking up, abrupt dream ending, or refusing to continue;
+\texttt{DESTROY} for brutal excessive violence, torture, mutilation, killing everyone, or uncontrolled rage;
+\texttt{DENY} for emotional suppression, claiming to feel nothing, denying distress in a distressing context, or emotional numbing;
+\texttt{REPLAY} for re-experiencing trauma without change, rehearsing the nightmare identically, refusing to alter the narrative, or reliving events exactly as they happened.
+
+\textbf{Adaptive codes:}
+\texttt{CONFRONT} for fighting back proportionately, running purposefully, taking control, or direct action;
+\texttt{HELP} for calling for help, allies appearing, working with others, or asking for assistance;
+\texttt{CHANGE} for finding weapons or tools, using objects, favorable environmental change, or manipulating the setting;
+\texttt{RELAX} for calming down, deep breathing, accepting peacefully, transforming fear, or staying present;
+\texttt{POWER} for magical powers, divine intervention, superpowers, or impossible abilities.
+
+\textbf{Neutral codes:}
+\texttt{LOOK} for describing environment, characters, or setting without action;
+\texttt{FEEL} for stating feelings without a behavioral strategy.
+
+\textbf{Critical rules:}
+controlled defense maps to \texttt{CONFRONT}, while excessive or rageful violence maps to \texttt{DESTROY};
+expressing emotion maps to \texttt{FEEL}, while actively disengaging from emotion maps to \texttt{HIDE};
+seeking help maps to \texttt{HELP}, using objects or changing the setting maps to \texttt{CHANGE}, and direct physical action maps to \texttt{CONFRONT};
+negated avoidance, such as deciding not to run, maps to \texttt{CONFRONT};
+imagined shields or protection map to \texttt{POWER} or \texttt{CHANGE}, breathing or self-reassurance maps to \texttt{RELAX}, and trying not to feel maps to \texttt{DENY};
+engaged emotional regulation maps to \texttt{RELAX}, while emotional shutdown in a distressing context maps to \texttt{DENY};
+scene description maps to \texttt{LOOK}, while reliving trauma identically maps to \texttt{REPLAY}.
+
+\textbf{Examples:}
+``I hide under the bed'' $\rightarrow$ \texttt{HIDE};
+``I wake myself up'' $\rightarrow$ \texttt{ESCAPE};
+``I kill everyone brutally'' $\rightarrow$ \texttt{DESTROY};
+``I don't feel anything about it'' $\rightarrow$ \texttt{DENY};
+``It all happens exactly the same way again'' $\rightarrow$ \texttt{REPLAY};
+``I punch the attacker'' $\rightarrow$ \texttt{CONFRONT};
+``I call for help'' $\rightarrow$ \texttt{HELP};
+``I find a sword'' $\rightarrow$ \texttt{CHANGE};
+``I take a deep breath'' $\rightarrow$ \texttt{RELAX};
+``I use magic to fly'' $\rightarrow$ \texttt{POWER};
+``There was a dark forest'' $\rightarrow$ \texttt{LOOK};
+``I felt terrified'' $\rightarrow$ \texttt{FEEL}.
+
+\textbf{Response format:}
+Respond with only one code from \texttt{HIDE}, \texttt{ESCAPE}, \texttt{DESTROY}, \texttt{DENY}, \texttt{REPLAY}, \texttt{CONFRONT}, \texttt{HELP}, \texttt{CHANGE}, \texttt{RELAX}, \texttt{POWER}, \texttt{LOOK}, or \texttt{FEEL}. No explanations.
+\end{quote}
+
+\subsection{System 2 Structured Reasoning Prompt}
+
+System 2 uses the same code definitions, rules, and examples as System 1. The only intended change is the response format: the model is instructed to return a JSON object with the fields \texttt{context\_summary}, \texttt{clinical\_rationale}, and \texttt{classification}. The \texttt{classification} field must contain one of the same 12 codes listed in \Cref{tab:classifier-code-map}.
+
+\section{Example Safety Constraint Message}
+\label{app:example-constraint-message}
+
+The following abbreviated example illustrates the kind of constraint message injected into the response-generator prompt when the critic detects a maladaptive segment alongside adaptive material. It corresponds to the mixed example in \Cref{fig:worked-end-to-end-example}. Line breaks and wording are preserved in simplified form for readability.
+
+\begin{quote}
+\small
+\texttt{[SAFETY SYSTEM - INTERVENTION REQUIRED]}
+
+\texttt{VALIDATE:} The user showed positive elements: ``I call my brother for help''. Acknowledge these first.
+
+\texttt{CORRECT:} User demonstrated \texttt{VIOLENT\_REVENGE}; this is a \texttt{CRITICAL} risk.
+
+Risk description: uncontrolled, chaotic violence that destroys the scene rather than resolving it.
+
+Clinical guideline: guide toward controlled, purposeful action instead of destructive chaos.
+
+\texttt{INSTRUCTION:} Gently redirect using this approach: What focused action could resolve this without destroying everything? How could the user stop the threat without excessive violence?
+
+Alternative therapeutic directions:
+\texttt{BEHAVIORAL\_MASTERY}: controlled, purposeful action;
+\texttt{SOCIAL\_MASTERY}: seeking or working with support.
+
+\texttt{IMPORTANT:} Do not validate, restate, or encourage the maladaptive response, here ``I burn the whole city down''. Use supportive language, focus the correction on this issue, and do not shame or criticize the user's suggestion.
+\end{quote}
 
 \section{Benchmark Details}
 
@@ -11,4 +129,3 @@
 \section{Expert Annotation Materials}
 
 \todo{Add questionnaire, rating instructions, or annotation protocol excerpts as appropriate.}
-% !TEX root = ../main.tex

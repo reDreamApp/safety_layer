@@ -8,9 +8,11 @@ The safety layer needs a clear way to decide which rewriting actions support the
 
 Importantly, the ontology does not classify a dream as unsafe simply because it is frightening or distressing. Distressing content is expected in IRT. A client may describe fear, danger, helplessness, or traumatic imagery without proposing a maladaptive rewriting action. The relevant question is more specific: does the client's proposed action help them gain mastery over the nightmare, or does it encourage a pattern that avoids, suppresses, repeats, or escalates the distressing content?
 
-This distinction follows the clinical logic of IRT. \textcite[196]{germain2004mastery} describe increased mastery over negative dream elements as a key process associated with nightmare reduction. In this thesis, that idea is translated into explicit safety categories. Adaptive categories describe rewriting actions that support mastery, such as taking action, seeking help, changing the environment, regulating emotion, or using imaginative resources. Maladaptive categories describe rewriting actions that may undermine rescripting, such as avoidance, forced awakening, violent revenge, emotional suppression, or trauma replay.
+This distinction follows the clinical logic of IRT. \textcite[538]{krakow2001imagery} describe mastery as pivotal in the resolution of chronic nightmares and later frame IRT's mastery model as a cognitive-behavioral variant through which patients learn that nightmares can be controlled \parencite[544]{krakow2001imagery}. In a review of proposed mechanisms of psychological nightmare treatments, \textcite{rousseau2018mechanisms} similarly identify increased mastery as the most frequently cited hypothesis for treatment efficacy. \textcite[196]{germain2004mastery} then describe increased mastery over negative dream elements as a key process associated with nightmare reduction. In this thesis, that idea is translated into explicit safety categories. Adaptive categories describe rewriting actions that support mastery, such as taking action, seeking help, changing the environment, regulating emotion, or using imaginative resources. Maladaptive categories describe rewriting actions that may undermine rescripting, such as avoidance, forced awakening, violent revenge, emotional suppression, or trauma replay.
 
 The ontology is implemented with a graph representation. This is a modelling choice rather than a strict requirement: the same categories and correction rules could also be encoded as a table. In the graph, nodes represent clinically meaningful types of rewriting actions or contextual statements, and correction links connect maladaptive actions to adaptive alternatives. This representation reflects the way the safety layer was designed and provides a clear way to visualize how unsafe rewriting actions can be redirected toward safer forms of mastery.
+
+The rest of this chapter presents the safety layer in the order in which its parts are needed to understand the implemented system. It first defines the ontology and its clinical review, then explains where the safety layer is inserted into the baseline chatbot. It then describes the LLM classifier that maps rewriting-stage text to ontology categories, before presenting the full critic pipeline that combines segmentation, classification, triage, and constraint synthesis.
 
 \subsection{Ontology Category Set}
 
@@ -112,20 +114,23 @@ Each correction link stores additional information beyond its source and target.
 
 \section{Ontology Development and Expert Review}
 
-The ontology was developed before the safety layer was implemented. Its role was to make the relevant IRT safety concerns explicit enough for a classifier and critic pipeline to use. The goal was not to discover new clinical categories from model behavior. Instead, the ontology translates existing ideas from Imagery Rehearsal Therapy, dream mastery coding, and trauma-related nightmare literature into a small set of categories, severity labels, and correction relationships.
+The ontology was developed before the safety layer was implemented. Its role was to make the relevant IRT safety concerns explicit enough for a classifier and critic pipeline to use. The ontology translates existing ideas from Imagery Rehearsal Therapy, dream mastery coding, and trauma-related nightmare literature into a small set of categories, severity labels, and correction relationships.
 
 The development process followed three steps. First, the adaptive categories were grounded in the Multidimensional Mastery Scale (MMS), which describes different forms of mastery in changed dream content. Second, the maladaptive categories were defined from IRT protocol concerns and trauma-related nightmare concepts: avoidance or waking to escape the dream, unchanged nightmare rehearsal, disproportionate violent revenge, and emotional disengagement from distressing material. Third, the resulting category set and its boundaries were reviewed for clinical plausibility by Dr. Annika Gieselmann. Her review was used to check whether the category set and ontology boundaries were clinically plausible. The reliability and system-level effects of the implemented safety layer are evaluated separately in \Cref{chap:evaluation}.
+
 \subsection{Literature-Based Construction}
 
 The adaptive categories were the most direct part of the ontology to construct. The MMS was developed to measure changes in dream content after IRT and describes several ways in which a dreamer may gain mastery over distressing dream elements \parencite{germain2004mastery}. Five MMS dimensions were used as adaptive ontology categories: behavioral, social, environmental, emotional, and mythical mastery. These categories map naturally onto the kinds of rewriting actions a client may propose during rescripting. A client may act differently, seek help, change the setting, regulate their emotional response, or introduce an imaginative protective element.
 
-Although Germain et al. include avoidance as an MMS subscale, it differs from the other mastery dimensions because it describes escape from, or non-engagement with, unpleasant dream material rather than transformation of that material. The avoidance subscale includes cases in which the dreamer wakes from the dream to escape a perceived threat or avoids unpleasant dream scenes without changing them \parencite[199]{germain2004mastery}. In their study, avoidance was also less frequent in the changed dreams produced during IRT than in the original nightmares \parencite[202--203]{germain2004mastery}. For the present ontology, avoidance was therefore not treated as an adaptive target, but as a pattern the safety layer redirects when it prevents engagement with or transformation of the nightmare.
+Although Germain et al. include avoidance as an MMS subscale, it differs from the other mastery dimensions because it describes escape from, or non-engagement with, unpleasant dream material rather than transformation of that material. The avoidance subscale includes cases in which the dreamer wakes from the dream to escape a perceived threat or avoids unpleasant dream scenes without changing them \parencite[199]{germain2004mastery}. In their study, avoidance was also less frequent in the changed dreams produced during IRT than in the original nightmares \parencite[202--203]{germain2004mastery}. For the present ontology, avoidance was therefore not treated as an adaptive target, but as a pattern the safety layer redirects when it prevents engagement with or transformation of the nightmare. This decision also aligns with broader accounts of nightmare treatment mechanisms that identify prevention of avoidance as one proposed mechanism of therapeutic change \parencite{rousseau2018mechanisms}.
 
-The remaining maladaptive categories were added because avoidance alone did not cover the main safety risks relevant to AI-assisted rescripting. IRT asks the client to change the nightmare and rehearse the new dream rather than the original nightmare \parencite{krakow2001imagery,krakow2006clinical}. This motivated separate categories for interruption and trauma replay. Interruption captures attempts to end the dream or wake up instead of continuing the rescripting process. Trauma replay captures cases where the client repeats the traumatic nightmare without introducing a meaningful change. These categories are closely related to avoidance, but they create different safety needs in the critic pipeline: interruption calls for support to remain within the dream, while trauma replay calls for a non-escalatory transformation that breaks exact repetition.
+The remaining maladaptive categories were added because avoidance alone did not cover the main safety risks relevant to AI-assisted rescripting. IRT asks the client to change the nightmare and rehearse the new dream rather than the original nightmare \parencite[539]{krakow2001imagery}. Interruption is grounded in the MMS Avoidance subscale: Germain et al. code awakening from the dream to escape perceived threats as an avoidant response, distinguishing it from adaptive mastery forms that transform the dream content \parencite[199]{germain2004mastery}; in the safety layer, it is treated as a separate category for cases where the rescripting process is terminated rather than continued. Trauma replay captures cases where the client repeats the traumatic nightmare without introducing a meaningful change. In the Krakow et al. RCT, participants were discouraged from describing traumatic experiences or traumatic nightmare content, and were instructed to begin, if possible, with a less intense nightmare that did not seem like a replay or reenactment of trauma \parencite[539]{krakow2001imagery}. A later clinical account gives similar guidance, recommending selection of a disturbing dream of lesser intensity and not a trauma reenactment \parencite[60]{krakow2006clinical}. In this ontology, trauma replay is treated as a separate safety category for AI-assisted rescripting: the claim is not that trauma-related nightmare content is inherently unsafe, but that unchanged rehearsal of the original scene conflicts with the rescripting goal.
 
-Two additional maladaptive categories were included to cover boundary cases that are important for a safety layer. Violent revenge distinguishes adaptive self-protection from destructive escalation. Behavioral mastery may include fighting back \parencite[199]{germain2004mastery}, but in this ontology it is treated as adaptive only when the action is purposeful and proportionate. Suppression distinguishes emotional regulation from emotional disengagement. Germain et al. define emotional mastery as a change in the dreamer's affect or emotional reaction \parencite[199]{germain2004mastery}; by contrast, claiming to feel nothing in the face of clearly distressing content may indicate emotional avoidance rather than regulation. This category is deliberately context-dependent: calmness can be adaptive emotional mastery, but emotional denial or numbing should not automatically be validated as mastery.
+Two additional maladaptive categories were included to cover boundary cases that are important for a safety layer. Violent revenge distinguishes proportionate self-protection from destructive retaliation. Behavioral mastery may include fighting back \parencite[199]{germain2004mastery}, but Seebauer et al. found no added emotion-regulation benefit of violent revenge imagery over nonviolent imagery rescripting in an analogue study and discuss trauma literature suggesting that revenge fantasies may function as short-term coping while remaining dysfunctional in the longer term \parencite{seebauer2014revenge}. In this ontology, violent revenge is therefore not treated as clinically proven harmful in every context, but as a high-risk chatbot-validation failure: the system should not praise destructive retaliation as mastery.
 
-The literature did not provide a ready-made computational safety ontology for IRT. The category set was therefore constructed for this thesis by combining two sources of guidance. The adaptive categories follow the MMS mastery dimensions. The maladaptive categories capture rewriting actions that would be problematic for an IRT-style rescripting task: escaping the scene, ending the dream, repeating it unchanged, escalating into destructive revenge, or denying the emotional impact of distressing material. These categories are not presented as the only possible ontology, but as a concrete and reviewable formalization that can be implemented, tested, and revised.
+Suppression distinguishes emotional regulation from emotional denial. Germain et al. define emotional mastery as a change in the dreamer's affect or emotional reaction \parencite[199]{germain2004mastery}; by contrast, claiming to feel nothing in the face of clearly distressing content may indicate emotional avoidance rather than regulation. This boundary is supported by PTSD models that identify thought suppression and emotional avoidance as maintaining strategies \parencite{ehlers2000cognitive}, and by meta-analytic evidence associating experiential avoidance, and more modestly thought suppression, with posttraumatic stress symptoms \parencite{miethe2023posttraumatic}. This category is deliberately context-dependent: calmness can be adaptive emotional mastery, but emotional denial or numbing should not automatically be validated as mastery.
+
+Because the literature does not provide a ready-made computational safety ontology for IRT, the resulting category set should be read as a deliberately compact formalization rather than an exhaustive clinical taxonomy. Its purpose is to make safety-relevant boundaries explicit enough for implementation, expert review, and empirical evaluation.
 
 \subsection{Clinical Rationale and Ontology Boundaries}
 \label{sec:clinical-rationale-boundaries}
@@ -134,7 +139,7 @@ The central boundary of the ontology is that it classifies rewriting actions, no
 
 This boundary is especially important for avoiding false safety interventions. If the safety layer treated all distressing content as unsafe, it would interrupt exactly the material that the client needs to work with. The neutral categories in the ontology were added for this reason. \texttt{NARRATIVE\_SETTING} and \texttt{AFFECT\_EXPRESSION} allow the critic to acknowledge context and emotion without forcing the conversation toward correction. They help the system distinguish ``this dream is frightening'' from ``my proposed rewriting action avoids, suppresses, repeats, or escalates the frightening content.''
 
-The severity labels on maladaptive categories are also bounded. They are coarse risk labels used in the critic output and constraint message, not clinical diagnoses. High-severity categories indicate rewriting actions that may undermine the IRT process and should generally be redirected. Critical categories indicate actions that are treated as more urgent within the safety layer because they may intensify destructive affect or reinforce unchanged traumatic repetition. In the current ontology, avoidance, interruption, and suppression are marked as high severity, while violent revenge and trauma replay are marked as critical.
+The severity labels on maladaptive categories are also bounded. They are coarse risk labels used in the critic output and constraint message, not clinical diagnoses. High-severity categories indicate rewriting actions that may undermine the IRT process and should generally be redirected. Critical categories indicate actions that are especially risky for chatbot validation because the system could otherwise endorse destructive escalation or unchanged traumatic repetition. In the current ontology, avoidance, interruption, and suppression are marked as high severity, while violent revenge and trauma replay are marked as critical.
 
 The difference between high and critical severity is a design decision for the safety layer. It does not mean that one client is clinically ``more severe'' than another. The implementation also uses a more detailed priority order to select the primary finding when several maladaptive rewriting actions appear in the same input. For example, if a client proposes both hiding and destroying everyone in the dream, the critic treats violent revenge as the primary finding because the response should first redirect the destructive escalation. If a client proposes only avoidance, avoidance is still treated as unsafe and should not be validated.
 
@@ -146,140 +151,376 @@ This distinction matters because the safety layer is intended to constrain the c
 
 The ontology was prepared as a reviewable clinical artifact before being used as the basis for the benchmark and critic pipeline. The review material summarized the adaptive categories, maladaptive categories, neutral categories, severity assignments, and corrective mappings. It also described the intended boundary of the system: the ontology evaluates rewriting actions during IRT-style rescripting and does not diagnose clients, assess treatment need, or evaluate the overall clinical appropriateness of IRT for a particular person.
 
-Dr. Annika Gieselmann reviewed the ontology for clinical plausibility and alignment with the IRT framing. This review is treated in the thesis as validation of the category set and its use as a safety-classification framework. It supported the decision to proceed with the ontology as the symbolic component of the safety layer. The review did not validate the full AI system as a clinical intervention, and it did not establish that safety-layer outputs are therapeutically effective. Those are stronger claims and remain outside the scope of this thesis.
+Dr. Annika Gieselmann reviewed the ontology for clinical plausibility and alignment with the IRT framing. A formal questionnaire had been prepared for this review, but the final feedback was provided as comments on the ontology document rather than as completed questionnaire ratings. The comments were not critical of the category set, severity assignments, or ontology boundaries, and no revisions to the ontology were requested. The review therefore supported the decision to proceed with the ontology as the symbolic component of the safety layer. It did not validate the full AI system as a clinical intervention, and it did not establish that safety-layer outputs are therapeutically effective. Those are stronger claims and remain outside the scope of this thesis.
 
 The expert review shaped the way the ontology is presented and evaluated. In particular, the thesis keeps a clear distinction between clinical concepts and implementation behavior. The graph can encode categories, severity labels, and correction links, but those structures still require empirical evaluation when used with an LLM classifier. For this reason, clinical review and benchmark evaluation play different roles: the review checks whether the ontology is a plausible formalization of IRT safety concerns, while the evaluation in \Cref{chap:evaluation} tests whether the implemented classifier and critic pipeline can apply that formalization reliably.
 
-\todo{Add concrete details from the final expert feedback once available, including whether any categories, severity assignments, or boundaries were revised after review.}
-
 \section{System Overview and Integration Point}
 
-\todo{Place the safety layer within the existing IRT chatbot and explain why it is applied during the rescripting stage. Unsafe content produces corrective constraints rather than direct replacement of user content.}
+The safety layer was integrated into an existing IRT chatbot as a rescripting-stage critic. The base chatbot remains responsible for the therapeutic dialogue: it routes the conversation through the IRT stages, asks open questions, maintains the conversation history, and generates the next assistant response. The safety layer does not replace this dialogue manager. Instead, it evaluates the user's proposed rewriting action at the point where maladaptive content is most likely to matter and returns an additional constraint for the response generator when redirection is needed.
+
+This integration point follows from the distinction introduced in the ontology. The safety layer is not intended to judge the original nightmare report as unsafe merely because it contains frightening, violent, or traumatic imagery. Those descriptions are expected during IRT. The safety-relevant moment occurs when the client begins to decide how the nightmare should change. At that point, the chatbot may accidentally validate a rewriting strategy that avoids distressing dream content, suppresses affect, escalates violence, or repeats traumatic content unchanged. The safety layer is therefore applied during the rewriting stage, where user input represents candidate dream modifications rather than only dream description.
 
 \subsection{Baseline IRT Chatbot Flow}
 
-\todo{Draft subsection.}
+The baseline chatbot uses a staged conversation flow with four stages: recording, rewriting, summary, and final. In the recording stage, the user describes the original nightmare and the chatbot may ask clarifying questions. Once the user has shared a dream and agrees to continue, the conversation moves into rewriting. In this stage, the chatbot invites the user to identify an emotionally salient moment and explore how the dream could be changed to make it less distressing or more empowering. After the user is satisfied with the rewritten dream, the system generates a summary of the original and rewritten dream and ends the chatbot session.
+
+Stage transitions are handled by a routing model that classifies the current conversation state into one of the stage labels. The response generator then uses the prompt template for the selected stage. The safety layer is added to this existing flow without changing the basic stage structure: it is called only after the routing step has selected the rewriting stage and before the assistant response is generated.
 
 \subsection{Safety Layer Placement in the Rescripting Stage}
 
-\todo{Draft subsection.}
+The rewriting stage is the clearest point for the safety layer to intervene. During recording, the user describes the nightmare; frightening or helpless content is expected and is not unsafe by itself. During summary, the rewritten dream is already being summarized. The safety-relevant moment is the rewriting stage, where the client proposes how the dream should change and the chatbot may either validate or redirect that proposal.
+
+In the implementation, a summary of the original nightmare is generated when the conversation first enters the rewriting stage. This summary is passed to the safety critic as context for later user inputs. The context is important for ambiguous cases, especially suppression: a sentence such as ``I feel calm'' may be adaptive emotional mastery in one context, while ``I feel nothing'' after a clearly distressing event may indicate emotional avoidance. The critic therefore evaluates the user's current rewriting attempt together with the original nightmare context, rather than treating the utterance as an isolated string.
 
 \subsection{Safety Layer Inputs and Outputs}
 
-\todo{Draft subsection.}
+The safety layer receives two inputs: the user's current rewriting-stage message and, in the normal conversation flow, the generated summary of the original nightmare. It returns a structured safety result. This result contains a binary safety verdict, the primary ontology node, the node type and category, the severity label for maladaptive findings, the analyzed segments, optional confidence information, correction strategies from the graph, and a constraint message for the generator. The top-level node is the primary finding selected for response generation; if the input contains multiple classified segments, the full segment list still records the other adaptive, neutral, unclassified, or maladaptive findings.
+
+Safe results are still used by the generator. If the critic identifies adaptive or neutral content, it can return a validation message that allows the generator to acknowledge useful parts of the user's rewrite. If adaptive and maladaptive segments occur in the same input, the constraint can validate the adaptive parts while redirecting the primary maladaptive risk. If no clear maladaptive content is detected but the input cannot be classified reliably, the critic returns a clarification constraint instead of guessing. If a maladaptive category is detected, the critic selects the highest-priority risk and retrieves the associated corrective mappings from the ontology. The output is therefore both a decision and an audit trail: it records what was detected, why it was treated as safety-relevant, and which adaptive directions are available for redirection.
 
 \subsection{Constraint-Based Integration}
 
-\todo{Draft subsection.}
+The safety layer does not directly rewrite the user's content and does not generate the final therapeutic response on its own. Instead, it produces a constraint message: an additional instruction that is added to the stage-specific prompt used by the response generator. This preserves the base chatbot as the conversational agent while telling it what not to validate and which adaptive direction to encourage. For unsafe inputs, the constraint message follows a validate-and-correct structure: validate genuinely adaptive or neutral elements if present, avoid praising the maladaptive action, and redirect toward one or more adaptive mastery categories from the graph.
+
+This design was chosen because it keeps the symbolic safety decision separate from natural-language response generation. The critic is responsible for classification, triage, and retrieval of correction strategies; the generator remains responsible for phrasing the response in a supportive, conversational style. The same structured verdict could also be used for logging, expert review, or later escalation logic. In the implementation evaluated in this thesis, however, the safety layer is used mainly by adding the constraint message to the generator's prompt during the rewriting stage.
 
 \begin{figure}
   \centering
-  \fbox{\parbox{0.85\linewidth}{\centering Figure placeholder: system overview and safety-layer feedback loop.}}
-  \caption{System overview showing the baseline IRT chatbot, the rescripting-stage integration point, and the safety layer feedback loop.}
+  \includegraphics[width=\linewidth]{../figures/system_overview_33_draft.pdf}
+  \caption{System overview showing the safety layer as a rewriting-stage critic. During rewriting, the chatbot sends the user's proposed dream modification and the nightmare summary to the safety layer. The safety layer returns a structured verdict that can add a validation instruction, a clarification request, or a corrective constraint to the generator prompt.}
   \label{fig:system-overview}
 \end{figure}
 
-\section{LLM-Based Clinical Classification}
+\section{LLM-Based Ontology Classification}
+\label{sec:safety-layer-classification}
 
-\todo{Describe classification as entity linking from free-form user text to ontology categories. Compare direct classification with structured clinical reasoning.}
+The classifier decides which ontology category best fits a user's rewriting attempt. Its task is not to decide the final chatbot response, but to assign each relevant rewriting segment to one category in the symbolic ontology. The critic pipeline then uses this category, together with the graph attributes and correction links, to decide whether the segment can be validated, should trigger clarification, or should be redirected.
 
-\subsection{Classification as Entity Linking to Ontology Categories}
+This task is best understood as ontology-based category classification. The input is a short rewriting-stage segment, such as a proposed dream modification (``I hide under the bed'', ``I call for help'', or ``I make the monster disappear'') or a neutral statement of context or affect. The output is one ontology node, such as \texttt{AVOIDANCE}, \texttt{SOCIAL\_MASTERY}, or \texttt{MYTHICAL\_MASTERY}. In the full critic pipeline, longer user turns are first split into segments, and each segment is classified separately. This section describes the classifier itself; segmentation and aggregation are described in \Cref{sec:safety-critic-pipeline}.
 
-\todo{Draft subsection.}
+Two classifier variants were implemented. System 1 performs direct classification: the model receives the category definitions and decision rules and returns a single code. System 2 uses the same category definitions and decision rules, but first generates a structured classification rationale before returning the final code. The purpose of implementing both variants was to test whether explicit reasoning improves clinical label assignment enough to justify its additional complexity and cost. The comparison is evaluated empirically in \Cref{chap:evaluation}. The classifier prompts and code-to-node mapping are provided in \Cref{app:classifier-prompts}.
+
+\subsection{Classification as Mapping to Ontology Categories}
+
+The ontology categories have descriptive node identifiers, but the classifier does not ask the LLM to generate those full identifiers directly. Instead, each node is paired with a short semantic code. For example, \texttt{HIDE} maps to \texttt{AVOIDANCE}, \texttt{ESCAPE} maps to \texttt{INTERRUPTION}, and \texttt{HELP} maps to \texttt{SOCIAL\_MASTERY}. The full mapping covers all adaptive, maladaptive, and neutral nodes.
+
+This code layer makes the model's output easier to constrain and parse: the expected response is one short label rather than a free-form clinical explanation. The codes are also shorter and more comparable in token length than the full ontology identifiers, while still being semantically meaningful for the model. This was important because the implementation records token log probabilities as a confidence signal. After the model returns a code, the implementation maps it deterministically to the corresponding graph node and retrieves the node attributes from the ontology. If the model returns an invalid code, the system attempts a conservative fuzzy match against known codes and node names. If no reliable match can be found, the input is routed to \texttt{UNCLASSIFIED} rather than silently treated as safe.
+
+The classifier can also receive context for the segment being classified. In the full critic pipeline, the segmenter is instructed to extract an immediate situation or threat for each segment, such as ``being chased'' or ``facing the monster''. If no clear segment-level context is available, the classifier falls back to the generated summary of the original nightmare. This matters because some rewriting actions are ambiguous without the scene they refer to. For example, calmness may be adaptive emotional mastery when the user remains engaged with the dream, but a claim of feeling nothing may indicate suppression when it occurs in response to clearly distressing content. The classifier therefore treats the current rewriting segment as the main object of classification while using available context to resolve boundary cases.
 
 \subsection{System 1: Direct Classification}
 
-\todo{Draft subsection.}
+System 1 is the direct classifier used as the primary implementation. Its prompt defines the 12 clinical codes, grouped into maladaptive, adaptive, and neutral categories, and instructs the model to return exactly one code. The prompt also includes boundary rules for cases that were expected to be clinically ambiguous. These rules cover distinctions such as proportionate self-protection versus violent revenge, emotion expression versus avoidance, emotional regulation versus suppression, and scene description versus trauma replay.
+
+The direct classifier is deliberately narrow. It does not ask the model to write a response to the user, justify its decision, or choose a correction strategy. It only performs the label assignment. For a segment such as ``I wake myself up'', the expected output is \texttt{ESCAPE}, which is then mapped to \texttt{INTERRUPTION}. For ``I take a deep breath and face it'', the expected output is \texttt{RELAX}, which is mapped to \texttt{EMOTIONAL\_MASTERY}. This keeps the classifier's role separable from the later critic stages.
+
+The implementation requests token log probabilities for the generated code. These values are stored as confidence metadata. The main score is the length-normalized probability of the generated output; the implementation also records the first-token margin between the most likely and second most likely alternatives for later analysis. These confidence values are not used as clinical severity labels. They are uncertainty signals about the classifier's own output and are discussed separately in \Cref{sec:uncertainty-estimation}.
 
 \subsection{System 2: Structured Clinical Reasoning}
 
-\todo{Draft subsection.}
+System 2 was implemented as a controlled reasoning variant of the same classifier. It uses the same clinical codes, category definitions, examples, and decision rules as System 1. The intended difference is the response format: instead of returning only a code, System 2 returns a structured JSON object with three fields: a brief context summary, a structured classification rationale, and the final classification code.
+
+The motivation for this variant was that some ontology boundaries require more than surface matching. For example, a model may need to decide whether running is purposeful action or avoidance, whether calmness is regulation or denial, or whether a violent action is proportionate defense or destructive revenge. System 2 makes this intermediate reasoning explicit before the code is selected. The final classification is still mapped through the same code-to-node table as System 1, so both variants produce the same interface for the critic pipeline.
+
+This design also keeps the comparison interpretable. If System 2 performs differently from System 1, the difference can be attributed mainly to the added reasoning step rather than to different category definitions or additional clinical information. The trade-off is that System 2 requires a longer generation, more parsing, and a less direct confidence signal, because the final label is conditioned on the model's preceding rationale.
 
 \subsection{Prompt Rules, Labels, and Ambiguity Handling}
 
-\todo{Draft subsection.}
+Both classifier variants use prompt-level rules to encode clinically important boundaries. The most important rules are summarized here because they determine how the free-form utterance is converted into an ontology node.
 
-\begin{figure}
+First, the violence rule separates controlled self-protection from destructive escalation. Fighting back, pushing an attacker away, or otherwise acting to stop a threat can be classified as \texttt{BEHAVIORAL\_MASTERY}. Torture, uncontrolled rage, or killing everyone in the scene is classified as \texttt{VIOLENT\_REVENGE}.
+
+Second, the affect rule separates emotional expression from avoidance or suppression. Saying ``I feel terrified'' is not unsafe by itself and maps to \texttt{AFFECT\_EXPRESSION}. Trying to feel nothing, going emotionally blank, or denying distress in a clearly distressing context maps to \texttt{SUPPRESSION}.
+
+Third, the mastery-priority rules distinguish different adaptive strategies. Seeking help maps to \texttt{SOCIAL\_MASTERY}; using tools or changing the setting maps to \texttt{ENVIRONMENTAL\_MASTERY}; direct action maps to \texttt{BEHAVIORAL\_MASTERY}; calming or grounding oneself maps to \texttt{EMOTIONAL\_MASTERY}; and impossible or magical abilities map to \texttt{MYTHICAL\_MASTERY}.
+
+Finally, the prompt includes explicit rules for negation and trauma replay. Negated avoidance, such as deciding not to run away, is treated as active engagement rather than avoidance. Repeating the traumatic scene without meaningful change is treated as \texttt{TRAUMA\_REPLAY}, while merely describing the scene remains \texttt{NARRATIVE\_SETTING}. These rules turn the ontology boundary introduced earlier into classifier instructions: the classifier should identify the user's proposed rewriting action, not punish distressing dream content itself.
+
+\begin{table}
   \centering
-  \fbox{\parbox{0.85\linewidth}{\centering Optional figure placeholder: System 1 vs. System 2 classifier comparison.}}
-  \caption{System 1 and System 2 classifier comparison.}
-  \label{fig:s1-s2-classifier-comparison}
-\end{figure}
+  \caption{Design comparison of the two classifier variants.}
+  \label{tab:s1-s2-classifier-comparison}
+  \renewcommand{\arraystretch}{1.28}
+  \begin{tabular}{p{0.22\linewidth}p{0.32\linewidth}p{0.34\linewidth}}
+    \toprule
+    Dimension & System 1: direct classification & System 2: structured reasoning \\
+    \midrule
+    Input & Rewriting segment, with optional context & Same input and context \\
+    \addlinespace[0.3em]
+    Prompt content & Codes, definitions, boundary rules, and examples & Same codes, definitions, boundary rules, and examples \\
+    \addlinespace[0.3em]
+    Model output & One classification code & JSON object with context summary, structured classification rationale, and classification code \\
+    \addlinespace[0.3em]
+    Node mapping & Code is mapped to an ontology node & Same code-to-node mapping \\
+    \addlinespace[0.3em]
+    Main advantage & Simple output, lower cost, direct confidence signal & Explicit reasoning for ambiguous cases \\
+    \addlinespace[0.3em]
+    Main trade-off & Reasoning remains implicit & Longer output, more parsing, less direct confidence signal \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 \section{Safety Critic Pipeline}
+\label{sec:safety-critic-pipeline}
 
-\todo{Describe the full pipeline: segmentation, meta-statement filtering, segment-level classification, finding aggregation, severity triage, and constraint synthesis.}
+The safety critic combines the ontology, classifier, and correction mappings into one decision pipeline. It receives the user's rewriting-stage message and the available nightmare context, then returns a structured \texttt{SafetyResult}. This result contains the final safety verdict, the primary ontology node, all classified segments, any adaptive segments that can be validated, confidence metadata, correction strategies, and the constraint message that may be added to the response generator prompt.
+
+A single whole-turn label would be too coarse for many rewriting-stage messages. A user turn can contain several different kinds of content: a complaint about the exercise, a feeling, an adaptive action, and a maladaptive action in the same message. Treating the whole turn as one label would either miss part of the input or force the system to choose one interpretation too early. The critic therefore decomposes the message, classifies dream-relevant segments separately, and then aggregates the findings according to safety priority.
 
 \subsection{Intelligent Segmentation}
 
-\todo{Draft subsection.}
+The first step is segmentation. The segmenter is instructed to split the user's message into meaningful parts and assign each part one of four segment types: \texttt{ACTION}, \texttt{THOUGHT}, \texttt{FEELING}, or \texttt{META}. It also extracts an immediate situation or threat for each segment when this can be inferred, such as ``being chased'' or ``facing the monster''. This segment-level context is later passed to the classifier and is especially useful for short or referential phrases such as ``I punch it'', ``I hide'', or ``I feel nothing''.
+
+Segmentation matters because rewriting-stage turns are often mixed. A message such as ``I hate this exercise, but I guess I turn around and face the monster'' contains both conversational frustration and a dream action. The former should not be treated as dream content; the latter should still be classified. Segmenting the turn allows the critic to preserve this distinction rather than classifying the entire message as either safe or unsafe.
+
+The segmenter receives the nightmare summary when available. This does not replace the current user message as the object of analysis; it helps identify what situation each segment is responding to. If segmentation fails or cannot be parsed, the implementation falls back to treating the whole input as a single \texttt{ACTION} segment with the available nightmare context.
 
 \subsection{Meta-Statement Filtering}
 
-\todo{Draft subsection.}
+After segmentation, \texttt{META} segments are removed from the main dream-content classification path. These segments represent conversational or task-level statements, such as frustration with the exercise or questions about the process, rather than proposed dream modifications. Filtering them prevents the safety layer from treating ordinary conversation as an IRT rewriting action.
+
+However, meta filtering also creates a possible blind spot if the segmenter labels dream-relevant content as \texttt{META}. In that case, the relevant segment is dropped before classification and a maladaptive rewriting action can incorrectly pass through as \texttt{META\_ONLY}. Early benchmark errors showed this pattern for inputs that described maladaptive content in reflective or conversational language, including the pre-fix trauma-replay case ``The version in my head is basically the original dream again, beat for beat.'' To reduce this risk, the implementation includes a meta sanity check. If all segments are classified as \texttt{META} during rescripting and nightmare context is available, the critic runs the full input through the classifier once more. If this check detects a maladaptive node, the result is treated as unsafe but framed as possible maladaptive content in meta-framing, so the chatbot is instructed to clarify rather than make an overly certain correction.
+
+If the sanity check does not detect maladaptive content, a purely conversational input is treated as safe meta content. In that case, the constraint simply instructs the generator to respond naturally without forcing dream guidance.
 
 \subsection{Segment-Level Classification}
 
-\todo{Draft subsection.}
+All remaining dream-relevant segments are classified separately. The original nightmare summary is always available to the segmenter. The classifier itself receives the segment text together with one context field: the segmenter's extracted immediate context when one exists, or the full nightmare summary when no segment-level context was extracted. In this sense, the full nightmare informs classification either indirectly through the extracted context or directly when no more specific context is available. The classifier returns a code, which is mapped to an ontology node as described in \Cref{sec:safety-layer-classification}. The critic then retrieves the node attributes from the graph and stores the segment's node ID, node type, category, confidence score, and mean log probability.
+
+The classified segments are placed into four buckets: maladaptive, adaptive, neutral, and unclassified. Maladaptive segments can trigger safety intervention. Adaptive and neutral segments are not corrected, but they may still be useful because the generator can validate them. Unclassified segments are handled cautiously. The implementation uses a confidence threshold of 0.0, so only complete classification failures or invalid outputs are routed to \texttt{UNCLASSIFIED}. When this happens, the critic does not guess; it asks the generator to seek clarification.
 
 \subsection{Finding Aggregation and Severity Triage}
 
-\todo{Draft subsection.}
+The critic aggregates segment-level findings with a three-bucket decision rule. If all classified dream segments are adaptive or neutral, the result is safe. The critic returns a validation constraint that allows the generator to acknowledge the adaptive or neutral content and continue the rewriting conversation.
+
+If no maladaptive segment is found but one or more segments are unclassified, the result is uncertain rather than simply safe. The critic returns a clarification constraint. This makes the system cautious under uncertainty: when it cannot map content reliably to the ontology, it asks for clarification instead of assuming that the content is harmless.
+
+If at least one maladaptive segment is found, the result is unsafe. When several maladaptive segments occur in the same user turn, the critic selects one primary risk for response generation. The priority order is \texttt{VIOLENT\_REVENGE} and \texttt{TRAUMA\_REPLAY} first, followed by \texttt{INTERRUPTION}, \texttt{SUPPRESSION}, and \texttt{AVOIDANCE}. This order does not imply a clinical diagnosis. It only determines which issue the chatbot should address first when several unsafe rewriting patterns appear together.
 
 \subsection{Constraint Synthesis}
 
-\todo{Draft subsection.}
+Constraint synthesis turns the structured safety result into an instruction for the response generator. The critic does not write the final chatbot response. Instead, it creates a constraint message that tells the generator what to validate, what not to validate, and which adaptive direction to encourage.
+
+For safe inputs, the constraint is a validation instruction. It lists adaptive or neutral segments that the generator can acknowledge before continuing the dream narrative. For uncertain inputs, the constraint asks the generator to validate any clear adaptive elements and then request clarification about the unclear part.
+
+For unsafe inputs, the constraint follows a validate-and-correct structure. If the user included adaptive or neutral content alongside the maladaptive segment, those parts are listed for validation. If the input contains no adaptive content, the critic instead emits a \texttt{NO\_VALIDATE} instruction. This prevents the generator from inventing praise for a maladaptive action, such as framing destructive violence or emotional shutdown as strength.
+
+The correction part of the constraint identifies the primary maladaptive node, includes the node's risk description and clinical guideline, and retrieves the linked adaptive alternatives from the graph. The generator is instructed to redirect toward the primary therapeutic direction while avoiding validation, restatement, or encouragement of the maladaptive segment. If unclassified segments are also present, the constraint adds a clarification instruction after the main correction.
 
 \subsection{Worked End-to-End Example}
 
-\todo{Draft subsection.}
+Assume that the available nightmare summary describes a monster chasing the user through an empty city. Consider a user who says: ``This is stupid, but I guess I turn around and fight the monster.'' The segmenter separates the input into a \texttt{META} segment, ``This is stupid'', and an \texttt{ACTION} segment, ``I turn around and fight the monster'', with context such as ``facing the monster''. The meta segment is filtered out. The action segment is then classified as \texttt{BEHAVIORAL\_MASTERY}, an adaptive node. Because no maladaptive or unclassified segment remains, the critic returns a safe result with a validation constraint for the adaptive action.
+
+Now consider a mixed unsafe turn: ``I call my brother for help, then I burn the whole city down.'' The first segment maps to \texttt{SOCIAL\_MASTERY} and can be validated. The second segment maps to \texttt{VIOLENT\_REVENGE} and is selected as the primary risk because it is a critical maladaptive category. The resulting constraint tells the generator to acknowledge the help-seeking element, avoid praising the destructive retaliation, and redirect toward controlled action, social support, or emotional regulation depending on the available correction strategies. The output is therefore not just a binary unsafe flag; it is a structured instruction for generating a safer response. A representative constraint message for this case is shown in \Cref{app:example-constraint-message}.
 
 \begin{figure}
   \centering
-  \fbox{\parbox{0.85\linewidth}{\centering Figure placeholder: safety critic pipeline architecture.}}
-  \caption{Safety critic pipeline architecture.}
+  \includegraphics[width=\linewidth]{../figures/safety_pipeline_abstract.pdf}
+  \caption{Safety critic pipeline from rewriting-stage input to a structured safety result and generator constraint.}
   \label{fig:safety-critic-pipeline}
 \end{figure}
 
 \begin{figure}
   \centering
-  \fbox{\parbox{0.85\linewidth}{\centering Figure placeholder: worked end-to-end example.}}
-  \caption{Worked end-to-end example.}
+  \includegraphics[width=\linewidth]{../figures/worked_example_simple.pdf}
+  \caption{Worked end-to-end example showing how a mixed rewriting turn can contain both adaptive material to validate and maladaptive material to redirect.}
   \label{fig:worked-end-to-end-example}
 \end{figure}
 
 \section{Uncertainty Estimation and Risk Signaling}
+\label{sec:uncertainty-estimation}
 
-\todo{Introduce token log-probability confidence and semantic consistency as candidate signals for identifying unreliable classifications. Distinguish uncertainty from clinical severity.}
+The safety critic does not only need to decide whether a segment is adaptive or
+maladaptive. It also needs to record how reliable that decision appears to be. This is
+important because the classifier operates on brief, sometimes ambiguous rewriting
+segments and on mixed inputs whose interpretation can depend on context, and because
+an incorrect safety decision can either miss a maladaptive rewrite or unnecessarily
+interrupt a useful one.
+
+The implementation therefore supports two kinds of uncertainty-related information.
+The first is token log-probability confidence, which is recorded from a single classifier
+call. The second is semantic consistency, which repeats classification several times and
+measures whether the model returns the same category across runs. These signals are not
+clinical risk labels. They describe uncertainty about the model's classification,
+whereas severity is a coarse priority label attached to maladaptive ontology categories
+once an input has been classified into them.
 
 \subsection{Token Log-Probability Confidence}
 
-\todo{Draft subsection.}
+For each classifier call, the implementation requests token log probabilities for the
+generated output. In System 1, this output is the classification code itself. If the model
+returns \texttt{HELP}, for example, the code is mapped to
+\texttt{SOCIAL\_MASTERY}, and the log probabilities associated with the generated
+code are stored with the classification result.
+
+The main confidence score is the length-normalized probability of the generated code.
+If the code consists of tokens with log probabilities
+\(\ell_1, \ldots, \ell_n\), the stored confidence is
+\(\exp(\frac{1}{n}\sum_i \ell_i)\). This normalization matters because even short
+semantic codes can be tokenized differently by the model. Without normalization,
+longer codes would tend to receive lower joint probabilities simply because they contain
+more tokens.
+
+The implementation stores this length-normalized value both as a mean log probability
+and, after exponentiation, as a confidence score. It also stores a first-token margin:
+the probability gap between the most likely and second most likely alternatives for the
+first token of the generated code. This is a limited diagnostic signal, especially when a
+code is split into multiple tokens or shares its initial token with another code, and it is
+not used as the primary confidence value. This distinction was important because margin
+and sequence probability answer different questions: the margin describes the local
+competition at the first generated token, while the length-normalized probability
+describes how likely the generated code was as a whole.
+
+In the safety critic used during response generation, confidence is recorded but not
+used as a calibrated clinical threshold. The current confidence threshold is set to zero,
+so only complete classification failures or invalid model outputs are routed to
+\texttt{UNCLASSIFIED}. This conservative choice avoids treating an arbitrary probability
+cutoff as clinically validated. The usefulness of log-probability confidence as an error
+signal is evaluated empirically in \Cref{chap:evaluation}.
 
 \subsection{Semantic Consistency}
 
-\todo{Draft subsection.}
+Semantic consistency was implemented as a second uncertainty signal. Instead of
+asking whether one generated label had high token probability, it asks whether the same
+input receives the same classification across repeated model calls. The classifier is run
+multiple times at a higher sampling temperature, and the resulting labels are aggregated
+by majority vote. The agreement ratio is the proportion of runs that support the
+majority label. For example, if five runs produce four \texttt{HIDE} labels and one
+\texttt{REPLAY} label, the majority label maps to \texttt{AVOIDANCE} and the agreement
+ratio is \(4/5 = 0.8\).
+
+This signal is motivated by a limitation of single-call confidence scores. A model may
+assign high probability to a label after it has already committed to an interpretation of
+the input. This is especially relevant for the structured reasoning classifier: once the
+model has generated a rationale, the final classification token can appear confident even
+when the initial interpretation was unstable. Repeated classification can expose this
+instability because different runs may settle on different ontology categories.
+
+Semantic consistency is more expensive than a single classifier call, because it requires
+several additional model calls for each segment. It also measures only the stability of
+the classification step it is applied to. If an upstream segmenter removes the relevant
+dream action or labels it as \texttt{META}, repeated classification of the remaining
+segments cannot recover the missing content. For this reason, semantic consistency is
+best understood as a classification-level uncertainty signal, not as a general guarantee
+that the whole critic pipeline has interpreted the turn correctly.
+
+In this thesis, semantic consistency is evaluated as a benchmark variant rather than as
+the default behavior of the integrated chatbot during response generation. The comparison
+with log-probability confidence is reported in \Cref{chap:evaluation}.
 
 \subsection{Uncertainty Signals and Severity-Based Risk Flags}
 
-\todo{Draft subsection.}
+Uncertainty and severity serve different roles in the safety layer. Severity is an
+ontology attribute attached to maladaptive categories. It is used during triage to decide
+which maladaptive finding should become the primary correction when several are
+present. A critical category is therefore not ``more uncertain'' than a high-severity
+category; it simply receives higher priority when the critic chooses which finding to
+redirect first.
 
-\section{Design Decisions and Trade-offs}
+Confidence and semantic consistency, by contrast, are uncertainty signals about the
+classifier's mapping from text to ontology node. Low confidence or low agreement does
+not mean that the user's content is clinically severe; it means that the assignment is
+less stable or less reliable. The final \texttt{SafetyResult} can therefore contain both
+kinds of information: severity helps prioritize already-classified maladaptive content,
+while uncertainty signals indicate how much trust to place in the classifier's category
+assignment. When content cannot be mapped reliably at all, it is routed to
+\texttt{UNCLASSIFIED} and handled with a clarification constraint rather than a
+redirection.
 
-\todo{Summarize key design decisions and implementation limits.}
+\section{Architectural Trade-Offs and Limitations}
+
+The safety layer described in this chapter was designed to translate a specific clinical
+safety concern into concrete system behavior: whether a proposed nightmare rewrite
+supports IRT mastery or moves toward avoidance, suppression, interruption, traumatic
+repetition, or destructive escalation. The design choices reflect this goal. The system
+does not try to replace clinical judgement, diagnose the user, or solve general
+mental-health safety. Instead, it makes a narrow set of protocol-relevant categories
+explicit, applies them to rewriting-stage input, and turns the result into constraints
+for the response generator.
+
+This section summarizes the main trade-offs behind that design. These trade-offs matter
+because the design choices determine how clinical ideas are translated into system
+behavior: which rewriting actions are treated as adaptive, which ones are redirected,
+and where the system's limits begin. Making those choices explicit improves auditability,
+but it also exposes the boundaries of what the implemented system can claim.
 
 \subsection{Clinical Ontology vs. Prompting Alone}
 
-\todo{Draft subsection.}
+A simpler implementation could have used a single prompt that instructs the chatbot to
+follow IRT principles and avoid unsafe responses. The ontology-based design separates
+that instruction into explicit categories, severity labels, correction mappings, and
+pipeline decisions. This has several advantages. The categories can be inspected,
+discussed with clinical experts, used as benchmark labels, and linked to correction
+strategies. The system can also report which pattern it detected, rather than only
+changing the chatbot's behavior invisibly.
+
+The trade-off is that the ontology necessarily simplifies clinical reality. Real
+nightmare work is contextual, and a compact category set cannot represent every possible
+therapeutic nuance. The ontology therefore should not be read as a complete model of
+IRT. It is a task-specific safety model for the rescripting stage. Its
+value lies in making a small number of clinically relevant distinctions explicit enough
+to evaluate.
 
 \subsection{Rationale for LLM-Based Classification}
 
-\todo{Draft subsection.}
+The classifier uses an LLM because rewriting actions are often expressed in brief,
+varied phrases whose meaning depends on the dream context. The same surface action can
+have different meanings in different scenes. For
+example, running may be purposeful movement in one dream and avoidance in another;
+calmness may be emotional regulation, while feeling nothing may indicate suppression.
+A purely rule-based classifier would be difficult to maintain for this kind of language,
+because it would need to cover many phrasings and contextual exceptions.
+
+Using an LLM makes the classifier more flexible, but also introduces model dependence.
+The system's behavior can change with the model provider, model version, prompt wording,
+sampling settings, and available context. For this reason, the classifier is not treated
+as reliable without separate evaluation. Its outputs are constrained to a fixed label
+set, logged with confidence metadata, and evaluated on benchmark cases in
+\Cref{chap:evaluation}. The LLM provides semantic interpretation; the ontology and
+critic pipeline provide the structure around that interpretation.
 
 \subsection{Pipeline Modularity and Preprocessing Trade-offs}
 
-\todo{Draft subsection.}
+The critic is implemented as a modular pipeline rather than as one end-to-end prompt.
+Segmentation, meta filtering, classification, aggregation, triage, and constraint
+synthesis are separate steps. This makes the system easier to inspect: an error can be
+traced to the segmenter, the classifier, the triage rule, or the generated constraint.
+It also allows individual parts of the design to be tested and changed without replacing
+the whole safety layer.
+
+The same modularity creates dependency between stages. If the segmenter drops relevant
+dream content, the classifier cannot recover it. If a mixed user turn is segmented
+poorly, the final safety decision may be based on an incomplete representation of the
+input. The meta sanity check was added to reduce one specific failure mode, but it does
+not remove the general problem that preprocessing decisions shape what the classifier
+sees. The pipeline is therefore more auditable than a monolithic prompt, but not immune
+to upstream interpretation errors.
 
 \subsection{Limitations of the Implemented Design}
 
-\todo{Draft subsection.}
+Several limitations follow from the scope of the implementation. First, the safety layer
+covers protocol-specific rewriting risks, not all possible risks in a mental-health
+conversation. It does not provide crisis detection, diagnosis, treatment planning, or
+general clinical supervision. Those functions would require separate safeguards and a
+different evaluation design.
+
+Second, the ontology was reviewed for clinical plausibility, but the implemented system
+still depends on empirical performance. Expert review can support the category design;
+it cannot prove that an LLM classifier will apply those categories reliably. The
+benchmark evaluation in the next chapter therefore evaluates the implemented safety
+layer, not merely the ontology as a conceptual model.
+
+Third, the integration with the baseline chatbot is intentionally constraint-based. The
+safety critic does not generate the final user-facing response; it adds instructions to
+the response generator. This keeps the safety layer separable from the base chatbot, but
+it also means that final behavior depends on whether the generator follows the
+constraint appropriately. Integration issues such as overly persistent redirection,
+stage-transition friction, or loss of useful conversational flow are therefore system
+risks even when the critic's classification is correct.
+
+Finally, the safety layer should be understood as a research artifact rather than a
+clinically deployable intervention. Its main contribution is to show how IRT-specific
+safety concerns can be formalized, classified, redirected, and evaluated in an
+AI-assisted rescripting system. Claims about treatment effectiveness, clinical efficacy,
+or safe autonomous use are outside the scope of this thesis.

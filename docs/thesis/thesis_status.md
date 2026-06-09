@@ -53,23 +53,28 @@ Important terminology:
 
 The active chapter is `thesis/chapters/03-safety-layer.tex`.
 
-Section 3.1 is in good draft shape:
+Chapter 3 is now in full first-draft shape:
 
 - `3.1 A Clinical Safety Ontology for IRT Rescripting`
 - `3.1.1 Ontology Category Set`
 - `3.1.2 Category Attributes and Severity Levels`
 - `3.1.3 Corrective Mappings Between Maladaptive and Adaptive Categories`
 - `3.1.4 Graph Representation of Correction Relationships`
+- `3.2 Ontology Development and Expert Review`
+- `3.3 System Overview and Integration Point`
+- `3.4 LLM-Based Ontology Classification`
+- `3.5 Safety Critic Pipeline`
+- `3.6 Uncertainty Estimation and Risk Signaling`
+- `3.7 Architectural Trade-Offs and Limitations`
 
-The prose in 3.1 intentionally explains the concept in plain language before getting technical. It currently avoids over-justifying the graph representation.
+The prose intentionally explains each concept in plain language before getting technical. It currently avoids over-justifying the graph representation and keeps the claims limited to protocol-aware detection, redirection, uncertainty information, and auditability.
 
-Section 3.2 onward is mostly placeholders and should be drafted next.
+Chapter 3 no longer contains `\todo{}` placeholders.
 
 Recommended next writing step:
 
-- Draft `3.2 Ontology Development and Clinical Validation`, starting with `3.2.1 Literature-Based Construction`.
-- Then write `3.2.2 Clinical Rationale and Ontology Boundaries`, where the clinical rationale behind severity levels and corrective mappings can be explained more fully.
-- Then write `3.2.3 Expert Review Process`, including Dr. Annika Gieselmann's ontology validation.
+- Review Chapter 3 for flow, figure placement, and consistency with the current implementation.
+- Then move to Chapter 4 evaluation writing, especially the benchmark setup, primary-node metric explanation, and S1/S2 results.
 
 ## Ontology Decisions
 
