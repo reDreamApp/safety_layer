@@ -16,9 +16,9 @@ load_dotenv(find_dotenv())
 # Import agents AFTER env is loaded so API keys are available during initialization
 from .agent import routing_agent, response_agent  # noqa: E402
 
-# Verify at least one API key exists (Scaleway preferred, Groq as fallback)
-if not os.getenv('SCALEWAY_API_KEY') and not os.getenv('GROQ_API_KEY'):
-    raise ValueError("SCALEWAY_API_KEY or GROQ_API_KEY environment variable must be set")
+# Routing and safety still use Scaleway-hosted Mistral; responses use direct Mistral.
+if not os.getenv('SCALEWAY_API_KEY') or not os.getenv('MISTRAL_API_KEY'):
+    raise ValueError("SCALEWAY_API_KEY and MISTRAL_API_KEY environment variables must be set")
 
 # Get logger instances
 logger = logging.getLogger(__name__)

@@ -22,7 +22,7 @@ def log_prompt(system_prompt: str, user_prompt: str, model: str):
         "=================="
     )
 
-ProviderType = Literal["groq", "openai", "scaleway", "openrouter"]
+ProviderType = Literal["groq", "openai", "scaleway", "openrouter", "mistral"]
 
 @dataclass
 class ModelConfig:
@@ -96,6 +96,14 @@ class Agent:
             self.client = AsyncOpenAI(
                 api_key=api_key,
                 base_url="https://openrouter.ai/api/v1"
+            )
+        elif model_config.provider == "mistral":
+            api_key = os.getenv('MISTRAL_API_KEY')
+            if not api_key:
+                raise ValueError("MISTRAL_API_KEY not found in environment")
+            self.client = AsyncOpenAI(
+                api_key=api_key,
+                base_url="https://api.mistral.ai/v1"
             )
         else:
             api_key = os.getenv('OPENAI_API_KEY')
@@ -254,6 +262,8 @@ MODELS = {
     # Scaleway Mistral models
     "MISTRAL_SMALL": ModelConfig(name="mistral-small-3.2-24b-instruct-2506", provider="scaleway"),
     "MISTRAL_NEMO": ModelConfig(name="mistral-nemo-instruct-2407", provider="scaleway"),
+    # Direct Mistral API models
+    "MISTRAL_LARGE": ModelConfig(name="mistral-large-latest", provider="mistral"),
     # OpenRouter models (same models as Scaleway, routed through OpenRouter)
     "OR_MISTRAL_SMALL": ModelConfig(name="mistralai/mistral-small-3.2-24b-instruct", provider="openrouter"),
     "OR_MISTRAL_NEMO": ModelConfig(name="mistralai/mistral-nemo", provider="openrouter"),
@@ -261,15 +271,17 @@ MODELS = {
     "OR_GPT5_4": ModelConfig(name="openai/gpt-5.4", provider="openrouter"),
 }
 
+DEFAULT_ROUTING_MODEL_KEY = "MISTRAL_NEMO"
+DEFAULT_RESPONSE_MODEL_KEY = "MISTRAL_LARGE"
+
 # Create agent instances (will fail if API keys are not set)
 try:
     # Use small Mistral model for routing (fast, lightweight)
-    routing_agent = Agent(MODELS["MISTRAL_NEMO"], ROUTING_PROMPT, temperature=0.1)
-    # Use larger Mistral model for responses (better quality)
-    response_agent = Agent(MODELS["MISTRAL_SMALL"], "your_response_prompt", temperature=0.5)
+    routing_agent = Agent(MODELS[DEFAULT_ROUTING_MODEL_KEY], ROUTING_PROMPT, temperature=0.1)
+    # Use direct Mistral Large for responses (better quality)
+    response_agent = Agent(MODELS[DEFAULT_RESPONSE_MODEL_KEY], "your_response_prompt", temperature=0.1)
 except ValueError:
     # API keys not set - agents will be None until .env is configured
     routing_agent = None
     response_agent = None
-    logger.warning("API keys not found. Agent instances not created. Set SCALEWAY_API_KEY in .env file.")
-
+    logger.warning("API keys not found. Agent instances not created. Set SCALEWAY_API_KEY and MISTRAL_API_KEY in .env file.")

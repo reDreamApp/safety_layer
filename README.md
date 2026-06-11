@@ -115,8 +115,10 @@ uv pip install -r AI/requirements.txt
 ```bash
 cp .env.example .env
 # Edit .env and add your keys:
-# GROQ_API_KEY=your_key_here
-# OPENAI_API_KEY=your_key_here
+# SCALEWAY_API_KEY=your_key_here   # routing + safety layer
+# MISTRAL_API_KEY=your_key_here    # response generation
+# OPENROUTER_API_KEY=your_key_here # optional: dataset/judge scripts
+# OPENAI_API_KEY=your_key_here     # optional: legacy scripts
 ```
 
 4. Verify setup:
@@ -343,4 +345,3 @@ For detailed scientific rationale with direct quotes, see `Documents/Clinical_On
 ---
 
 **Note**: This is a thesis project. The safety layer is designed to ensure therapeutic safety in IRT chatbot interactions by identifying and redirecting maladaptive behaviors toward adaptive goals.
-

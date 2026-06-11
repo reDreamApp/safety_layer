@@ -63,6 +63,7 @@ def test_agent_structure():
         assert "GROQ_70B" in MODELS
         assert "GROQ_8B" in MODELS
         assert "GPT4" in MODELS
+        assert "MISTRAL_LARGE" in MODELS
         print("✅ Model configurations exist")
         
         # Check ModelConfig structure
@@ -147,7 +148,7 @@ def test_env_file():
         return True
     else:
         print("⚠️  .env file not found")
-        print("   Create .env file with GROQ_API_KEY and OPENAI_API_KEY for full functionality")
+        print("   Create .env file with SCALEWAY_API_KEY and MISTRAL_API_KEY for full functionality")
         return False
 
 def main():
@@ -189,4 +190,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
