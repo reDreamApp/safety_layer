@@ -163,6 +163,21 @@ python -m AI.chat_client --stream
 python -m AI.chat_client
 ```
 
+### Using the Streamlit Chatbot
+
+Run the local Streamlit wrapper:
+
+```bash
+uv run streamlit run AI/streamlit_app.py
+```
+
+Useful URL parameters, matching the website iframe wrapper:
+
+- `?lang=en` or `?lang=de` sets the chat language.
+- `?embed=true` starts with a compact layout for iframe embedding.
+- `?theme=dark` or `?theme=light` controls the wrapper palette.
+- `?sid=<session-id>` reuses a stable session id.
+
 ## 📁 Project Structure
 
 ```
@@ -173,6 +188,7 @@ python -m AI.chat_client
 │   ├── prompts.py          # Prompt templates
 │   ├── irt_app.py          # Main application logic
 │   ├── api.py              # FastAPI server
+│   ├── streamlit_app.py    # Streamlit chatbot wrapper
 │   ├── chat_client.py      # Terminal client
 │   └── logging_config.py  # Logging setup
 ├── safety/                  # Safety module (Phase 2) ✅

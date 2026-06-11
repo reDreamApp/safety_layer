@@ -23,6 +23,7 @@ dependencies = [
     "anthropic>=0.40.0",
     "transformers>=5.2.0",
     "matplotlib>=3.10.8",
+    "streamlit>=1.40.0",
 ]
 
 [project.optional-dependencies]

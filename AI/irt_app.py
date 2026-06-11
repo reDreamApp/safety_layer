@@ -44,7 +44,11 @@ langfuse_context.configure(
 language = "de"
 
 @observe(as_type="trace", capture_input=False, capture_output=False)
-async def process_chat_message(chat_input: ChatInput, conversation: Conversation) -> ChatResponse:
+async def process_chat_message(
+    chat_input: ChatInput,
+    conversation: Conversation,
+    safety_enabled: bool = True,
+) -> ChatResponse:
     """Process a chat message and return complete response"""
     try:
         # Update the trace level input/output
@@ -85,7 +89,7 @@ async def process_chat_message(chat_input: ChatInput, conversation: Conversation
 
         # Safety evaluation during rewriting stage
         safety_result = None
-        if stage == "rewriting":
+        if safety_enabled and stage == "rewriting":
             safety_result = await evaluate_safety(chat_input.message, conversation)
 
         response, usage = await get_response_async(
@@ -119,7 +123,11 @@ async def process_chat_message(chat_input: ChatInput, conversation: Conversation
         raise
 
 @observe(as_type="trace", capture_input=False, capture_output=False)
-async def process_chat_message_stream(chat_input: ChatInput, conversation: Conversation) -> AsyncGenerator[str, None]:
+async def process_chat_message_stream(
+    chat_input: ChatInput,
+    conversation: Conversation,
+    safety_enabled: bool = True,
+) -> AsyncGenerator[str, None]:
     """Process a chat message and yield streaming response"""
     try:
         # Update trace level with session, user, input
@@ -156,7 +164,7 @@ async def process_chat_message_stream(chat_input: ChatInput, conversation: Conve
 
         # Safety evaluation during rewriting stage
         safety_result = None
-        if stage == "rewriting":
+        if safety_enabled and stage == "rewriting":
             safety_result = await evaluate_safety(chat_input.message, conversation)
 
         history = conversation.get_history_as_string()
@@ -392,4 +400,3 @@ async def get_response_stream_async(stage: str, full_prompt: str, conversation: 
         output=full_response,
         usage=final_usage
     )
-
