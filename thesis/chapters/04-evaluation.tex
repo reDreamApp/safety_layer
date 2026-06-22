@@ -79,6 +79,8 @@ labels with targeted author review, not as independent expert ground truth.
 
 This review should not be interpreted as independent inter-rater reliability. It was an internal label-quality check, not a blinded expert annotation study. Its main purpose was to catch obvious generation errors before using the data for system evaluation. Expert-facing material for system-level comparison is discussed separately in \Cref{sec:system-level-expert-evaluation}.
 
+\todo{Work in dataset-quality caveat: dev-set spot check found 33/36 agreement, with all 3 disagreements concentrated in AFFECT\_EXPRESSION cases that were better interpreted as unsafe TRAUMA\_REPLAY. Explain that this may make some development-set false positives clinically plausible label-noise rather than classifier errors. Also state that the held-out test set mitigates this because all valid AFFECT\_EXPRESSION cases were manually reviewed; remaining test-set concern is mainly ecological validity / overlap with EMOTIONAL\_MASTERY, not binary safety disagreement.}
+
 \todo{Obtain independent expert annotations for the held-out test set from Katharina Lüth and Dr. Annika Gieselmann; use them for targeted expert validation and inter-rater agreement where possible.}
 
 \todo{Include a focused expert spot check of violent-revenge cases, especially boundary cases where proportionate self-protection and maladaptive retaliation are difficult to separate from text alone.}

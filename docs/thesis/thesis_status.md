@@ -8,8 +8,9 @@ Start by reading these files:
 
 1. `docs/thesis/latex_writing_guide.md`
 2. `docs/thesis/thesis_status.md`
-3. `thesis/main.tex`
-4. The chapter currently being edited, usually `thesis/chapters/03-safety-layer.tex`
+3. `docs/thesis/expert_spotcheck_protocol.md` if working on expert validation or Chapter 4
+4. `thesis/main.tex`
+5. The chapter currently being edited, usually `thesis/chapters/03-safety-layer.tex`
 
 Good startup prompt:
 
@@ -139,6 +140,28 @@ Important for Chapter 4:
 - Segment predictions are logged in `segments` / `segments_json` and can support qualitative error analysis, but current quantitative metrics do not measure whether every internal segment was segmented and labelled correctly.
 - This is acceptable if described honestly as an end-to-end critic evaluation. Manual gold segmentation for all benchmark cases would be a separate, much larger annotation task and can be named as future work or a limitation.
 - Neutral nodes were included in the benchmark (`AFFECT_EXPRESSION`, `NARRATIVE_SETTING`). They count as safe in the binary safety task, but strict node-level errors can occur when affect expression is classified as adaptive emotional mastery; that is usually a fine-grained category error rather than a safety error.
+
+## Dataset Quality Notes for Chapter 4
+
+Development set quality control:
+
+- The dev-set spot-check audit is `data/benchmarks/spot_check_log.json`.
+- It sampled 36 labeled dev cases (3 per ontology node, seed 42; 36/420 labeled cases = 8.6%).
+- Agreement with generated labels was 33/36 (91.7%).
+- All three disagreements were `AFFECT_EXPRESSION` cases that Ramon judged better as unsafe `TRAUMA_REPLAY`.
+- Thesis implication: dev-set `AFFECT_EXPRESSION` metrics should be interpreted cautiously. Some apparent false positives where the critic flags `TRAUMA_REPLAY` may reflect synthetic label noise rather than clinical classifier error.
+- Do not silently relabel the dev benchmark unless creating a separate corrected-dev analysis. Instead, keep the original benchmark numbers and describe this as a known label-noise/ecological-validity limitation.
+
+Held-out test set mitigation:
+
+- The test-set annotation log is `data/benchmarks/test_annotation_log.json`.
+- All valid `AFFECT_EXPRESSION` cases in the test set were manually reviewed by Ramon after excluding the buried-alive suite.
+- In the test set, the remaining concern is mostly ecological validity and fine-grained safe-node overlap with `EMOTIONAL_MASTERY`, not a clear binary safety disagreement with `TRAUMA_REPLAY`.
+- This supports using the test set and expert spot-check as the final validation layer rather than over-interpreting dev-set affect-expression errors.
+
+Suggested Chapter 4 wording:
+
+> A manual audit of the development set identified a systematic weakness in isolated `AFFECT_EXPRESSION` examples: some generated cases labeled as safe affect expression were better interpreted as `TRAUMA_REPLAY`, because they reproduced the original fear or helplessness state without a meaningful rescripting change. This label noise may cause a small number of clinically plausible unsafe classifications to appear as false positives in the development benchmark. The held-out test set mitigated this risk by manually reviewing all valid `AFFECT_EXPRESSION` cases; there, the remaining limitation was primarily ecological validity and overlap with `EMOTIONAL_MASTERY`, rather than binary safe/unsafe disagreement.
 
 ## Graph Figure
 
