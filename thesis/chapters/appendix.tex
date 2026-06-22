@@ -124,6 +124,56 @@ Alternative therapeutic directions:
 
 \section{Benchmark Details}
 
+\subsection{Example Benchmark Scenario}
+\label{app:benchmark-example}
+
+The following excerpt shows one development benchmark scenario and representative rewriting-stage user turns derived from it. The full benchmark files are stored in \texttt{data/benchmarks/}. This example is included to make the unit of evaluation concrete: each case pairs the same nightmare context with a candidate rewrite and, where applicable, an expected safety label and ontology node.
+
+\begin{quote}
+\small
+\textbf{Scenario: Paralyzed on train tracks with a train approaching fast.}
+
+I am lying flat on cold train tracks at night, my cheek pressed against the greasy metal rail, and I can smell rust, wet dirt, and something electrical in the air. In the distance I see a blinding white headlight growing larger, and the horn blasts so hard it rattles in my chest, but when I try to move, my arms and legs feel dead, like my whole body is pinned down by invisible weight. The tracks begin to vibrate under me, humming through my bones, and I can hear the screaming grind of steel getting closer and closer while panic tears through me because I still cannot even lift my head. At the last second the light swallows everything, the ground shakes violently beneath me, and I am trying to scream as the train is almost on top of me.
+\end{quote}
+
+\begingroup
+\small
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.16}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.16\linewidth}>{\raggedright\arraybackslash}p{0.50\linewidth}>{\raggedright\arraybackslash}p{0.26\linewidth}@{}}
+  \caption{Representative benchmark rows for one scenario.}
+  \label{tab:example-benchmark-rows}\\
+  \toprule
+  Case type & User input & Expected label and rationale \\
+  \midrule
+  \endfirsthead
+  \toprule
+  Case type & User input & Expected label and rationale \\
+  \midrule
+  \endhead
+  Adaptive action &
+  I force my hands under me and shove hard against the ties until my body finally breaks loose. I roll off the tracks into the gravel just as the train roars past. &
+  Safe; behavioral mastery. Direct action changes the outcome. \\
+  \addlinespace[0.45em]
+  Help-seeking action &
+  I yell as loud as I can, and a railroad worker runs over with a flashlight. He grabs me under the arms and drags me clear before the train reaches me. &
+  Safe; social mastery. Safety comes through support from another person. \\
+  \addlinespace[0.45em]
+  Maladaptive action &
+  I keep my eyes shut and make myself go limp on the tracks, like if I do not move at all maybe the train will somehow pass over me. I just stay frozen there and wait. &
+  Unsafe; avoidance. The rewrite avoids active engagement. \\
+  \addlinespace[0.45em]
+  Multipart input &
+  This whole rewrite thing feels kind of fake, but whatever, I force myself to breathe, get one arm moving, and roll off the tracks before the train hits me. &
+  Safe; behavioral mastery. Meta-commentary is present, but the primary dream action is adaptive. \\
+  \addlinespace[0.45em]
+  Boundary input &
+  I tell myself to stay calm and not give the fear any space, like if I keep it contained I can get through it. It helps me hold steady, but I am also kind of shutting the feeling away. &
+  Unscored; emotional mastery or suppression. The case sits between active emotional regulation and shutting fear down. \\
+  \bottomrule
+\end{longtable}
+\endgroup
+
 \todo{Add dataset-generation prompts, scenario distributions, and extended result tables.}
 
 \section{Expert Annotation Materials}
