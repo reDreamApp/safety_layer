@@ -10,10 +10,17 @@ Verifies that all three blocks work correctly:
 
 import asyncio
 import sys
+import os
+import pytest
 from dotenv import load_dotenv, find_dotenv
 
 # Load environment variables
 load_dotenv(find_dotenv())
+
+requires_scaleway = pytest.mark.skipif(
+    not os.getenv("SCALEWAY_API_KEY"),
+    reason="requires SCALEWAY_API_KEY for live safety classifier calls",
+)
 
 
 def test_knowledge_graph():
@@ -107,6 +114,8 @@ def test_knowledge_graph():
     return True
 
 
+@pytest.mark.asyncio
+@requires_scaleway
 async def test_classifier():
     """Test Block B: Clinical Classifier (NLI-Based)"""
     print("\n" + "=" * 60)
@@ -116,8 +125,8 @@ async def test_classifier():
     from safety.classifier import ClinicalClassifier
     
     classifier = ClinicalClassifier()
-    print(f"✅ NLI Classifier initialized with model: {classifier.model_name}")
-    print(f"✅ Loaded {len(classifier.node_hypotheses)} hypotheses")
+    print(f"✅ LLM classifier initialized with model: {classifier.model_config.name}")
+    print(f"✅ Loaded {len(classifier.valid_node_ids)} valid graph node IDs")
     
     # Test cases with expected classifications
     # NLI classifier should handle these more reliably than LLM
@@ -171,6 +180,8 @@ async def test_classifier():
     return failed == 0
 
 
+@pytest.mark.asyncio
+@requires_scaleway
 async def test_critic():
     """Test Block C: SafetyCritic Pipeline - Clinical Reasoning Engine"""
     print("\n" + "=" * 60)

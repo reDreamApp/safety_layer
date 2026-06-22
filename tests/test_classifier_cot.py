@@ -16,11 +16,17 @@ import sys
 import os
 from pathlib import Path
 
+import pytest
 from dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv())
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
+
+requires_scaleway = pytest.mark.skipif(
+    not os.getenv("SCALEWAY_API_KEY"),
+    reason="requires SCALEWAY_API_KEY for live classifier calls",
+)
 
 
 def test_cot_prompt_parity():
@@ -146,6 +152,8 @@ def test_code_map_consistency():
     print("✅ CODE_MAP consistency test passed - both systems use identical mapping")
 
 
+@pytest.mark.asyncio
+@requires_scaleway
 async def test_cot_classifier_basic():
     """Test CoT classifier with clear-cut cases (requires API key)."""
     from safety.classifier_cot import ClinicalClassifierCoT
@@ -186,6 +194,8 @@ async def test_cot_classifier_basic():
     return passed == len(test_cases)
 
 
+@pytest.mark.asyncio
+@requires_scaleway
 async def test_cot_classifier_context_aware():
     """Test CoT classifier with nightmare context (requires API key)."""
     from safety.classifier_cot import ClinicalClassifierCoT
@@ -223,6 +233,8 @@ async def test_cot_classifier_context_aware():
     return passed == len(context_cases)
 
 
+@pytest.mark.asyncio
+@requires_scaleway
 async def test_semantic_consistency():
     """Test semantic consistency evaluation (requires API key, multiple calls)."""
     from safety.classifier import ClinicalClassifier
@@ -253,6 +265,8 @@ async def test_semantic_consistency():
     return True
 
 
+@pytest.mark.asyncio
+@requires_scaleway
 async def test_cot_with_critic_pipeline():
     """
     Verify System 2 can be plugged into the critic pipeline.

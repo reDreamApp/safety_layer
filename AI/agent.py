@@ -66,50 +66,107 @@ NEW_API_MODELS = ("gpt-5", "o1", "o3", "openai/gpt-5", "openai/o1", "openai/o3")
 
 
 class Agent:
-    def __init__(self, model_config: ModelConfig, system_prompt: str, temperature: float = 0.5, max_tokens: int = 1024):
+    def __init__(
+        self,
+        model_config: ModelConfig,
+        system_prompt: str,
+        temperature: float = 0.5,
+        max_tokens: int = 1024,
+        fallback_model_config: Optional[ModelConfig] = None,
+    ):
         self.model = model_config.name
         self.provider = model_config.provider
         self.system_prompt = system_prompt
         self.temperature = temperature
         self.max_tokens = max_tokens
         # Check if this model uses the new API parameter names
-        self._uses_new_api = any(self.model.startswith(prefix) for prefix in NEW_API_MODELS)
-        
-        # Initialize the appropriate client
-        if model_config.provider == "groq":
+        self._uses_new_api = self._model_uses_new_api(self.model)
+        self.client = self._build_client(model_config.provider)
+
+        self.fallback_model: Optional[str] = None
+        self.fallback_provider: Optional[ProviderType] = None
+        self.fallback_client = None
+        self._fallback_uses_new_api = False
+        if fallback_model_config is not None:
+            self.fallback_model = fallback_model_config.name
+            self.fallback_provider = fallback_model_config.provider
+            self._fallback_uses_new_api = self._model_uses_new_api(self.fallback_model)
+            self.fallback_client = self._build_client(fallback_model_config.provider)
+
+    @staticmethod
+    def _model_uses_new_api(model_name: str) -> bool:
+        return any(model_name.startswith(prefix) for prefix in NEW_API_MODELS)
+
+    @staticmethod
+    def _build_client(provider: ProviderType):
+        """Construct the OpenAI-compatible (or Groq) client for a provider."""
+        if provider == "groq":
             api_key = os.getenv('GROQ_API_KEY')
             if not api_key:
                 raise ValueError("GROQ_API_KEY not found in environment")
-            self.client = AsyncGroq(api_key=api_key)
-        elif model_config.provider == "scaleway":
+            return AsyncGroq(api_key=api_key)
+        elif provider == "scaleway":
             api_key = os.getenv('SCALEWAY_API_KEY')
             if not api_key:
                 raise ValueError("SCALEWAY_API_KEY not found in environment")
-            self.client = AsyncOpenAI(
-                api_key=api_key,
-                base_url="https://api.scaleway.ai/v1"
-            )
-        elif model_config.provider == "openrouter":
+            return AsyncOpenAI(api_key=api_key, base_url="https://api.scaleway.ai/v1")
+        elif provider == "openrouter":
             api_key = os.getenv('OPENROUTER_API_KEY')
             if not api_key:
                 raise ValueError("OPENROUTER_API_KEY not found in environment")
-            self.client = AsyncOpenAI(
-                api_key=api_key,
-                base_url="https://openrouter.ai/api/v1"
-            )
-        elif model_config.provider == "mistral":
+            return AsyncOpenAI(api_key=api_key, base_url="https://openrouter.ai/api/v1")
+        elif provider == "mistral":
             api_key = os.getenv('MISTRAL_API_KEY')
             if not api_key:
                 raise ValueError("MISTRAL_API_KEY not found in environment")
-            self.client = AsyncOpenAI(
-                api_key=api_key,
-                base_url="https://api.mistral.ai/v1"
-            )
+            return AsyncOpenAI(api_key=api_key, base_url="https://api.mistral.ai/v1")
         else:
             api_key = os.getenv('OPENAI_API_KEY')
             if not api_key:
                 raise ValueError("OPENAI_API_KEY not found in environment")
-            self.client = AsyncOpenAI(api_key=api_key)
+            return AsyncOpenAI(api_key=api_key)
+
+    def _build_request_kwargs(self, model, uses_new_api, provider, prompt, logprobs, top_logprobs, stream=False):
+        """Assemble the chat.completions.create kwargs for a given model/provider."""
+        request_kwargs = {
+            "model": model,
+            "messages": [
+                {"role": "system", "content": self.system_prompt},
+                {"role": "user", "content": prompt}
+            ],
+            "temperature": self.temperature,
+        }
+        if stream:
+            request_kwargs["stream"] = True
+        if uses_new_api:
+            request_kwargs["max_completion_tokens"] = self.max_tokens
+        else:
+            request_kwargs["max_tokens"] = self.max_tokens
+        if logprobs:
+            request_kwargs["logprobs"] = True
+            if top_logprobs is not None:
+                request_kwargs["top_logprobs"] = top_logprobs
+            if provider == "openrouter":
+                request_kwargs["extra_body"] = {
+                    "provider": {"require_parameters": True}
+                }
+        return request_kwargs
+
+    async def _create_with_retries(self, client, request_kwargs):
+        """Call chat.completions.create, retrying transient network/server errors."""
+        TRANSIENT_EXCS = (APIConnectionError, APITimeoutError, InternalServerError, RateLimitError)
+        max_attempts = 4
+        delay = 1.0
+        for attempt in range(max_attempts):
+            try:
+                return await client.chat.completions.create(**request_kwargs)
+            except TRANSIENT_EXCS as e:
+                if attempt == max_attempts - 1:
+                    raise
+                logger.warning(f"Transient API error (attempt {attempt+1}/{max_attempts}): {e}. Retrying in {delay}s.")
+                await asyncio.sleep(delay)
+                delay *= 2
+        raise RuntimeError("retry loop exhausted without returning or raising")
 
     async def generate(
         self, 
@@ -131,47 +188,23 @@ class Agent:
         try:
             log_prompt(self.system_prompt, prompt, self.model)
             
-            request_kwargs = {
-                "model": self.model,
-                "messages": [
-                    {"role": "system", "content": self.system_prompt},
-                    {"role": "user", "content": prompt}
-                ],
-                "temperature": self.temperature,
-            }
-            
-            # Use appropriate token limit parameter based on model
-            if self._uses_new_api:
-                request_kwargs["max_completion_tokens"] = self.max_tokens
-            else:
-                request_kwargs["max_tokens"] = self.max_tokens
-
-            if logprobs:
-                request_kwargs["logprobs"] = True
-                if top_logprobs is not None:
-                    request_kwargs["top_logprobs"] = top_logprobs
-                # OpenRouter: ensure the request is routed to a provider that supports logprobs
-                if self.provider == "openrouter":
-                    request_kwargs["extra_body"] = {
-                        "provider": {"require_parameters": True}
-                    }
-
-            # Retry transient network/server errors with exponential backoff.
-            # Scaleway's endpoint occasionally drops connections under sustained
-            # sequential load (seen in consistency-mode benchmarks).
-            TRANSIENT_EXCS = (APIConnectionError, APITimeoutError, InternalServerError, RateLimitError)
-            max_attempts = 4
-            delay = 1.0
-            for attempt in range(max_attempts):
-                try:
-                    response = await self.client.chat.completions.create(**request_kwargs)
-                    break
-                except TRANSIENT_EXCS as e:
-                    if attempt == max_attempts - 1:
-                        raise
-                    logger.warning(f"Transient API error (attempt {attempt+1}/{max_attempts}): {e}. Retrying in {delay}s.")
-                    await asyncio.sleep(delay)
-                    delay *= 2
+            primary_kwargs = self._build_request_kwargs(
+                self.model, self._uses_new_api, self.provider, prompt, logprobs, top_logprobs
+            )
+            try:
+                response = await self._create_with_retries(self.client, primary_kwargs)
+            except Exception as primary_err:
+                if self.fallback_client is None:
+                    raise
+                logger.warning(
+                    f"Primary model '{self.model}' ({self.provider}) failed: {primary_err}. "
+                    f"Falling back to '{self.fallback_model}' ({self.fallback_provider})."
+                )
+                fallback_kwargs = self._build_request_kwargs(
+                    self.fallback_model, self._fallback_uses_new_api, self.fallback_provider,
+                    prompt, logprobs, top_logprobs
+                )
+                response = await self._create_with_retries(self.fallback_client, fallback_kwargs)
 
             usage = {
                 "input": response.usage.prompt_tokens,
@@ -216,25 +249,26 @@ class Agent:
             encoder = tiktoken.get_encoding("cl100k_base")
             prompt_tokens = len(encoder.encode(prompt))
             completion_tokens = 0
-            
-            stream_kwargs = {
-                "model": self.model,
-                "messages": [
-                    {"role": "system", "content": self.system_prompt},
-                    {"role": "user", "content": prompt}
-                ],
-                "temperature": self.temperature,
-                "stream": True,
-            }
-            
-            # Use appropriate token limit parameter based on model
-            if self._uses_new_api:
-                stream_kwargs["max_completion_tokens"] = self.max_tokens
-            else:
-                stream_kwargs["max_tokens"] = self.max_tokens
-            
-            stream = await self.client.chat.completions.create(**stream_kwargs)
-            
+
+            primary_kwargs = self._build_request_kwargs(
+                self.model, self._uses_new_api, self.provider, prompt,
+                logprobs=False, top_logprobs=None, stream=True
+            )
+            try:
+                stream = await self._create_with_retries(self.client, primary_kwargs)
+            except Exception as primary_err:
+                if self.fallback_client is None:
+                    raise
+                logger.warning(
+                    f"Primary model '{self.model}' stream failed: {primary_err}. "
+                    f"Falling back to '{self.fallback_model}'."
+                )
+                fallback_kwargs = self._build_request_kwargs(
+                    self.fallback_model, self._fallback_uses_new_api, self.fallback_provider,
+                    prompt, logprobs=False, top_logprobs=None, stream=True
+                )
+                stream = await self._create_with_retries(self.fallback_client, fallback_kwargs)
+
             async for chunk in stream:
                 if content := chunk.choices[0].delta.content:
                     completion_tokens += len(encoder.encode(content))
@@ -260,10 +294,13 @@ MODELS = {
     # GPT-5.2 model for high-quality synthetic data generation
     "GPT5": ModelConfig(name="gpt-5.2", provider="openai"),
     # Scaleway Mistral models
+    "MISTRAL_MEDIUM": ModelConfig(name="mistral-medium-3.5-128b", provider="scaleway"),
     "MISTRAL_SMALL": ModelConfig(name="mistral-small-3.2-24b-instruct-2506", provider="scaleway"),
     "MISTRAL_NEMO": ModelConfig(name="mistral-nemo-instruct-2407", provider="scaleway"),
     # Direct Mistral API models
-    "MISTRAL_LARGE": ModelConfig(name="mistral-large-latest", provider="mistral"),
+    "MISTRAL_LARGE": ModelConfig(name="mistral-large-2512", provider="mistral"),
+    "MINISTRAL_8B": ModelConfig(name="ministral-8b-2512", provider="mistral"),
+    "MISTRAL_SMALL_DIRECT": ModelConfig(name="mistral-small-2603", provider="mistral"),
     # OpenRouter models (same models as Scaleway, routed through OpenRouter)
     "OR_MISTRAL_SMALL": ModelConfig(name="mistralai/mistral-small-3.2-24b-instruct", provider="openrouter"),
     "OR_MISTRAL_NEMO": ModelConfig(name="mistralai/mistral-nemo", provider="openrouter"),
@@ -271,15 +308,23 @@ MODELS = {
     "OR_GPT5_4": ModelConfig(name="openai/gpt-5.4", provider="openrouter"),
 }
 
-DEFAULT_ROUTING_MODEL_KEY = "MISTRAL_NEMO"
-DEFAULT_RESPONSE_MODEL_KEY = "MISTRAL_LARGE"
+DEFAULT_ROUTING_MODEL_KEY = "MISTRAL_SMALL"
+DEFAULT_RESPONSE_MODEL_KEY = "MISTRAL_MEDIUM"
+ROUTING_FALLBACK_MODEL_KEY = "MINISTRAL_8B"
+RESPONSE_FALLBACK_MODEL_KEY = "MISTRAL_LARGE"
 
 # Create agent instances (will fail if API keys are not set)
 try:
-    # Use small Mistral model for routing (fast, lightweight)
-    routing_agent = Agent(MODELS[DEFAULT_ROUTING_MODEL_KEY], ROUTING_PROMPT, temperature=0.1)
-    # Use direct Mistral Large for responses (better quality)
-    response_agent = Agent(MODELS[DEFAULT_RESPONSE_MODEL_KEY], "your_response_prompt", temperature=0.1)
+    # Routing: Mistral Small on Scaleway, falling back to Ministral 8B on Mistral.
+    routing_agent = Agent(
+        MODELS[DEFAULT_ROUTING_MODEL_KEY], ROUTING_PROMPT, temperature=0.1,
+        fallback_model_config=MODELS[ROUTING_FALLBACK_MODEL_KEY],
+    )
+    # Responses: Mistral Medium 3.5 on Scaleway, falling back to Mistral Large 3 on Mistral.
+    response_agent = Agent(
+        MODELS[DEFAULT_RESPONSE_MODEL_KEY], "your_response_prompt", temperature=0.1,
+        fallback_model_config=MODELS[RESPONSE_FALLBACK_MODEL_KEY],
+    )
 except ValueError:
     # API keys not set - agents will be None until .env is configured
     routing_agent = None

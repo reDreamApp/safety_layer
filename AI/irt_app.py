@@ -6,7 +6,8 @@ import logging
 import json
 from langfuse.decorators import observe, langfuse_context
 from .prompts import (SYSTEM_PROMPT_TEMPLATES_DE, SYSTEM_PROMPT_TEMPLATES_EN,
-                      NIGHTMARE_SUMMARY_PROMPT_DE, NIGHTMARE_SUMMARY_PROMPT_EN)
+                      NIGHTMARE_SUMMARY_PROMPT_DE, NIGHTMARE_SUMMARY_PROMPT_EN,
+                      SCOPE_BOUNDARY_DE, SCOPE_BOUNDARY_EN)
 
 # Load environment variables (searches upward from CWD to find project .env)
 load_dotenv(find_dotenv())
@@ -16,7 +17,7 @@ load_dotenv(find_dotenv())
 # Import agents AFTER env is loaded so API keys are available during initialization
 from .agent import routing_agent, response_agent  # noqa: E402
 
-# Routing and safety still use Scaleway-hosted Mistral; responses use direct Mistral.
+# Routing and chatbot responses use Scaleway-hosted Mistral with direct Mistral fallback.
 if not os.getenv('SCALEWAY_API_KEY') or not os.getenv('MISTRAL_API_KEY'):
     raise ValueError("SCALEWAY_API_KEY and MISTRAL_API_KEY environment variables must be set")
 
@@ -350,10 +351,12 @@ async def get_response_async(stage: str, user_input: str, conversation: Conversa
     prompt_template = templates[stage]
     full_prompt = f"\n\nConversation history:\n{history_for_prompt}" # Use the modified history
 
+    boundary = SCOPE_BOUNDARY_EN if is_english else SCOPE_BOUNDARY_DE
+    base_prompt = boundary + "\n\n" + prompt_template
     if safety_constraint:
-        response_agent.system_prompt = prompt_template + "\n\n" + safety_constraint
+        response_agent.system_prompt = base_prompt + "\n\n" + safety_constraint
     else:
-        response_agent.system_prompt = prompt_template
+        response_agent.system_prompt = base_prompt
     response, usage, _ = await response_agent.generate(full_prompt)
     
     langfuse_context.update_current_observation(
@@ -381,10 +384,12 @@ async def get_response_stream_async(stage: str, full_prompt: str, conversation: 
     is_english = (language == "en")
     templates = SYSTEM_PROMPT_TEMPLATES_EN if is_english else SYSTEM_PROMPT_TEMPLATES_DE
     prompt_template = templates[stage]
+    boundary = SCOPE_BOUNDARY_EN if is_english else SCOPE_BOUNDARY_DE
+    base_prompt = boundary + "\n\n" + prompt_template
     if safety_constraint:
-        response_agent.system_prompt = prompt_template + "\n\n" + safety_constraint
+        response_agent.system_prompt = base_prompt + "\n\n" + safety_constraint
     else:
-        response_agent.system_prompt = prompt_template
+        response_agent.system_prompt = base_prompt
 
     full_response = ""
     final_usage = {}
