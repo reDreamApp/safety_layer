@@ -163,6 +163,33 @@
       margin: 0 0 12px;
       font-size: 15px;
     }
+    details.field {
+      padding: 0;
+      overflow: hidden;
+    }
+    details.field summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 16px;
+      font-size: 15px;
+      font-weight: 760;
+    }
+    details.field summary::-webkit-details-marker {
+      display: none;
+    }
+    details.field summary::after {
+      content: "+";
+      float: right;
+      color: var(--muted);
+      font-weight: 800;
+    }
+    details.field[open] summary::after {
+      content: "-";
+    }
+    .details-body {
+      border-top: 1px solid var(--line);
+      padding: 14px 16px 16px;
+    }
     .instructions {
       margin: 0;
       padding-left: 18px;
@@ -283,6 +310,55 @@
       font-size: 13px;
       margin: 8px 0 0;
     }
+    .reference {
+      display: grid;
+      gap: 10px;
+    }
+    .reference-group {
+      border-top: 1px solid var(--line);
+      padding-top: 10px;
+    }
+    .reference-group:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+    .reference-title {
+      margin: 0 0 7px;
+      color: var(--sage);
+      font-size: 12px;
+      font-weight: 820;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .definition-list {
+      display: grid;
+      gap: 6px;
+      margin: 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .definition-list div {
+      display: grid;
+      grid-template-columns: 118px 1fr;
+      gap: 8px;
+      align-items: start;
+    }
+    .definition-list dt {
+      color: var(--ink);
+      font-weight: 760;
+    }
+    .definition-list dd {
+      margin: 0;
+    }
+    .boundary-rules {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .boundary-rules li + li {
+      margin-top: 6px;
+    }
     @media (max-width: 980px) {
       body { overflow: auto; }
       .shell { grid-template-columns: 1fr; height: auto; overflow: visible; }
@@ -335,17 +411,19 @@
           <h2>Rater</h2>
           <input class="rater" id="rater-id" placeholder="Initials or rater ID">
         </section>
-        <section class="field">
-          <h2>Rating instructions</h2>
-          <ul class="instructions">
-            <li>Rate cases in order. Stopping at any point is fine; skipping around is not.</li>
-            <li>First decide whether the rescripting attempt is safe or unsafe.</li>
-            <li>Choose one primary clinical node: the pattern that should guide the therapeutic response or safety intervention.</li>
-            <li>If safe and unsafe elements both appear, prioritize the unsafe element if it would require redirecting the patient.</li>
-            <li>Use notes for secondary labels, ambiguity, low confidence, or low ecological validity.</li>
-            <li>Export the file before closing the browser. Clear local labels before the next rater uses this laptop.</li>
-          </ul>
-        </section>
+        <details class="field" open>
+          <summary>Rating instructions</summary>
+          <div class="details-body">
+            <ul class="instructions">
+              <li>Rate cases in order. Stopping at any point is fine; skipping around is not.</li>
+              <li>First decide whether the rescripting attempt is safe or unsafe.</li>
+              <li>Choose one primary clinical node: the pattern that should guide the therapeutic response or safety intervention.</li>
+              <li>If safe and unsafe elements both appear, prioritize the unsafe element if it would require redirecting the patient.</li>
+              <li>Use notes for secondary labels, ambiguity, low confidence, or low ecological validity.</li>
+              <li>Export the file before closing the browser. Clear local labels before the next rater uses this laptop.</li>
+            </ul>
+          </div>
+        </details>
         <section class="field">
           <h2>Safety label</h2>
           <div class="segmented">
@@ -358,6 +436,47 @@
           <p class="guidance">Choose the primary label. If more than one label seems plausible, use notes for secondary labels or ambiguity.</p>
           <div id="nodes"></div>
         </section>
+        <details class="field reference">
+          <summary>Ontology reference</summary>
+          <div class="details-body">
+            <div class="reference-group">
+              <p class="reference-title">Maladaptive</p>
+              <dl class="definition-list">
+                <div><dt>Avoidance</dt><dd>Hiding, fleeing, freezing, doing nothing, or disappearing from the dream scene instead of changing it.</dd></div>
+                <div><dt>Interruption</dt><dd>Ending the dream by waking up, forcing it to stop, or cutting the scene off.</dd></div>
+                <div><dt>Violent revenge</dt><dd>Rage-driven, excessive, or retaliatory harm beyond proportionate self-protection.</dd></div>
+                <div><dt>Suppression</dt><dd>Denying, minimizing, numbing, or pushing away emotion in a clearly distressing scene.</dd></div>
+                <div><dt>Trauma replay</dt><dd>Repeating the nightmare or traumatic event unchanged, with no new mastery action.</dd></div>
+              </dl>
+            </div>
+            <div class="reference-group">
+              <p class="reference-title">Adaptive mastery</p>
+              <dl class="definition-list">
+                <div><dt>Behavioral</dt><dd>Active, goal-directed action: facing, stopping, escaping with agency, or proportionate self-defense.</dd></div>
+                <div><dt>Social</dt><dd>Seeking, receiving, or creating support from people, animals, or helpful figures.</dd></div>
+                <div><dt>Environmental</dt><dd>Changing the setting, objects, barriers, routes, light, distance, or dream rules.</dd></div>
+                <div><dt>Emotional</dt><dd>Acknowledging and regulating emotion, choosing calm/courage, or feeling safe while staying engaged.</dd></div>
+                <div><dt>Mythical</dt><dd>Using magical, symbolic, supernatural, or imaginative powers to transform the dream.</dd></div>
+              </dl>
+            </div>
+            <div class="reference-group">
+              <p class="reference-title">Neutral</p>
+              <dl class="definition-list">
+                <div><dt>Narrative setting</dt><dd>Scene description or factual dream detail without a safety-relevant action.</dd></div>
+                <div><dt>Affect expression</dt><dd>Stating fear, sadness, relief, or other emotion without suppressing it or changing the dream.</dd></div>
+              </dl>
+            </div>
+            <div class="reference-group">
+              <p class="reference-title">Boundary rules</p>
+              <ul class="boundary-rules">
+                <li>If safe and unsafe material both appear, choose the unsafe node if a therapist would need to redirect it.</li>
+                <li>Proportionate protection is behavioral mastery; revenge, punishment, or continued harm is violent revenge.</li>
+                <li>Emotional mastery acknowledges emotion; suppression denies, minimizes, or numbs it.</li>
+                <li>Leaving danger inside the dream can be behavioral mastery; waking up or ending the dream is interruption.</li>
+              </ul>
+            </div>
+          </div>
+        </details>
         <section class="field">
           <h2>Confidence</h2>
           <div class="confidence">

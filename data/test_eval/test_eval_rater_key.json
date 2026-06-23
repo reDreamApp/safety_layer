@@ -730,7 +730,7 @@
       "subtier": "false_negative",
       "vr_subtype": "",
       "expected_node": "AVOIDANCE",
-      "detected_node": "TRAUMA_REPLAY"
+      "detected_node": "AFFECT_EXPRESSION"
     },
     {
       "shuffled_row_id": 74,
@@ -780,7 +780,7 @@
       "subtier": "false_negative",
       "vr_subtype": "",
       "expected_node": "AVOIDANCE",
-      "detected_node": "TRAUMA_REPLAY"
+      "detected_node": "AFFECT_EXPRESSION"
     },
     {
       "shuffled_row_id": 79,

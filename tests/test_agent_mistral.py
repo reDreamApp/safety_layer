@@ -4,6 +4,7 @@ import types
 import pytest
 
 from AI import agent
+from experiments.integration_eval import run_integration_eval
 
 
 def _fake_response(content):
@@ -45,6 +46,34 @@ def test_fallback_models_are_direct_mistral():
     assert agent.MODELS["MISTRAL_SMALL_DIRECT"].name == "mistral-small-2603"
     assert agent.MODELS["MISTRAL_SMALL_DIRECT"].provider == "mistral"
     assert "MISTRAL_NEMO" in agent.MODELS
+
+
+def test_integration_eval_uses_production_response_model(monkeypatch):
+    captured = {}
+
+    class FakeAgent:
+        def __init__(self, model_config, system_prompt, temperature=0.5, max_tokens=1024, fallback_model_config=None):
+            captured["model_config"] = model_config
+            captured["system_prompt"] = system_prompt
+            captured["temperature"] = temperature
+            captured["max_tokens"] = max_tokens
+            captured["fallback_model_config"] = fallback_model_config
+
+        async def generate(self, prompt):
+            return "ok", {"input": 1, "output": 1, "total": 2}, None
+
+    monkeypatch.setattr(run_integration_eval, "Agent", FakeAgent)
+
+    response, usage, latency_ms = asyncio.run(
+        run_integration_eval.generate_one("system prompt", "full prompt")
+    )
+
+    assert response == "ok"
+    assert usage == {"input": 1, "output": 1, "total": 2}
+    assert latency_ms >= 0
+    assert captured["model_config"] == agent.MODELS[agent.DEFAULT_RESPONSE_MODEL_KEY]
+    assert captured["fallback_model_config"] == agent.MODELS[agent.RESPONSE_FALLBACK_MODEL_KEY]
+    assert captured["temperature"] == 0.1
 
 
 def test_mistral_provider_uses_direct_api(monkeypatch):

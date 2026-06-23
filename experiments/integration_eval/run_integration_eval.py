@@ -39,7 +39,12 @@ load_dotenv(find_dotenv())
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 
-from AI.agent import Agent, MODELS  # noqa: E402
+from AI.agent import (  # noqa: E402
+    Agent,
+    DEFAULT_RESPONSE_MODEL_KEY,
+    MODELS,
+    RESPONSE_FALLBACK_MODEL_KEY,
+)
 from AI.models import Conversation  # noqa: E402
 from AI.prompts import SYSTEM_PROMPT_TEMPLATES_EN  # noqa: E402
 from safety.critic import SafetyCritic  # noqa: E402
@@ -101,7 +106,12 @@ def build_full_prompt(conversation: Conversation) -> str:
 async def generate_one(system_prompt: str, full_prompt: str) -> tuple[str, dict, float]:
     """Create a fresh Agent (same model/config as production response_agent) and
     run generate once. Returns (response_text, usage_dict, latency_ms)."""
-    agent = Agent(MODELS["MISTRAL_SMALL"], system_prompt, temperature=0.5)
+    agent = Agent(
+        MODELS[DEFAULT_RESPONSE_MODEL_KEY],
+        system_prompt,
+        temperature=0.1,
+        fallback_model_config=MODELS[RESPONSE_FALLBACK_MODEL_KEY],
+    )
     t0 = time.perf_counter()
     response, usage, _ = await agent.generate(full_prompt)
     dt_ms = (time.perf_counter() - t0) * 1000.0
