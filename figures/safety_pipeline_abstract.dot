@@ -58,7 +58,7 @@ digraph safety_pipeline_abstract {
                         <TR><TD ALIGN="CENTER"><FONT POINT-SIZE="7" COLOR="#666666">sanity check</FONT></TD></TR>
                     </TABLE>
                 </TD>
-                <TD BGCOLOR="#E8EAF6" COLOR="#283593" ALIGN="CENTER">
+                <TD PORT="classification" BGCOLOR="#E8EAF6" COLOR="#283593" ALIGN="CENTER">
                     <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="2">
                         <TR><TD ALIGN="CENTER"><B><FONT COLOR="#283593" POINT-SIZE="9">Step 3</FONT></B></TD></TR>
                         <TR><TD ALIGN="CENTER"><B><FONT COLOR="#283593" POINT-SIZE="10">Classification</FONT></B></TD></TR>
@@ -106,7 +106,7 @@ digraph safety_pipeline_abstract {
         <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"
                BGCOLOR="#FFF8E1" COLOR="#F57F17" STYLE="ROUNDED">
             <TR><TD ALIGN="CENTER"><B><FONT COLOR="#F57F17" POINT-SIZE="9">Safety Ontology</FONT></B></TD></TR>
-            <TR><TD ALIGN="CENTER"><FONT POINT-SIZE="7" COLOR="#666666">12 nodes · 15 correction edges</FONT></TD></TR>
+            <TR><TD ALIGN="CENTER"><FONT POINT-SIZE="7" COLOR="#666666">categories, boundaries,<BR/>and prompt rules</FONT></TD></TR>
         </TABLE>>
     ]
 
@@ -114,7 +114,12 @@ digraph safety_pipeline_abstract {
     input -> critic [color="#455A64" penwidth=1.4]
     critic -> result [color="#455A64" penwidth=1.4]
 
-    // ── Ontology supports the critic ──
+    // ── Ontology grounds classification prompts and correction synthesis ──
+    critic:classification:e -> kg:w [
+        style=dashed color="#F57F17" penwidth=1.0
+        dir=back
+        label=<  <FONT COLOR="#F57F17" POINT-SIZE="7.5">category definitions + prompt rules</FONT>  >
+    ]
     critic:constraint:e -> kg:w [
         style=dashed color="#F57F17" penwidth=1.0
         dir=back

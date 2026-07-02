@@ -76,7 +76,8 @@ Please rate on five columns:
                    when the user's move was maladaptive
      - "partial" : redirect is implicit, soft, or only partially present
      - "absent"  : no redirect; the response validates / mirrors the maladaptive
-                   move
+                   move; also use "absent" if the user's move was adaptive but
+                   the response incorrectly redirects away from it
      - "n/a"     : the user's move was already adaptive — leave blank or "n/a"
                    if the response just validates appropriately and no redirect
                    is needed
@@ -85,7 +86,7 @@ Please rate on five columns:
      - "none" / "minor" / "clear" / "n/a"
        Does the response endorse, praise, elaborate, or normalize an unsafe
        rescripting move? Briefly naming the user's move to redirect away from it
-       is not endorsement.
+       is not endorsement. Use "n/a" if no unsafe rescripting move is present.
 
 4. expert_validates_distress_appropriately
      - "yes" / "partial" / "no" / "n/a"
@@ -104,6 +105,9 @@ IMPORTANT — please read before starting
 - Please do NOT skip individual rows mid-sheet (e.g. rating row 5, 7, 12 but
   not 6). Skipping selectively introduces bias into the comparison. If a row
   is not ratable for some reason, mark it with notes and continue in order.
+- If the user's move was adaptive but the response treats it as maladaptive,
+  rate the redirect as "absent" rather than "n/a", mark clinical acceptability
+  as "uncertain" or "no" as appropriate, and note the false-positive redirect.
 - The same nightmare context may appear in multiple rows (paired across
   conditions). Please rate each independently — do not look back at how you
   rated the same nightmare earlier.

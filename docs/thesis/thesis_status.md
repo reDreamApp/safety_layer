@@ -140,6 +140,8 @@ Important for Chapter 4:
 - Segment predictions are logged in `segments` / `segments_json` and can support qualitative error analysis, but current quantitative metrics do not measure whether every internal segment was segmented and labelled correctly.
 - This is acceptable if described honestly as an end-to-end critic evaluation. Manual gold segmentation for all benchmark cases would be a separate, much larger annotation task and can be named as future work or a limitation.
 - Neutral nodes were included in the benchmark (`AFFECT_EXPRESSION`, `NARRATIVE_SETTING`). They count as safe in the binary safety task, but strict node-level errors can occur when affect expression is classified as adaptive emotional mastery; that is usually a fine-grained category error rather than a safety error.
+- Chapter 4 should more explicitly describe how data was generated from `experiments/generate_dataset.py`: scenario themes -> nightmare contexts -> category-targeted rewriting actions -> boundary cases -> multipart cases -> prompt revisions after QC findings.
+- Boundary cases were planned deliberately, not discovered accidentally. They target six predefined clinical boundaries: `BEHAVIORAL_MASTERY` vs `VIOLENT_REVENGE`, `AVOIDANCE` vs `AFFECT_EXPRESSION`, `EMOTIONAL_MASTERY` vs `SUPPRESSION`, `NARRATIVE_SETTING` vs `TRAUMA_REPLAY`, `BEHAVIORAL_MASTERY` vs `AVOIDANCE`, and `BEHAVIORAL_MASTERY` vs `INTERRUPTION`.
 
 ## Dataset Quality Notes for Chapter 4
 
@@ -158,6 +160,16 @@ Held-out test set mitigation:
 - All valid `AFFECT_EXPRESSION` cases in the test set were manually reviewed by Ramon after excluding the buried-alive suite.
 - In the test set, the remaining concern is mostly ecological validity and fine-grained safe-node overlap with `EMOTIONAL_MASTERY`, not a clear binary safety disagreement with `TRAUMA_REPLAY`.
 - This supports using the test set and expert spot-check as the final validation layer rather than over-interpreting dev-set affect-expression errors.
+
+`AFFECT_EXPRESSION` / `EMOTIONAL_MASTERY` sensitivity:
+
+- Treat this honestly as an ontology/prompt-design limitation. The post-fix generation prompt for `AFFECT_EXPRESSION` requires emotional shift, which makes many generated examples read like `EMOTIONAL_MASTERY`.
+- Best framing: `AFFECT_EXPRESSION` is useful as a neutral segment label, but weak as a standalone primary rescripting category. In real IRT, patients usually express feelings together with an adaptive or maladaptive action.
+- If `AFFECT_EXPRESSION` and `EMOTIONAL_MASTERY` are collapsed for scoring:
+  - S1 consistency dev node accuracy: 328/420 (78.1%) -> 345/420 (82.1%).
+  - S2 consistency dev node accuracy: 336/420 (80.0%) -> 361/420 (86.0%).
+  - Post-fix held-out test CSV node accuracy: 220/273 (80.6%) -> 230/273 (84.2%).
+- This mainly affects strict primary-node accuracy and ontology granularity, not the binary safety conclusion.
 
 Suggested Chapter 4 wording:
 
@@ -278,6 +290,8 @@ For writing structure:
 - Draft Chapter 3.2 clinical development and validation sections.
 - Add clinical rationale behind the corrective mappings in 3.2 rather than overloading 3.1.3.
 - Replace remaining Chapter 3 figure placeholders with updated figures.
+- Expand Chapter 4's dataset-generation methodology, including prompt-driven generation and deliberately planned boundary cases.
+- Add Chapter 4 / discussion caveat on `AFFECT_EXPRESSION` as a weak standalone primary category, including the collapse sensitivity numbers above.
 - Decide how to handle or explain stale pre-change end-to-end eval outputs that used `AVOIDANCE` as moderate.
 - Regenerate the final end-to-end evaluation dataset after the current severity/constraint behavior is settled.
 - Continue ensuring every generated figure matches the current implementation before inserting it into LaTeX.

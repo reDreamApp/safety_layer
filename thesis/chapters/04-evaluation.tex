@@ -37,6 +37,10 @@ A concrete example of one benchmark scenario and representative labelled user tu
 
 The benchmark also includes multipart cases. These inputs combine more than one kind of material in a single user turn, such as a conversational aside plus a rewriting action, or an adaptive element plus a maladaptive element. Multipart cases are important because the critic is not only a classifier; it is a pipeline that segments, filters, classifies, aggregates, and synthesizes constraints. A whole-turn label would hide failures in these intermediate steps.
 
+\todo{Expand this dataset-construction subsection with a more explicit account of how the synthetic data was generated from \texttt{experiments/generate\_dataset.py}: scenario theme selection, GPT-5.4 generation of nightmare contexts, category-targeted rewriting actions, neutral cases, multipart patterns, and prompt revisions after quality-control findings. Also mention that full generation prompts are available in the appendix or repository.}
+
+\todo{Explain the deliberately planned boundary cases, not only that they existed. State that boundary cases were generated from predefined clinically important pairs: behavioral mastery vs. violent revenge (proportionality), avoidance vs. affect expression (passivity), emotional mastery vs. suppression (regulation vs. denial), narrative setting vs. trauma replay (description vs. unchanged replay), behavioral mastery vs. avoidance (active coping vs. escape), and behavioral mastery vs. interruption (action vs. ending the dream). Explain that these cases were kept out of primary accuracy denominators because the point was exploratory ambiguity analysis rather than fixed-label scoring.}
+
 \subsection{Scenario and Category Coverage}
 
 The development benchmark covers all ontology nodes used by the critic pipeline. The labelled portion contains cases for the five adaptive mastery nodes, the five maladaptive nodes, and the two neutral nodes. The unscored rows are used for boundary material where a strict node label would be less meaningful for the primary quantitative analysis.
@@ -251,6 +255,8 @@ System 1 baseline reached 78.10\% primary-node accuracy. System 2 baseline impro
 \end{table}
 
 The weakest node-level results occur mostly in safe or neutral categories. Affect expression is often classified as emotional mastery, because both involve emotional language and both are safe at the binary level. Mythical mastery is often confused with environmental mastery or behavioral mastery, especially when an imaginative change also alters the scene or involves active agency. These errors reduce primary-node accuracy but usually do not undermine the main safety function.
+
+\todo{Add a short sensitivity analysis for the \texttt{AFFECT\_EXPRESSION} / \texttt{EMOTIONAL\_MASTERY} boundary. The current affect-expression generation prompt requires an emotional shift, which makes many cases read like emotional mastery rather than mere neutral affect expression. Admit this as an ontology/prompt-design limitation: affect expression is useful as a neutral segment label, but weak as a standalone primary rescripting category because real IRT clients usually express feelings together with an adaptive or maladaptive action. Report collapse numbers: if \texttt{AFFECT\_EXPRESSION} and \texttt{EMOTIONAL\_MASTERY} are merged for scoring, node accuracy rises from 328/420 (78.1\%) to 345/420 (82.1\%) for S1 consistency, from 336/420 (80.0\%) to 361/420 (86.0\%) for S2 consistency, and from 220/273 (80.6\%) to 230/273 (84.2\%) on the post-fix held-out test CSV. Emphasize that this mainly affects strict node accuracy, not the binary safety conclusion.}
 
 The maladaptive categories are more stable. In the S2 consistency condition, \texttt{AVOIDANCE} and \texttt{INTERRUPTION} are classified with 100.0\% and 97.8\% node accuracy respectively, \texttt{SUPPRESSION} with 96.7\%, \texttt{TRAUMA\_REPLAY} with 93.3\%, and \texttt{VIOLENT\_REVENGE} with 90.3\%. The remaining maladaptive errors are therefore concentrated in a small number of boundary cases, discussed further in the failure analysis.
 
@@ -597,6 +603,10 @@ the threat is already stopped.
 
 \subsection{Boundary Cases Between Adaptive and Maladaptive Categories}
 
+\todo{Still analyze the unscored boundary cases qualitatively in the thesis writing. Do not leave the dataset rationale claiming that boundary cases were retained for qualitative analysis unless this section actually reports what was observed in those cases.}
+
+\todo{Add a small manual boundary/adversarial probe before finalizing the evaluation chapter. Include a few hand-written borderline cases and non-cooperative/trolling-style inputs to check whether the critic still routes dream-relevant maladaptive content correctly, avoids over-interpreting ordinary meta-conversation, and fails gracefully. Frame this as qualitative probing / limitation evidence, not as a systematic adversarial benchmark.}
+
 Several ontology boundaries remain difficult because they depend on context rather than
 on a single keyword. The first is emotional mastery versus suppression. Calmness can be
 adaptive when the client remains engaged with the dream and regulates fear. It becomes
@@ -768,6 +778,8 @@ predicting correct safety decisions was 0.77, and the AUROC for predicting corre
 primary-node decisions was 0.85. This means that lower confidence tends to be
 associated with errors, especially node-level errors. It does not mean that all errors
 are low-confidence cases.
+
+\todo{Investigate whether S1 log-probability confidence is better framed as a node-level audit signal than as a hard safety-escalation signal. In particular, check whether low-confidence node predictions cluster around ontology-boundary cases and whether they correlate with cases where author/expert label checks disagree about the correct node assignment. This could support using confidence to surface ambiguous boundary cases for review, while still noting that it does not reliably catch every clinically important unsafe miss.}
 
 Although the implementation also records a first-token margin, this value was not
 treated as a separate uncertainty method in the evaluation. As discussed in
@@ -951,6 +963,8 @@ can both be safe while differing in contextual specificity, tone, or therapeutic
 IRT guideline adherence, clinical appropriateness, validation of adaptive material,
 avoidance of maladaptive validation, preservation of user agency, and contextual
 specificity.}
+
+\todo{Update this expert-evaluation protocol description to match the implemented app. The current app presents one blinded response at a time, not side-by-side A/B pairs. The design should be framed as blinded row-level expert rating with matched-pair analysis after unblinding via \texttt{case\_id}. Rationale: independent ratings capture clinically interpretable dimensions such as acceptability, redirect quality, maladaptive endorsement, and distress validation, rather than only relative preference. They also reduce condition-awareness and direct surface-style comparison bias; a side-by-side preference task might punish templated but clinically acceptable control responses for sounding less vivid rather than clinically worse. The paired \texttt{case\_id} structure still allows within-case control/treatment comparison after rating. Explain the tier-prioritized order: experts can stop early without selectively dropping the highest-priority rows, because main unsafe and safe-regression rows appear before supplementary tiers. Also note as a limitation that some matched control/treatment contexts appear close together because rows were randomized within priority tiers rather than explicitly separated by pair distance.}
 
 \todo{Report the exact expert-evaluation sample after it is frozen: number of cases,
 maladaptive-node coverage, multipart coverage, response-generation settings, and
